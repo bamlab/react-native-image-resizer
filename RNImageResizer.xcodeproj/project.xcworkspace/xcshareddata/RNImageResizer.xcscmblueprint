@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "0D109C37DD8764732D9148B2C1B21C765B61E85B",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "0D109C37DD8764732D9148B2C1B21C765B61E85B" : 0,
+    "44AB18E9006B644ECA9DE92549E1AE9E7494A12E" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "40E1EF49-C975-4DF2-98BD-DECB0E0D09CA",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "0D109C37DD8764732D9148B2C1B21C765B61E85B" : "react-native-image-resizer\/",
+    "44AB18E9006B644ECA9DE92549E1AE9E7494A12E" : ".."
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "RNImageResizer",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "RNImageResizer.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/bamlab\/react-native-image-resizer",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "0D109C37DD8764732D9148B2C1B21C765B61E85B"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/bamlab\/chooz-it-app",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "44AB18E9006B644ECA9DE92549E1AE9E7494A12E"
+    }
+  ]
+}

@@ -1,0 +1,274 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		17C2CB6A1C0F979D00A087DF /* RNImageResizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 17C2CB691C0F979D00A087DF /* RNImageResizer.h */; };
+		17C2CB6C1C0F979D00A087DF /* RNImageResizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C2CB6B1C0F979D00A087DF /* RNImageResizer.m */; };
+		17C2CB8B1C0F9C0F00A087DF /* ImageHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C2CB891C0F9C0F00A087DF /* ImageHelpers.m */; };
+		17C2CB8C1C0F9C0F00A087DF /* ImageResizerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C2CB8A1C0F9C0F00A087DF /* ImageResizerModule.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		17C2CB641C0F979D00A087DF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				17C2CB6A1C0F979D00A087DF /* RNImageResizer.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		17C2CB661C0F979D00A087DF /* libRNImageResizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNImageResizer.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		17C2CB691C0F979D00A087DF /* RNImageResizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNImageResizer.h; sourceTree = "<group>"; };
+		17C2CB6B1C0F979D00A087DF /* RNImageResizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImageResizer.m; sourceTree = "<group>"; };
+		17C2CB881C0F9C0F00A087DF /* ImageHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
+		17C2CB891C0F9C0F00A087DF /* ImageHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageHelpers.m; sourceTree = "<group>"; };
+		17C2CB8A1C0F9C0F00A087DF /* ImageResizerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageResizerModule.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		17C2CB631C0F979D00A087DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		17C2CB5D1C0F979D00A087DF = {
+			isa = PBXGroup;
+			children = (
+				17C2CB681C0F979D00A087DF /* RNImageResizer */,
+				17C2CB671C0F979D00A087DF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		17C2CB671C0F979D00A087DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				17C2CB661C0F979D00A087DF /* libRNImageResizer.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		17C2CB681C0F979D00A087DF /* RNImageResizer */ = {
+			isa = PBXGroup;
+			children = (
+				17C2CB881C0F9C0F00A087DF /* ImageHelpers.h */,
+				17C2CB891C0F9C0F00A087DF /* ImageHelpers.m */,
+				17C2CB8A1C0F9C0F00A087DF /* ImageResizerModule.m */,
+				17C2CB691C0F979D00A087DF /* RNImageResizer.h */,
+				17C2CB6B1C0F979D00A087DF /* RNImageResizer.m */,
+			);
+			path = RNImageResizer;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		17C2CB651C0F979D00A087DF /* RNImageResizer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17C2CB6F1C0F979D00A087DF /* Build configuration list for PBXNativeTarget "RNImageResizer" */;
+			buildPhases = (
+				17C2CB621C0F979D00A087DF /* Sources */,
+				17C2CB631C0F979D00A087DF /* Frameworks */,
+				17C2CB641C0F979D00A087DF /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RNImageResizer;
+			productName = RNImageResizer;
+			productReference = 17C2CB661C0F979D00A087DF /* libRNImageResizer.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		17C2CB5E1C0F979D00A087DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = BAM;
+				TargetAttributes = {
+					17C2CB651C0F979D00A087DF = {
+						CreatedOnToolsVersion = 7.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 17C2CB611C0F979D00A087DF /* Build configuration list for PBXProject "RNImageResizer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 17C2CB5D1C0F979D00A087DF;
+			productRefGroup = 17C2CB671C0F979D00A087DF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				17C2CB651C0F979D00A087DF /* RNImageResizer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		17C2CB621C0F979D00A087DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17C2CB6C1C0F979D00A087DF /* RNImageResizer.m in Sources */,
+				17C2CB8B1C0F9C0F00A087DF /* ImageHelpers.m in Sources */,
+				17C2CB8C1C0F9C0F00A087DF /* ImageResizerModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		17C2CB6D1C0F979D00A087DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		17C2CB6E1C0F979D00A087DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		17C2CB701C0F979D00A087DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../React/**",
+					"$(SRCROOT)/../react-native/React/**",
+					"$(SRCROOT)/node_modules/react-native/React/**",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		17C2CB711C0F979D00A087DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../React/**",
+					"$(SRCROOT)/../react-native/React/**",
+					"$(SRCROOT)/node_modules/react-native/React/**",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17C2CB611C0F979D00A087DF /* Build configuration list for PBXProject "RNImageResizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17C2CB6D1C0F979D00A087DF /* Debug */,
+				17C2CB6E1C0F979D00A087DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17C2CB6F1C0F979D00A087DF /* Build configuration list for PBXNativeTarget "RNImageResizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17C2CB701C0F979D00A087DF /* Debug */,
+				17C2CB711C0F979D00A087DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 17C2CB5E1C0F979D00A087DF /* Project object */;
+}

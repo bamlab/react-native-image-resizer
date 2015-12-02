@@ -1,8 +1,7 @@
 {
-  "name": "rn-image-resizer",
+  "name": "react-native-image-resizer",
   "version": "0.0.1",
   "description": "Resize local images with React Native",
-  "main": "index.android.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,17 +9,22 @@
     "react-native",
     "react",
     "android",
-    "camera",
-    "camera-roll"
+    "ios",
+    "images",
+    "image",
+    "image-resizer",
+    "scaling",
+    "scale",
+    "resize"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/4ian/rn-image-resizer.git"
+    "url": "git+https://github.com/4ian/react-native-image-resizer.git"
   },
   "author": "Florian Rival <florianr@bamlab.fr> (http://bamlab.fr)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/4ian/rn-image-resizer/issues"
+    "url": "https://github.com/4ian/react-native-image-resizer/issues"
   },
-  "homepage": "https://github.com/4ian/rn-image-resizer#readme"
+  "homepage": "https://github.com/4ian/react-native-image-resizer#readme"
 }
