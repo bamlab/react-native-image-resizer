@@ -45,9 +45,18 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path width:(float)width height:
 
     // Ask for the "Asset" for the URL. An asset is a representation of an image in the Photo application.
     [library assetForURL:url resultBlock:^(ALAsset *asset) {
-        // Here, we have the asset, let's retrieve the image from it
-        CGImageRef imgRef = [[asset defaultRepresentation] fullResolutionImage];
-        UIImage * image = [UIImage imageWithCGImage:imgRef];
+        ALAssetRepresentation* representation = [asset defaultRepresentation];
+        
+        // Retrieve the image orientation from the ALAsset
+        UIImageOrientation orientation = UIImageOrientationUp;
+        NSNumber* orientationValue = [asset valueForProperty:@"ALAssetPropertyOrientation"];
+        if (orientationValue != nil) {
+            orientation = [orientationValue intValue];
+        }
+        
+        CGFloat scale  = 1;
+        UIImage* image = [UIImage imageWithCGImage:[representation fullResolutionImage]
+                                             scale:scale orientation:orientation];
 
         //Do the resizing
         UIImage * scaledImage = [image scaleToSize:newSize];
