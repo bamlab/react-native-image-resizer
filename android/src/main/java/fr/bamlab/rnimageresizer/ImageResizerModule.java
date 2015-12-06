@@ -32,23 +32,23 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void createResizedImage(String imagePath, int newWidth, int newHeight, String compressFormat,
-                            int quality, final Callback successCb, final Callback failureCb) {
+                            int quality, int rotation, final Callback successCb, final Callback failureCb) {
         try {
             createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality,
-                    successCb, failureCb);
+                    rotation, successCb, failureCb);
         } catch (IOException e) {
             failureCb.invoke(e.getMessage());
         }
     }
 
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
-                                           String compressFormatString, int quality,
+                                           String compressFormatString, int quality, int rotation,
                                            final Callback successCb, final Callback failureCb) throws IOException {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         imagePath = imagePath.replace("file:", "");
         String resizedImagePath = ImageResizer.createResizedImage(this.context, imagePath, newWidth,
-                newHeight, compressFormat, quality);
+                newHeight, compressFormat, quality, rotation);
 
-        successCb.invoke(resizedImagePath);
+        successCb.invoke("file:" + resizedImagePath);
     }
 }
