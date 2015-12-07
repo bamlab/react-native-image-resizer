@@ -16,18 +16,27 @@ import java.util.Date;
  * Created by almouro on 11/19/15.
  */
 class ImageResizer {
-    private static Bitmap resizeImage(String imagePath, int newWidth, int newHeight) {
-        try {
-            return ThumbnailUtils.extractThumbnail(
-                    BitmapFactory.decodeFile(imagePath),
-                    newWidth,
-                    newHeight
-            );
-        } catch (OutOfMemoryError ex) {
-            // We have no memory to rotate. Return the original bitmap.
-        }
 
-        return null;
+    private static Bitmap resizeImage(String imagePath, int maxWidth, int maxHeight) {
+        Bitmap image = BitmapFactory.decodeFile(imagePath);
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > 1) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
+        }
     }
 
     public static Bitmap rotateImage(Bitmap b, float degrees)
