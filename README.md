@@ -103,8 +103,12 @@ ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, q
 
 ## API
 
-### `promise createResizedImage(path, maxWidth, maxHeight, compressFormat, quality)`
+### `promise createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation = 0)`
 
-Open the image at the given path and resize it so that it is less than the specified `maxWidth` and `maxHeight` (i.e: ratio is preserved). `compressFormat` is either `JPEG`, `PNG` (android only) or `WEBP` (android only). Quality is a number between 0 and 100, used for the JPEG compression.
+Open the image at the given path and resize it so that it is less than the specified `maxWidth` and `maxHeight` (i.e: ratio is preserved). `compressFormat` is either `JPEG`, `PNG` (android only) or `WEBP` (android only).
+
+`quality` is a number between 0 and 100, used for the JPEG compression.
+
+`rotation` is the rotation to apply to the image, in degrees, for android only. On iOS, the resizing is done such that the orientation is always up.
 
 The promise resolves with a string containing the uri of the new file.
