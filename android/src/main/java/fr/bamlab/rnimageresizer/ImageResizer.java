@@ -20,6 +20,10 @@ class ImageResizer {
     private static Bitmap resizeImage(String imagePath, int maxWidth, int maxHeight) {
         try {
             Bitmap image = BitmapFactory.decodeFile(imagePath);
+            if (image == null) {
+                return null; // Can't load the image from the given path.
+            }
+
             if (maxHeight > 0 && maxWidth > 0) {
                 int width = image.getWidth();
                 int height = image.getHeight();
@@ -34,10 +38,9 @@ class ImageResizer {
                     finalHeight = (int) ((float) maxWidth / ratioBitmap);
                 }
                 image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-                return image;
-            } else {
-                return image;
             }
+
+            return image;
         } catch (OutOfMemoryError ex) {
             // No memory available for resizing.
         }
