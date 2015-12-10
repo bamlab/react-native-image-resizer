@@ -18,25 +18,31 @@ import java.util.Date;
 class ImageResizer {
 
     private static Bitmap resizeImage(String imagePath, int maxWidth, int maxHeight) {
-        Bitmap image = BitmapFactory.decodeFile(imagePath);
-        if (maxHeight > 0 && maxWidth > 0) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-            float ratioBitmap = (float) width / (float) height;
-            float ratioMax = (float) maxWidth / (float) maxHeight;
+        try {
+            Bitmap image = BitmapFactory.decodeFile(imagePath);
+            if (maxHeight > 0 && maxWidth > 0) {
+                int width = image.getWidth();
+                int height = image.getHeight();
+                float ratioBitmap = (float) width / (float) height;
+                float ratioMax = (float) maxWidth / (float) maxHeight;
 
-            int finalWidth = maxWidth;
-            int finalHeight = maxHeight;
-            if (ratioMax > 1) {
-                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+                int finalWidth = maxWidth;
+                int finalHeight = maxHeight;
+                if (ratioMax > 1) {
+                    finalWidth = (int) ((float) maxHeight * ratioBitmap);
+                } else {
+                    finalHeight = (int) ((float) maxWidth / ratioBitmap);
+                }
+                image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+                return image;
             } else {
-                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+                return image;
             }
-            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-            return image;
-        } else {
-            return image;
+        } catch (OutOfMemoryError ex) {
+            // No memory available for resizing.
         }
+
+        return null;
     }
 
     public static Bitmap rotateImage(Bitmap b, float degrees)
@@ -53,7 +59,7 @@ class ImageResizer {
                     b = b2;
                 }
             } catch (OutOfMemoryError ex) {
-                // We have no memory to rotate. Return the original bitmap.
+                // No memory available for rotating. Return the original bitmap.
             }
         }
         return b;
