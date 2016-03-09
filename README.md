@@ -94,7 +94,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
 ## Usage example
 
 ```javascript
-var ImageResizer = require('react-native-image-resizer');
+import ImageResizer from 'react-native-image-resizer';
 
 ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, quality).then((resizedImageUri) => {
   // resizeImageUri is the URI of the new image that can now be displayed, uploaded...
