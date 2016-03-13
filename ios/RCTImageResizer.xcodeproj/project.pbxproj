@@ -7,36 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		17C2CB6A1C0F979D00A087DF /* RNImageResizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 17C2CB691C0F979D00A087DF /* RNImageResizer.h */; };
-		17C2CB6C1C0F979D00A087DF /* RNImageResizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C2CB6B1C0F979D00A087DF /* RNImageResizer.m */; };
-		17C2CB8B1C0F9C0F00A087DF /* ImageHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C2CB891C0F9C0F00A087DF /* ImageHelpers.m */; };
-		17C2CB8C1C0F9C0F00A087DF /* ImageResizerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 17C2CB8A1C0F9C0F00A087DF /* ImageResizerModule.m */; };
+		5D72D2EC1C16249000E22EC1 /* RCTImageResizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */; };
+		5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */; };
+		B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		17C2CB641C0F979D00A087DF /* CopyFiles */ = {
+		5D72D2E61C16249000E22EC1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				17C2CB6A1C0F979D00A087DF /* RNImageResizer.h in CopyFiles */,
+				5D72D2EC1C16249000E22EC1 /* RCTImageResizer.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		17C2CB661C0F979D00A087DF /* libRNImageResizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNImageResizer.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		17C2CB691C0F979D00A087DF /* RNImageResizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNImageResizer.h; sourceTree = "<group>"; };
-		17C2CB6B1C0F979D00A087DF /* RNImageResizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImageResizer.m; sourceTree = "<group>"; };
-		17C2CB881C0F9C0F00A087DF /* ImageHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
-		17C2CB891C0F9C0F00A087DF /* ImageHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageHelpers.m; sourceTree = "<group>"; };
-		17C2CB8A1C0F9C0F00A087DF /* ImageResizerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageResizerModule.m; sourceTree = "<group>"; };
+		5D72D2E81C16249000E22EC1 /* libRCTImageResizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTImageResizer.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTImageResizer.h; sourceTree = "<group>"; };
+		5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTImageResizer.m; sourceTree = "<group>"; };
+		B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
+		B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageHelpers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		17C2CB631C0F979D00A087DF /* Frameworks */ = {
+		5D72D2E51C16249000E22EC1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,100 +44,98 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		17C2CB5D1C0F979D00A087DF = {
+		5D72D2DF1C16249000E22EC1 = {
 			isa = PBXGroup;
 			children = (
-				17C2CB681C0F979D00A087DF /* RNImageResizer */,
-				17C2CB671C0F979D00A087DF /* Products */,
+				5D72D2EA1C16249000E22EC1 /* RCTImageResizer */,
+				5D72D2E91C16249000E22EC1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		17C2CB671C0F979D00A087DF /* Products */ = {
+		5D72D2E91C16249000E22EC1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				17C2CB661C0F979D00A087DF /* libRNImageResizer.a */,
+				5D72D2E81C16249000E22EC1 /* libRCTImageResizer.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		17C2CB681C0F979D00A087DF /* RNImageResizer */ = {
+		5D72D2EA1C16249000E22EC1 /* RCTImageResizer */ = {
 			isa = PBXGroup;
 			children = (
-				17C2CB881C0F9C0F00A087DF /* ImageHelpers.h */,
-				17C2CB891C0F9C0F00A087DF /* ImageHelpers.m */,
-				17C2CB8A1C0F9C0F00A087DF /* ImageResizerModule.m */,
-				17C2CB691C0F979D00A087DF /* RNImageResizer.h */,
-				17C2CB6B1C0F979D00A087DF /* RNImageResizer.m */,
+				5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */,
+				5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */,
+				B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */,
+				B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */,
 			);
-			path = RNImageResizer;
+			path = RCTImageResizer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		17C2CB651C0F979D00A087DF /* RNImageResizer */ = {
+		5D72D2E71C16249000E22EC1 /* RCTImageResizer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 17C2CB6F1C0F979D00A087DF /* Build configuration list for PBXNativeTarget "RNImageResizer" */;
+			buildConfigurationList = 5D72D2F11C16249000E22EC1 /* Build configuration list for PBXNativeTarget "RCTImageResizer" */;
 			buildPhases = (
-				17C2CB621C0F979D00A087DF /* Sources */,
-				17C2CB631C0F979D00A087DF /* Frameworks */,
-				17C2CB641C0F979D00A087DF /* CopyFiles */,
+				5D72D2E41C16249000E22EC1 /* Sources */,
+				5D72D2E51C16249000E22EC1 /* Frameworks */,
+				5D72D2E61C16249000E22EC1 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = RNImageResizer;
-			productName = RNImageResizer;
-			productReference = 17C2CB661C0F979D00A087DF /* libRNImageResizer.a */;
+			name = RCTImageResizer;
+			productName = RCTImageResizer;
+			productReference = 5D72D2E81C16249000E22EC1 /* libRCTImageResizer.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		17C2CB5E1C0F979D00A087DF /* Project object */ = {
+		5D72D2E01C16249000E22EC1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0710;
-				ORGANIZATIONNAME = BAM;
+				ORGANIZATIONNAME = "Atticus White";
 				TargetAttributes = {
-					17C2CB651C0F979D00A087DF = {
+					5D72D2E71C16249000E22EC1 = {
 						CreatedOnToolsVersion = 7.1.1;
 					};
 				};
 			};
-			buildConfigurationList = 17C2CB611C0F979D00A087DF /* Build configuration list for PBXProject "RNImageResizer" */;
+			buildConfigurationList = 5D72D2E31C16249000E22EC1 /* Build configuration list for PBXProject "RCTImageResizer" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 17C2CB5D1C0F979D00A087DF;
-			productRefGroup = 17C2CB671C0F979D00A087DF /* Products */;
+			mainGroup = 5D72D2DF1C16249000E22EC1;
+			productRefGroup = 5D72D2E91C16249000E22EC1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				17C2CB651C0F979D00A087DF /* RNImageResizer */,
+				5D72D2E71C16249000E22EC1 /* RCTImageResizer */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		17C2CB621C0F979D00A087DF /* Sources */ = {
+		5D72D2E41C16249000E22EC1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				17C2CB6C1C0F979D00A087DF /* RNImageResizer.m in Sources */,
-				17C2CB8B1C0F9C0F00A087DF /* ImageHelpers.m in Sources */,
-				17C2CB8C1C0F9C0F00A087DF /* ImageResizerModule.m in Sources */,
+				5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */,
+				B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		17C2CB6D1C0F979D00A087DF /* Debug */ = {
+		5D72D2EF1C16249000E22EC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -182,7 +178,7 @@
 			};
 			name = Debug;
 		};
-		17C2CB6E1C0F979D00A087DF /* Release */ = {
+		5D72D2F01C16249000E22EC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -219,13 +215,14 @@
 			};
 			name = Release;
 		};
-		17C2CB701C0F979D00A087DF /* Debug */ = {
+		5D72D2F21C16249000E22EC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../React/**",
-					"$(SRCROOT)/../react-native/React/**",
-					"$(SRCROOT)/node_modules/react-native/React/**",
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../react-native/Libraries/**",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -233,13 +230,14 @@
 			};
 			name = Debug;
 		};
-		17C2CB711C0F979D00A087DF /* Release */ = {
+		5D72D2F31C16249000E22EC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../React/**",
-					"$(SRCROOT)/../react-native/React/**",
-					"$(SRCROOT)/node_modules/react-native/React/**",
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../react-native/Libraries/**",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -250,25 +248,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		17C2CB611C0F979D00A087DF /* Build configuration list for PBXProject "RNImageResizer" */ = {
+		5D72D2E31C16249000E22EC1 /* Build configuration list for PBXProject "RCTImageResizer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				17C2CB6D1C0F979D00A087DF /* Debug */,
-				17C2CB6E1C0F979D00A087DF /* Release */,
+				5D72D2EF1C16249000E22EC1 /* Debug */,
+				5D72D2F01C16249000E22EC1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		17C2CB6F1C0F979D00A087DF /* Build configuration list for PBXNativeTarget "RNImageResizer" */ = {
+		5D72D2F11C16249000E22EC1 /* Build configuration list for PBXNativeTarget "RCTImageResizer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				17C2CB701C0F979D00A087DF /* Debug */,
-				17C2CB711C0F979D00A087DF /* Release */,
+				5D72D2F21C16249000E22EC1 /* Debug */,
+				5D72D2F31C16249000E22EC1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 17C2CB5E1C0F979D00A087DF /* Project object */;
+	rootObject = 5D72D2E01C16249000E22EC1 /* Project object */;
 }
