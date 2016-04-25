@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -100,6 +101,35 @@ class ImageResizer {
                                             int quality, int rotation) throws IOException {
 
         Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight), rotation);
+        return ImageResizer.saveImage(resizedImage, context.getCacheDir(),
+                Long.toString(new Date().getTime()), compressFormat, quality);
+    }
+
+    public static String createResizedImageUsingOrientation(Context context, String imagePath, int newWidth,
+                                                            int newHeight, Bitmap.CompressFormat compressFormat,
+                                                            int quality, int rotation) throws IOException {
+
+        int orientationRotation = 0;
+        File imageFile = new File(imagePath);
+
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                orientationRotation = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                orientationRotation = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                orientationRotation = 270;
+                break;
+        }
+
+        orientationRotation = orientationRotation + rotation;
+
+        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight), orientationRotation);
         return ImageResizer.saveImage(resizedImage, context.getCacheDir(),
                 Long.toString(new Date().getTime()), compressFormat, quality);
     }
