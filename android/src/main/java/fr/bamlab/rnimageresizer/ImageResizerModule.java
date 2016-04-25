@@ -41,12 +41,34 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void createResizedImageUsingOrientation(String imagePath, int newWidth, int newHeight, String compressFormat,
+                            int quality, int rotation, final Callback successCb, final Callback failureCb) {
+        try {
+            createResizedImageUsingOrientationWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality,
+                    rotation, successCb, failureCb);
+        } catch (IOException e) {
+            failureCb.invoke(e.getMessage());
+        }
+    }
+
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
                                            String compressFormatString, int quality, int rotation,
                                            final Callback successCb, final Callback failureCb) throws IOException {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         imagePath = imagePath.replace("file:", "");
         String resizedImagePath = ImageResizer.createResizedImage(this.context, imagePath, newWidth,
+                newHeight, compressFormat, quality, rotation);
+
+        successCb.invoke("file:" + resizedImagePath);
+    }
+
+    private void createResizedImageUsingOrientationWithExceptions(String imagePath, int newWidth, int newHeight,
+                                           String compressFormatString, int quality, int rotation,
+                                           final Callback successCb, final Callback failureCb) throws IOException {
+        Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
+        imagePath = imagePath.replace("file:", "");
+        String resizedImagePath = ImageResizer.createResizedImageUsingOrientation(this.context, imagePath, newWidth,
                 newHeight, compressFormat, quality, rotation);
 
         successCb.invoke("file:" + resizedImagePath);
