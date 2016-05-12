@@ -40,7 +40,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   callback:(RCTResponseSenderBlock)callback)
 {
     CGSize newSize = CGSizeMake(width, height);
-    NSString* fullPath = generateCacheFilePath(@".jpg");
+    NSString* fullPath = generateCacheFilePath(@"jpg");
 
     [_bridge.imageLoader loadImageWithTag:path callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
