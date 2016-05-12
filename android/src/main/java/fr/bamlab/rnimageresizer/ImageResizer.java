@@ -112,7 +112,7 @@ class ImageResizer {
 
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation) {
+                                            int quality, int rotation) throws IOException{
 
         Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight,context), rotation);
         return ImageResizer.saveImage(resizedImage, context.getCacheDir(),
