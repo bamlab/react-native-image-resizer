@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 
 import java.io.ByteArrayOutputStream;
@@ -56,10 +55,8 @@ class ImageResizer {
             return image;
         }catch (IOException ex) {
              // No memory available for resizing.
-        }catch (OutOfMemoryError ex) {
-            // No memory available for resizing.
         }
-
+        
         return null;
     }
 
@@ -112,7 +109,7 @@ class ImageResizer {
 
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation) throws IOException{
+                                            int quality, int rotation) throws IOException  {
 
         Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight,context), rotation);
         return ImageResizer.saveImage(resizedImage, context.getCacheDir(),
