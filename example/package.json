@@ -9,6 +9,6 @@
     "react": "^0.14.8",
     "react-native": "^0.25.1",
     "react-native-gifted-spinner": "0.0.4",
-    "react-native-image-resizer": "bamlab/react-native-image-resizer#master"
+    "react-native-image-resizer": "0.0.3"
   }
 }
