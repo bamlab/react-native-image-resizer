@@ -6,16 +6,23 @@ A React Native module that can create scaled versions of local images (also supp
 
 First, install the package:
 ```
-npm install react-native-image-resizer
+npm install react-native-image-resizer --save
 ```
 
-Then, follow those instructions:
+### Automatic installation (iOS and Android)
 
-### iOS
+Use [rnpm](https://github.com/rnpm/rnpm):
+
+```
+npm install rnpm -g
+rnpm link
+```
+
+### Manual installation for iOS
 
 You need to add `RNImageResizer.xcodeproj` to **Libraries** and add `libRNImageResizer.a` to **Link Binary With Libraries** under **Build Phases**. [More info and screenshots about how to do this is available in the React Native documentation](http://facebook.github.io/react-native/docs/linking-libraries-ios.html#content).
 
-### Android
+### Manual installation for Android
 
 #### Update your gradle files
 
