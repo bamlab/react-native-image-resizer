@@ -105,8 +105,15 @@ import ImageResizer from 'react-native-image-resizer';
 
 ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, quality).then((resizedImageUri) => {
   // resizeImageUri is the URI of the new image that can now be displayed, uploaded...
+}).catch((err) => {
+  // Oops, something went wrong. Check that the filename is correct and
+  // inspect err to get more details.
 });
 ```
+
+### Sample app
+
+A basic, sample app is available in [the `example` folder](https://github.com/bamlab/react-native-image-resizer/tree/master/example). It uses the module to resize a photo from the Camera Roll.
 
 ## API
 
