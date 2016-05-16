@@ -1,14 +1,16 @@
 package fr.bamlab.rnimageresizer;
 
 import android.content.Context;
+import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ThumbnailUtils;
+import android.net.Uri;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.Date;
 
@@ -17,9 +19,19 @@ import java.util.Date;
  */
 class ImageResizer {
 
-    private static Bitmap resizeImage(String imagePath, int maxWidth, int maxHeight) {
+    private static Bitmap resizeImage(String imagePath, int maxWidth, int maxHeight, Context context) {
         try {
-            Bitmap image = BitmapFactory.decodeFile(imagePath);
+            Bitmap image;
+            if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
+                image = BitmapFactory.decodeFile(imagePath);
+            } else {
+                ContentResolver cr = context.getContentResolver();
+                Uri url = Uri.parse(imagePath);
+                InputStream input = cr.openInputStream(url);
+                image = BitmapFactory.decodeStream(input);
+                input.close();
+            }
+ 
             if (image == null) {
                 return null; // Can't load the image from the given path.
             }
@@ -41,10 +53,10 @@ class ImageResizer {
             }
 
             return image;
-        } catch (OutOfMemoryError ex) {
-            // No memory available for resizing.
+        }catch (IOException ex) {
+             // No memory available for resizing.
         }
-
+        
         return null;
     }
 
@@ -97,9 +109,9 @@ class ImageResizer {
 
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation) throws IOException {
+                                            int quality, int rotation) throws IOException  {
 
-        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight), rotation);
+        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight,context), rotation);
         return ImageResizer.saveImage(resizedImage, context.getCacheDir(),
                 Long.toString(new Date().getTime()), compressFormat, quality);
     }

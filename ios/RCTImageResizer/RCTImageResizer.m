@@ -40,11 +40,16 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   callback:(RCTResponseSenderBlock)callback)
 {
     CGSize newSize = CGSizeMake(width, height);
-    NSString* fullPath = generateCacheFilePath(@".jpg");
+    NSString* fullPath = generateCacheFilePath(@"jpg");
 
     [_bridge.imageLoader loadImageWithTag:path callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
-            image = [[UIImage alloc] initWithContentsOfFile:path];
+            if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
+                NSURL *imageUrl = [[NSURL alloc] initWithString:path];
+                image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageUrl]];
+            } else {
+                image = [[UIImage alloc] initWithContentsOfFile:path];
+            }
             if (image == nil) {
                 callback(@[@"Can't retrieve the file from the path.", @""]);
                 return;
