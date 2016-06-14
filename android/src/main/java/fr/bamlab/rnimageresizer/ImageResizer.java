@@ -31,24 +31,19 @@ class ImageResizer {
                 image = BitmapFactory.decodeStream(input);
                 input.close();
             }
- 
+
             if (image == null) {
                 return null; // Can't load the image from the given path.
             }
 
             if (maxHeight > 0 && maxWidth > 0) {
-                int width = image.getWidth();
-                int height = image.getHeight();
-                float ratioBitmap = (float) width / (float) height;
-                float ratioMax = (float) maxWidth / (float) maxHeight;
+                float width = image.getWidth();
+                float height = image.getHeight();
 
-                int finalWidth = maxWidth;
-                int finalHeight = maxHeight;
-                if (ratioMax > 1) {
-                    finalWidth = (int) ((float) maxHeight * ratioBitmap);
-                } else {
-                    finalHeight = (int) ((float) maxWidth / ratioBitmap);
-                }
+                float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+
+                int finalWidth = (int) (width * ratio);
+                int finalHeight = (int) (height * ratio);
                 image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
             }
 
@@ -56,7 +51,7 @@ class ImageResizer {
         }catch (IOException ex) {
              // No memory available for resizing.
         }
-        
+
         return null;
     }
 
