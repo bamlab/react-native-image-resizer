@@ -3,13 +3,13 @@ import {
 } from 'react-native';
 
 export default {
-  createResizedImage: (path, outputPath, width, height, format, quality) => {
+  createResizedImage: (path, width, height, format, quality, rotation = 0, outputPath) => {
     if (format !== 'JPEG') {
       throw new Error('Only JPEG format is supported by createResizedImage');
     }
 
     return new Promise((resolve, reject) => {
-      NativeModules.ImageResizer.createResizedImage(path, outputPath, width, height, quality, (err, resizedPath) => {
+      NativeModules.ImageResizer.createResizedImage(path, width, height, quality, outputPath, (err, resizedPath) => {
         if (err) {
           return reject(err);
         }

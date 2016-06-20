@@ -41,10 +41,10 @@ NSString * generateFilePath(NSString * ext, NSString * outputPath)
 }
 
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
-                  outputPath:(NSString *)outputPath
                   width:(float)width
                   height:(float)height
                   quality:(float)quality
+                  outputPath:(NSString *)outputPath
                   callback:(RCTResponseSenderBlock)callback)
 {
     CGSize newSize = CGSizeMake(width, height);

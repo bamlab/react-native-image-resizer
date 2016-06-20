@@ -102,11 +102,11 @@ class ImageResizer {
         return newFile.getAbsolutePath();
     }
 
-    public static String createResizedImage(Context context, String imagePath, String outputPath, int newWidth,
+    public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation) throws IOException  {
+                                            int quality, int rotation, String outputPath) throws IOException  {
 
-        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight,context), rotation);
+        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight, context), rotation);
 
         File path = context.getCacheDir();
         if (outputPath != null || !outputPath.isEmpty()) {

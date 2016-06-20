@@ -31,23 +31,23 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createResizedImage(String imagePath, String outputPath, int newWidth, int newHeight, String compressFormat,
-                            int quality, int rotation, final Callback successCb, final Callback failureCb) {
+    public void createResizedImage(String imagePath, int newWidth, int newHeight, String compressFormat,
+                            int quality, int rotation, String outputPath, final Callback successCb, final Callback failureCb) {
         try {
-            createResizedImageWithExceptions(imagePath, outputPath, newWidth, newHeight, compressFormat, quality,
-                    rotation, successCb, failureCb);
+            createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality,
+                    rotation, outputPath, successCb, failureCb);
         } catch (IOException e) {
             failureCb.invoke(e.getMessage());
         }
     }
 
-    private void createResizedImageWithExceptions(String imagePath, String outputPath, int newWidth, int newHeight,
-                                           String compressFormatString, int quality, int rotation,
+    private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
+                                           String compressFormatString, int quality, int rotation, String outputPath,
                                            final Callback successCb, final Callback failureCb) throws IOException {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         imagePath = imagePath.replace("file:", "");
-        String resizedImagePath = ImageResizer.createResizedImage(this.context, imagePath, outputPath, newWidth,
-                newHeight, compressFormat, quality, rotation);
+        String resizedImagePath = ImageResizer.createResizedImage(this.context, imagePath, newWidth,
+                newHeight, compressFormat, quality, rotation, outputPath);
 
         successCb.invoke("file:" + resizedImagePath);
     }
