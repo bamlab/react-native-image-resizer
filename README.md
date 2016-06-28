@@ -103,7 +103,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
 ```javascript
 import ImageResizer from 'react-native-image-resizer';
 
-ImageResizer.createResizedImage(imageUri, outputPath, newWidth, newHeight, compressFormat, quality).then((resizedImageUri) => {
+ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, quality, rotation, outputPath).then((resizedImageUri) => {
   // resizeImageUri is the URI of the new image that can now be displayed, uploaded...
 }).catch((err) => {
   // Oops, something went wrong. Check that the filename is correct and
@@ -117,7 +117,7 @@ A basic, sample app is available in [the `example` folder](https://github.com/ba
 
 ## API
 
-### `promise createResizedImage(path, outputPath, maxWidth, maxHeight, compressFormat, quality, rotation = 0)`
+### `promise createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation = 0, outputPath)`
 
 The promise resolves with a string containing the uri of the new file.
 
