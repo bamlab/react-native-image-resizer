@@ -104,10 +104,16 @@ class ImageResizer {
 
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation) throws IOException  {
+                                            int quality, int rotation, String outputPath) throws IOException  {
 
-        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight,context), rotation);
-        return ImageResizer.saveImage(resizedImage, context.getCacheDir(),
+        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight, context), rotation);
+
+        File path = context.getCacheDir();
+        if (outputPath != null || !outputPath.isEmpty()) {
+          path = new File(outputPath);
+        }
+
+        return ImageResizer.saveImage(resizedImage, path,
                 Long.toString(new Date().getTime()), compressFormat, quality);
     }
 }

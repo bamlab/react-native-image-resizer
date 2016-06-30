@@ -103,7 +103,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
 ```javascript
 import ImageResizer from 'react-native-image-resizer';
 
-ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, quality).then((resizedImageUri) => {
+ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, quality, rotation, outputPath).then((resizedImageUri) => {
   // resizeImageUri is the URI of the new image that can now be displayed, uploaded...
 }).catch((err) => {
   // Oops, something went wrong. Check that the filename is correct and
@@ -117,12 +117,16 @@ A basic, sample app is available in [the `example` folder](https://github.com/ba
 
 ## API
 
-### `promise createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation = 0)`
-
-Open the image at the given path and resize it so that it is less than the specified `maxWidth` and `maxHeight` (i.e: ratio is preserved). `compressFormat` is either `JPEG`, `PNG` (android only) or `WEBP` (android only).
-
-`quality` is a number between 0 and 100, used for the JPEG compression.
-
-`rotation` is the rotation to apply to the image, in degrees, for android only. On iOS, the resizing is done such that the orientation is always up.
+### `promise createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation = 0, outputPath)`
 
 The promise resolves with a string containing the uri of the new file.
+
+Option | Description
+------ | -----------
+path | Path of image
+maxWidth | Image max width (ratio is preserved)
+maxHeight | Image max height (ratio is preserved)
+compressFormat | Can be either JPEG, PNG (android only) or WEBP (android only).
+quality | A number between 0 and 100. Used for the JPEG compression.
+rotation | Rotation to apply to the image, in degrees, for android only. On iOS, the resizing is done such that the orientation is always up.
+outputPath | The resized image path. If null, resized image will be stored in cache folder. To set outputPath make sure to add option for rotation too (if no rotation is needed, just set it to 0).
