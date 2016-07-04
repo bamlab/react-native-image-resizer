@@ -55,24 +55,17 @@ class ImageResizer {
         return null;
     }
 
-    public static Bitmap rotateImage(Bitmap b, float degrees)
+    public static Bitmap rotateImage(Bitmap source, float angle)
     {
-        if (degrees != 0 && b != null) {
-            Matrix m = new Matrix();
-            m.setRotate(degrees,
-                    (float) b.getWidth() / 2, (float) b.getHeight() / 2);
-            try {
-                Bitmap b2 = Bitmap.createBitmap(
-                        b, 0, 0, b.getWidth(), b.getHeight(), m, true);
-                if (b != b2) {
-                    b.recycle();
-                    b = b2;
-                }
-            } catch (OutOfMemoryError ex) {
-                // No memory available for rotating. Return the original bitmap.
-            }
-        }
-        return b;
+        Bitmap retVal;
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        //for memory purposes
+        b.recycle();
+
+        return retVal;
     }
 
     private static String saveImage(Bitmap bitmap, File saveDirectory, String fileName,
