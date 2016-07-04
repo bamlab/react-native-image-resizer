@@ -63,7 +63,7 @@ class ImageResizer {
         matrix.postRotate(angle);
         retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
         //for memory purposes
-        b.recycle();
+        source.recycle();
 
         return retVal;
     }
