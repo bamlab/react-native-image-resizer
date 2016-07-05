@@ -19,40 +19,24 @@ import java.util.Date;
  */
 class ImageResizer {
 
-    private static Bitmap resizeImage(String imagePath, int maxWidth, int maxHeight, Context context) {
-        try {
-            Bitmap image;
-            if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
-                image = BitmapFactory.decodeFile(imagePath);
-            } else {
-                ContentResolver cr = context.getContentResolver();
-                Uri url = Uri.parse(imagePath);
-                InputStream input = cr.openInputStream(url);
-                image = BitmapFactory.decodeStream(input);
-                input.close();
-            }
+    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight, Context context) {
 
-            if (image == null) {
-                return null; // Can't load the image from the given path.
-            }
-
-            if (maxHeight > 0 && maxWidth > 0) {
-                float width = image.getWidth();
-                float height = image.getHeight();
-
-                float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
-
-                int finalWidth = (int) (width * ratio);
-                int finalHeight = (int) (height * ratio);
-                image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-            }
-
-            return image;
-        }catch (IOException ex) {
-             // No memory available for resizing.
+        if (image == null) {
+            return null; // Can't load the image from the given path.
         }
 
-        return null;
+        if (maxHeight > 0 && maxWidth > 0) {
+            float width = image.getWidth();
+            float height = image.getHeight();
+
+            float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+
+            int finalWidth = (int) (width * ratio);
+            int finalHeight = (int) (height * ratio);
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+        }
+
+        return image;
     }
 
     public static Bitmap rotateImage(Bitmap source, float angle)
@@ -99,7 +83,21 @@ class ImageResizer {
                                             int newHeight, Bitmap.CompressFormat compressFormat,
                                             int quality, int rotation, String outputPath) throws IOException  {
 
-        Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight, context), rotation);
+        Bitmap image;
+        if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
+            image = BitmapFactory.decodeFile(imagePath);
+        } else {
+            ContentResolver cr = context.getContentResolver();
+            Uri url = Uri.parse(imagePath);
+            InputStream input = cr.openInputStream(url);
+            image = BitmapFactory.decodeStream(input);
+            input.close();
+        }
+        
+        //resize
+        image = ImageResizer.resizeImage(image, newWidth, newHeight, context);
+        //rotate
+        image = Bitmap resizedImage = ImageResizer.rotateImage(image, rotation);
 
         File path = context.getCacheDir();
         if (outputPath != null ) {
