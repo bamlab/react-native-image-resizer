@@ -50,7 +50,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
     CGSize newSize = CGSizeMake(width, height);
     NSString* fullPath = generateFilePath(@"jpg", outputPath);
 
-    [_bridge.imageLoader loadImageWithTag:path callback:^(NSError *error, UIImage *image) {
+    [_bridge.imageLoader loadImageWithURLRequest:path callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
                 NSURL *imageUrl = [[NSURL alloc] initWithString:path];
