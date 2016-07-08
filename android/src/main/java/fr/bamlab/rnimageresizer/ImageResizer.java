@@ -109,7 +109,7 @@ class ImageResizer {
         Bitmap resizedImage = ImageResizer.rotateImage(ImageResizer.resizeImage(imagePath, newWidth, newHeight, context), rotation);
 
         File path = context.getCacheDir();
-        if (outputPath != null || !outputPath.isEmpty()) {
+        if (outputPath != null) {
           path = new File(outputPath);
         }
 
