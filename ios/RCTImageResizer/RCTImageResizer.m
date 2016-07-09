@@ -56,7 +56,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
 
     NSURLRequest *request = [NSURLRequest requestWithURL:fileUrl];
 
-    [_bridge.imageLoader loadImageWithURLRequest:path callback:^(NSError *error, UIImage *image) {
+    [_bridge.imageLoader loadImageWithURLRequest:request callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
                 NSURL *imageUrl = [[NSURL alloc] initWithString:path];
