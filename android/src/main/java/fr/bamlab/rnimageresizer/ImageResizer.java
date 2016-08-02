@@ -27,6 +27,7 @@ import java.util.Date;
 class ImageResizer {
 
     private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight, Context context) {
+        Bitmap newImage;
 
         if (image == null) {
             return null; // Can't load the image from the given path.
@@ -40,10 +41,10 @@ class ImageResizer {
 
             int finalWidth = (int) (width * ratio);
             int finalHeight = (int) (height * ratio);
-            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
         }
 
-        return image;
+        return newImage;
     }
 
     public static Bitmap rotateImage(Bitmap source, float angle)
@@ -53,11 +54,6 @@ class ImageResizer {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-        //for memory purposes
-        if (retVal != source){
-        	source.recycle();
-        }
-
         return retVal;
     }
 
@@ -122,45 +118,35 @@ class ImageResizer {
 
 
     /**
-     * Rotate the given image by reading the Exif value of the image (uri).<br>
-     * If no rotation is required the image will not be rotated.<br>
-     * New bitmap is created and the old one is recycled.
+     * Get orientation by reading Image metadata
      */
-    public static int getOrientation(Bitmap bitmap, Context context, Uri uri) {
+    public static int getOrientation(Context context, Uri uri) {
         try {
             File file = getFileFromUri(context, uri);
             if (file.exists()) {
                 ExifInterface ei = new ExifInterface(file.getAbsolutePath());
-                return getOrientation(bitmap, ei);
+                return getOrientation(ei);
             }
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) { }
+
         return 0;
     }
 
     /**
-     * Rotate the given image by given Exif value.<br>
-     * If no rotation is required the image will not be rotated.<br>
-     * New bitmap is created and the old one is recycled.
+     * Convert metadata to degrees
      */
-    public static int getOrientation(Bitmap bitmap, ExifInterface exif) {
-        int degrees;
+    public static int getOrientation(ExifInterface exif) {
         int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         switch (orientation) {
             case ExifInterface.ORIENTATION_ROTATE_90:
-                degrees = 90;
-                break;
+                return 90;
             case ExifInterface.ORIENTATION_ROTATE_180:
-                degrees = 180;
-                break;
+                return 180;
             case ExifInterface.ORIENTATION_ROTATE_270:
-                degrees = 270;
-                break;
+                return 270;
             default:
-                degrees = 0;
-                break;
+                return 0;
         }
-        return degrees;
     }
 
     public static String createResizedImage(Context context, String imagePath, int newWidth,
@@ -169,31 +155,44 @@ class ImageResizer {
 
 
 
-        Bitmap image;
+        Bitmap sourceImage;
         if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
-            image = BitmapFactory.decodeFile(imagePath);
+            sourceImage = BitmapFactory.decodeFile(imagePath);
         } else {
             ContentResolver cr = context.getContentResolver();
             Uri url = Uri.parse(imagePath);
             InputStream input = cr.openInputStream(url);
-            image = BitmapFactory.decodeStream(input);
+            sourceImage = BitmapFactory.decodeStream(input);
             input.close();
         }
 
-        int orientation = getOrientation(image, context, Uri.parse(imagePath));
-        rotation = orientation+rotation;
+        // Start transformations:
 
-        //rotate & resize
-        Bitmap newImage = ImageResizer.resizeImage(ImageResizer.rotateImage(image, rotation), newWidth, newHeight, context);
-        //recycle old image
-        image.recycle();
+        // Scale it first so there are fewer pixels to transform in the rotation
+        Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight, context);
+        if (sourceImage != scaledImage) {
+            sourceImage.recycle();
+        }
+
+        // Rotate it
+        int orientation = getOrientation(context, Uri.parse(imagePath));
+        rotation = orientation + rotation;
+        Bitmap rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
+        if (scaledImage != rotatedImage) {
+            scaledImage.recycle();
+        }
 
         File path = context.getCacheDir();
-        if (outputPath != null ) {
+        if (outputPath != null) {
           path = new File(outputPath);
         }
 
-        return ImageResizer.saveImage(newImage, path,
+        String resizedImagePath = ImageResizer.saveImage(rotatedImage, path,
                 Long.toString(new Date().getTime()), compressFormat, quality);
+
+        // Clean up remaining image
+        rotatedImage.recycle();
+
+        return resizedImagePath;
     }
 }
