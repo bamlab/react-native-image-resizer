@@ -27,7 +27,7 @@ import java.util.Date;
 class ImageResizer {
 
     private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight, Context context) {
-        Bitmap newImage;
+        Bitmap newImage = null;
 
         if (image == null) {
             return null; // Can't load the image from the given path.
@@ -174,10 +174,14 @@ class ImageResizer {
             sourceImage.recycle();
         }
 
-        // Rotate it
-        int orientation = getOrientation(context, Uri.parse(imagePath));
-        rotation = orientation + rotation;
-        Bitmap rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
+        // Rotate if neccesary
+        Bitmap rotatedImage = scaledImage;
+        if (rotation > 0) {
+            int orientation = getOrientation(context, Uri.parse(imagePath));
+            rotation = orientation + rotation;
+            rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
+        }
+
         if (scaledImage != rotatedImage) {
             scaledImage.recycle();
         }
