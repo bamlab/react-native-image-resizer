@@ -154,15 +154,30 @@ class ImageResizer {
                                             int quality, int rotation, String outputPath) throws IOException  {
 
 
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+
+        // find the size of the source image in order to calc the sampleSize
+        if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
+            BitmapFactory.decodeFile(imagePath, options);
+        } else {
+            InputStream input = context.getContentResolver().openInputStream(Uri.parse(imagePath));
+            BitmapFactory.decodeStream(input, null, options);
+            input.close();
+        }
+
+        //setting a sample size above 1 saves memory
+        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+        options.inJustDecodeBounds = false;
 
         Bitmap sourceImage;
         if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
-            sourceImage = BitmapFactory.decodeFile(imagePath);
+            sourceImage = BitmapFactory.decodeFile(imagePath, options);
         } else {
             ContentResolver cr = context.getContentResolver();
-            Uri url = Uri.parse(imagePath);
-            InputStream input = cr.openInputStream(url);
-            sourceImage = BitmapFactory.decodeStream(input);
+
+            InputStream input = cr.openInputStream(Uri.parse(imagePath));
+            sourceImage = BitmapFactory.decodeStream(input, null, options);
             input.close();
         }
 
@@ -198,5 +213,27 @@ class ImageResizer {
         rotatedImage.recycle();
 
         return resizedImagePath;
+    }
+
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // copied from https://developer.android.com/training/displaying-bitmaps/load-bitmap.html
+
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }
