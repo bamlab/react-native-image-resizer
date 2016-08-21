@@ -10,6 +10,8 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import java.io.Closeable;
@@ -22,10 +24,13 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Created by almouro on 11/19/15.
+ * Provide methods to resize and rotate an image file.
  */
 class ImageResizer {
 
+    /**
+     * Resize the specified bitmap, keeping its aspect ratio.
+     */
     private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
         Bitmap newImage = null;
         if (image == null) {
@@ -46,6 +51,9 @@ class ImageResizer {
         return newImage;
     }
 
+    /**
+     * Rotate the specified bitmap with the given angle, in degrees.
+     */
     public static Bitmap rotateImage(Bitmap source, float angle)
     {
         Bitmap retVal;
@@ -56,6 +64,9 @@ class ImageResizer {
         return retVal;
     }
 
+    /**
+     * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
+     */
     private static String saveImage(Bitmap bitmap, File saveDirectory, String fileName,
                                     Bitmap.CompressFormat compressFormat, int quality)
             throws IOException {
@@ -147,21 +158,65 @@ class ImageResizer {
         }
     }
 
+    /**
+     * Compute the inSampleSize value to use to load a bitmap.
+     * Adapted from https://developer.android.com/training/displaying-bitmaps/load-bitmap.html
+     */
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    /**
+     * Load a bitmap either from a real file or using the {@link ContentResolver} of the current
+     * {@link Context} (to read gallery images for example).
+     */
+    private static Bitmap loadBitmap(Context context, String imagePath, BitmapFactory.Options options) throws IOException {
+        Bitmap sourceImage = null;
+        if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
+            sourceImage = BitmapFactory.decodeFile(imagePath, options);
+        } else {
+            ContentResolver cr = context.getContentResolver();
+            InputStream input = cr.openInputStream(Uri.parse(imagePath));
+            if (input != null) {
+                sourceImage = BitmapFactory.decodeStream(input, null, options);
+                input.close();
+            }
+        }
+        return sourceImage;
+    }
+
+    /**
+     * Create a resized version of the given image.
+     */
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
                                             int quality, int rotation, String outputPath) throws IOException  {
-        Bitmap sourceImage;
-        if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
-            sourceImage = BitmapFactory.decodeFile(imagePath);
-        } else {
-            ContentResolver cr = context.getContentResolver();
-            Uri url = Uri.parse(imagePath);
-            InputStream input = cr.openInputStream(url);
-            sourceImage = BitmapFactory.decodeStream(input);
-            input.close();
-        }
+        // Decode the image bounds to find the size of the source image.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        loadBitmap(context, imagePath, options);
 
-        // Start transformations:
+        // Set a sample size according to the image size to lower memory usage.
+        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+        options.inJustDecodeBounds = false;
+        System.out.println(options.inSampleSize);
+        Bitmap sourceImage = loadBitmap(context, imagePath, options);
 
         // Scale it first so there are fewer pixels to transform in the rotation
         Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight);
@@ -171,7 +226,7 @@ class ImageResizer {
 
         // Rotate if necessary
         Bitmap rotatedImage = scaledImage;
-        if (rotation > 0) {
+        if (rotation != 0) {
             int orientation = getOrientation(context, Uri.parse(imagePath));
             rotation = orientation + rotation;
             rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
