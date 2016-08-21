@@ -26,9 +26,8 @@ import java.util.Date;
  */
 class ImageResizer {
 
-    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight, Context context) {
+    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
         Bitmap newImage = null;
-
         if (image == null) {
             return null; // Can't load the image from the given path.
         }
@@ -83,7 +82,6 @@ class ImageResizer {
 
         return newFile.getAbsolutePath();
     }
-
 
     /**
      * Get {@link File} object for the given Android URI.<br>
@@ -152,9 +150,6 @@ class ImageResizer {
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
                                             int quality, int rotation, String outputPath) throws IOException  {
-
-
-
         Bitmap sourceImage;
         if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
             sourceImage = BitmapFactory.decodeFile(imagePath);
@@ -169,12 +164,12 @@ class ImageResizer {
         // Start transformations:
 
         // Scale it first so there are fewer pixels to transform in the rotation
-        Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight, context);
+        Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight);
         if (sourceImage != scaledImage) {
             sourceImage.recycle();
         }
 
-        // Rotate if neccesary
+        // Rotate if necessary
         Bitmap rotatedImage = scaledImage;
         if (rotation > 0) {
             int orientation = getOrientation(context, Uri.parse(imagePath));
@@ -186,9 +181,10 @@ class ImageResizer {
             scaledImage.recycle();
         }
 
+        // Save the resulting image
         File path = context.getCacheDir();
         if (outputPath != null) {
-          path = new File(outputPath);
+            path = new File(outputPath);
         }
 
         String resizedImagePath = ImageResizer.saveImage(rotatedImage, path,
