@@ -6,9 +6,9 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "react": "^0.14.8",
-    "react-native": "^0.25.1",
+    "react": "^15.2.1",
+    "react-native": "^0.31.0",
     "react-native-gifted-spinner": "0.0.4",
-    "react-native-image-resizer": "0.0.3"
+    "react-native-image-resizer": "^0.0.8"
   }
 }

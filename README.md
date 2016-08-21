@@ -10,6 +10,8 @@ npm install rnpm -g
 rnpm install react-native-image-resizer
 ```
 
+Note: on latest versions of React Native, you may have an error during the Gradle build on Android (`com.android.dex.DexException: Multiple dex files define Landroid/support/v7/appcompat/R$anim`). Run `cd android && ./gradlew clean` to fix this.
+
 ## Usage example
 
 ```javascript
