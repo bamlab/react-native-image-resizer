@@ -26,5 +26,13 @@
   "bugs": {
     "url": "https://github.com/4ian/react-native-image-resizer/issues"
   },
-  "homepage": "https://github.com/4ian/react-native-image-resizer#readme"
+  "homepage": "https://github.com/4ian/react-native-image-resizer#readme",
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
