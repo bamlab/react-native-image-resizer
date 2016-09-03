@@ -226,11 +226,9 @@ class ImageResizer {
 
         // Rotate if necessary
         Bitmap rotatedImage = scaledImage;
-        if (rotation != 0) {
-            int orientation = getOrientation(context, Uri.parse(imagePath));
-            rotation = orientation + rotation;
-            rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
-        }
+        int orientation = getOrientation(context, Uri.parse(imagePath));
+        rotation = orientation + rotation;
+        rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
 
         if (scaledImage != rotatedImage) {
             scaledImage.recycle();
