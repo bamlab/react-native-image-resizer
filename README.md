@@ -48,5 +48,6 @@ outputPath | The resized image path. If null, resized image will be stored in ca
 ## Other open-source modules by the folks at [BAM](http://github.com/bamlab)
 
  * [rn-camera-roll](https://github.com/bamlab/rn-camera-roll)
+ * [react-native-numberpicker-dialog](https://github.com/bamlab/react-native-numberpicker-dialog)
  * [react-native-animated-picker](https://github.com/bamlab/react-native-animated-picker)
  * [cordova-plugin-native-routing](https://github.com/bamlab/cordova-plugin-native-routing)
