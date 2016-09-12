@@ -15,11 +15,22 @@
 
 RCT_EXPORT_MODULE();
 
-void saveImage(NSString * fullPath, UIImage * image, float quality)
+bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality)
 {
-    NSData* data = UIImageJPEGRepresentation(image, quality / 100.0);
+    NSData* data = nil;
+    if ([format isEqualToString:@"JPEG"]) {
+        data = UIImageJPEGRepresentation(image, quality / 100.0);
+    } else if ([format isEqualToString:@"PNG"]) {
+        data = UIImagePNGRepresentation(image);
+    }
+    
+    if (data == nil) {
+        return NO;
+    }
+    
     NSFileManager* fileManager = [NSFileManager defaultManager];
     [fileManager createFileAtPath:fullPath contents:data attributes:nil];
+    return YES;
 }
 
 NSString * generateFilePath(NSString * ext, NSString * outputPath)
@@ -43,6 +54,7 @@ NSString * generateFilePath(NSString * ext, NSString * outputPath)
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   width:(float)width
                   height:(float)height
+                  format:(NSString *)format
                   quality:(float)quality
                   outputPath:(NSString *)outputPath
                   callback:(RCTResponseSenderBlock)callback)
@@ -71,7 +83,12 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
             return;
         }
 
-        saveImage(fullPath, scaledImage, quality);
+        // Compress and save the image
+        if (!saveImage(fullPath, scaledImage, format, quality)) {
+            callback(@[@"Can't save the image. Check your compression format.", @""]);
+            return;
+        }
+        
         callback(@[[NSNull null], fullPath]);
     }];
 }
