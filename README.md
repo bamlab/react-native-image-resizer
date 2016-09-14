@@ -42,7 +42,7 @@ maxWidth | Image max width (ratio is preserved)
 maxHeight | Image max height (ratio is preserved)
 compressFormat | Can be either JPEG, PNG or WEBP (android only).
 quality | A number between 0 and 100. Used for the JPEG compression.
-rotation | Rotation to apply to the image, in degrees, for android only. On iOS, the resizing is done such that the orientation is always up.
+rotation | Rotation to apply to the image, in degrees, for android only. On iOS, the resizing is done such that rotation must be 0, 90, 180, or 270 degrees.
 outputPath | The resized image path. If null, resized image will be stored in cache folder. To set outputPath make sure to add option for rotation too (if no rotation is needed, just set it to 0).
 
 ## Other open-source modules by the folks at [BAM](http://github.com/bamlab)
