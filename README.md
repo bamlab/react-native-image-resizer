@@ -5,9 +5,18 @@ A React Native module that can create scaled versions of local images (also supp
 ## Setup
 
 Install the package:
+
+React-Native 0.29.2+
+
 ```
-npm install react-native-image-resizer
+npm install --save react-native-image-resizer
 react-native link react-native-image-resizer
+```
+
+React-Native < 0.29.2
+```
+npm install rnpm -g
+rnpm install react-native-image-resizer
 ```
 
 ### Android
