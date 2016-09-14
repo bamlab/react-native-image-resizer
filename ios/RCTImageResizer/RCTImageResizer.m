@@ -51,7 +51,8 @@ NSString * generateFilePath(NSString * ext, NSString * outputPath)
     return fullPath;
 }
 
-UIImage * rotateImage(UIImage *inputImage, float rotationDegrees){
+UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
+{
 
     // We want only fixed 0, 90, 180, 270 degree rotations.
     int rot = (int)round(rotationDegrees/90);
@@ -61,7 +62,7 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees){
     }
     
     // Return the input image if no rotation specified.
-    if (rot == 0){
+    if (rot == 0) {
         return inputImage;
     }
     else {
@@ -113,7 +114,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         }
 
         // Rotate image if rotation is specified.
-        if ((rotation <= -1) || (rotation >= 1)){
+        if ((rotation <= -1) || (rotation >= 1)) {
             image = rotateImage(image, rotation);
         }
 
