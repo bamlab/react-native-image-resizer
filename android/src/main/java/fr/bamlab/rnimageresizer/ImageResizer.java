@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Pair;
 
 import java.io.Closeable;
@@ -207,16 +208,41 @@ class ImageResizer {
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
                                             int quality, int rotation, String outputPath) throws IOException  {
-        // Decode the image bounds to find the size of the source image.
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        loadBitmap(context, imagePath, options);
+        Bitmap sourceImage = null;
+        final String base64Prefix = "data:image/";
 
-        // Set a sample size according to the image size to lower memory usage.
-        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
-        options.inJustDecodeBounds = false;
-        System.out.println(options.inSampleSize);
-        Bitmap sourceImage = loadBitmap(context, imagePath, options);
+        if (imagePath.indexOf(base64Prefix) < 0) {
+            // Decode the image bounds to find the size of the source image.
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            loadBitmap(context, imagePath, options);
+
+            // Set a sample size according to the image size to lower memory usage.
+            options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+            options.inJustDecodeBounds = false;
+            System.out.println(options.inSampleSize);
+            sourceImage = loadBitmap(context, imagePath, options);
+        }
+        else {
+            // base64 image.  Convert to a bitmap.
+            final int prefixLen = base64Prefix.length();
+            final boolean isJpeg = (imagePath.indexOf("jpeg") == prefixLen);
+            final boolean isPng = (!isJpeg) && (imagePath.indexOf("png") == prefixLen);
+            int commaLocation = -1;
+            if (isJpeg || isPng){
+                commaLocation = imagePath.indexOf(',');
+            }
+            if (commaLocation > 0) {
+                //Todo, can this handle both jpeg AND png?
+                final String encodedImage = imagePath.substring(commaLocation+1);
+                final byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                sourceImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            }
+        }
+
+        if (sourceImage == null){
+            return "";
+        }
 
         // Scale it first so there are fewer pixels to transform in the rotation
         Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight);
