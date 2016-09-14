@@ -52,7 +52,6 @@ NSString * generateFilePath(NSString * ext, NSString * outputPath)
 }
 
 UIImage * rotateImage(UIImage *inputImage, float rotationDegrees){
-    UIImageOrientation orientation = UIImageOrientationUp;
 
     // We want only fixed 0, 90, 180, 270 degree rotations.
     int rot = (int)round(rotationDegrees/90);
@@ -61,10 +60,13 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees){
         rot += 4;
     }
     
+    // Return the input image if no rotation specified.
     if (rot == 0){
         return inputImage;
     }
     else {
+        // Rotate the image by 80, 180, 270.
+        UIImageOrientation orientation = UIImageOrientationUp;
         
         switch(rot){
             case 1:
