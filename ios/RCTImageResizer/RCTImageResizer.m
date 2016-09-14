@@ -69,7 +69,7 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
         // Rotate the image by 80, 180, 270.
         UIImageOrientation orientation = UIImageOrientationUp;
         
-        switch(rot){
+        switch(rot) {
             case 1:
                 orientation = UIImageOrientationRight; // 90 deg CW
                 break;
