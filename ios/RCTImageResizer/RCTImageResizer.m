@@ -55,21 +55,19 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
 {
 
     // We want only fixed 0, 90, 180, 270 degree rotations.
-    int rot = (int)round(rotationDegrees/90);
-    rot = rot % 4;
-    if (rot < 0) {
-        rot += 4;
-    }
+    const int rotDiv90 = (int)round(rotationDegrees / 90);
+    const int rotQuadrants = rotDiv90 % 4;
+    const int rotQuadrantsPos = (rotQuadrants < 0) ? rotQuadrants + 4 : rotQuadrants;
     
     // Return the input image if no rotation specified.
-    if (rot == 0) {
+    if (rotQuadrantsPos == 0) {
         return inputImage;
     }
     else {
         // Rotate the image by 80, 180, 270.
         UIImageOrientation orientation = UIImageOrientationUp;
         
-        switch(rot) {
+        switch(rotQuadrantsPos) {
             case 1:
                 orientation = UIImageOrientationRight; // 90 deg CW
                 break;
@@ -114,7 +112,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         }
 
         // Rotate image if rotation is specified.
-        if ((rotation <= -1) || (rotation >= 1)) {
+        if (0 != (int)rotation) {
             image = rotateImage(image, rotation);
         }
 
