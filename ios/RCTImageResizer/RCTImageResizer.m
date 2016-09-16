@@ -113,6 +113,10 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         // Rotate image if rotation is specified.
         if (0 != (int)rotation) {
             image = rotateImage(image, rotation);
+            if (image == nil) {
+                callback(@[@"Can't rotate the image.", @""]);
+                return;
+            }
         }
 
         // Do the resizing
