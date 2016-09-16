@@ -4,11 +4,22 @@ A React Native module that can create scaled versions of local images (also supp
 
 ## Setup
 
-Install the package with [rnpm](https://github.com/rnpm/rnpm):
+Install the package:
+
+React-Native 0.29.2+
+
+```
+npm install --save react-native-image-resizer
+react-native link react-native-image-resizer
+```
+
+React-Native < 0.29.2
 ```
 npm install rnpm -g
 rnpm install react-native-image-resizer
 ```
+
+### Android
 
 Note: on latest versions of React Native, you may have an error during the Gradle build on Android (`com.android.dex.DexException: Multiple dex files define Landroid/support/v7/appcompat/R$anim`). Run `cd android && ./gradlew clean` to fix this.
 
