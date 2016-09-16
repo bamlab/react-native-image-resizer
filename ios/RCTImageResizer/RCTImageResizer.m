@@ -56,18 +56,17 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
 
     // We want only fixed 0, 90, 180, 270 degree rotations.
     const int rotDiv90 = (int)round(rotationDegrees / 90);
-    const int rotQuadrants = rotDiv90 % 4;
-    const int rotQuadrantsPos = (rotQuadrants < 0) ? rotQuadrants + 4 : rotQuadrants;
+    const int rotQuadrant = rotDiv90 % 4;
+    const int rotQuadrantAbs = (rotQuadrant < 0) ? rotQuadrant + 4 : rotQuadrant;
     
     // Return the input image if no rotation specified.
-    if (rotQuadrantsPos == 0) {
+    if (0 == rotQuadrantAbs) {
         return inputImage;
-    }
-    else {
+    } else {
         // Rotate the image by 80, 180, 270.
         UIImageOrientation orientation = UIImageOrientationUp;
         
-        switch(rotQuadrantsPos) {
+        switch(rotQuadrantAbs) {
             case 1:
                 orientation = UIImageOrientationRight; // 90 deg CW
                 break;
