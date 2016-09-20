@@ -29,6 +29,8 @@ import java.util.Date;
  */
 class ImageResizer {
 
+    private final static String BASE64_PREFIX = "data:image/";
+
     /**
      * Resize the specified bitmap, keeping its aspect ratio.
      */
@@ -203,41 +205,63 @@ class ImageResizer {
     }
 
     /**
+     * Loads the bitmap resource from the file specified in imagePath.
+     */
+    private static Bitmap loadBitmapFromFile(Context context, String imagePath, int newWidth,
+                                             int newHeight) throws IOException  {
+        // Decode the image bounds to find the size of the source image.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        loadBitmap(context, imagePath, options);
+
+        // Set a sample size according to the image size to lower memory usage.
+        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+        options.inJustDecodeBounds = false;
+        System.out.println(options.inSampleSize);
+        return loadBitmap(context, imagePath, options);
+
+    }
+
+    /**
+     * Loads the bitmap resource from a base64 encoded jpg or png.
+     * Format is as such:
+     * png: 'data:image/png;base64,iVBORw0KGgoAA...'
+     * jpg: 'data:image/jpeg;base64,/9j/4AAQSkZJ...'
+     */
+    private static Bitmap loadBitmapFromBase64(String imagePath) {
+        Bitmap sourceImage = null;
+
+        // base64 image.  Convert to a bitmap.
+        final int prefixLen = BASE64_PREFIX.length();
+        final boolean isJpeg = (imagePath.indexOf("jpeg") == prefixLen);
+        final boolean isPng = (!isJpeg) && (imagePath.indexOf("png") == prefixLen);
+        int commaLocation = -1;
+        if (isJpeg || isPng){
+            commaLocation = imagePath.indexOf(',');
+        }
+        if (commaLocation > 0) {
+            final String encodedImage = imagePath.substring(commaLocation+1);
+            final byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+            sourceImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        }
+
+        return sourceImage;
+    }
+
+    /**
      * Create a resized version of the given image.
      */
     public static String createResizedImage(Context context, String imagePath, int newWidth,
                                             int newHeight, Bitmap.CompressFormat compressFormat,
                                             int quality, int rotation, String outputPath) throws IOException  {
         Bitmap sourceImage = null;
-        final String base64Prefix = "data:image/";
 
-        if (imagePath.indexOf(base64Prefix) < 0) {
-            // Decode the image bounds to find the size of the source image.
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            loadBitmap(context, imagePath, options);
-
-            // Set a sample size according to the image size to lower memory usage.
-            options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
-            options.inJustDecodeBounds = false;
-            System.out.println(options.inSampleSize);
-            sourceImage = loadBitmap(context, imagePath, options);
+        // If the BASE64_PREFIX is absent, load bitmap from a file.  Otherwise, load from base64.
+        if (imagePath.indexOf(BASE64_PREFIX) < 0) {
+            sourceImage = ImageResizer.loadBitmapFromFile(context, imagePath, newWidth, newHeight);
         }
         else {
-            // base64 image.  Convert to a bitmap.
-            final int prefixLen = base64Prefix.length();
-            final boolean isJpeg = (imagePath.indexOf("jpeg") == prefixLen);
-            final boolean isPng = (!isJpeg) && (imagePath.indexOf("png") == prefixLen);
-            int commaLocation = -1;
-            if (isJpeg || isPng){
-                commaLocation = imagePath.indexOf(',');
-            }
-            if (commaLocation > 0) {
-                //Todo, can this handle both jpeg AND png?
-                final String encodedImage = imagePath.substring(commaLocation+1);
-                final byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-                sourceImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            }
+            sourceImage = ImageResizer.loadBitmapFromBase64(imagePath);
         }
 
         if (sourceImage == null){
