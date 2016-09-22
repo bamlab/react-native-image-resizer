@@ -45,7 +45,10 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
                                            String compressFormatString, int quality, int rotation, String outputPath,
                                            final Callback successCb, final Callback failureCb) throws IOException {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
-        imagePath = imagePath.replace("file:", "");
+        if (imagePath.indexOf("data:image/") < 0) {
+            imagePath = imagePath.replace("file:", "");
+        }
+
         String resizedImagePath = ImageResizer.createResizedImage(this.context, imagePath, newWidth,
                 newHeight, compressFormat, quality, rotation, outputPath);
 

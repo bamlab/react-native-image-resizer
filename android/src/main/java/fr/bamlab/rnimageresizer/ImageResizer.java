@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Pair;
 
 import java.io.Closeable;
@@ -27,6 +28,8 @@ import java.util.Date;
  * Provide methods to resize and rotate an image file.
  */
 class ImageResizer {
+
+    private final static String BASE64_PREFIX = "data:image/";
 
     /**
      * Resize the specified bitmap, keeping its aspect ratio.
@@ -202,11 +205,10 @@ class ImageResizer {
     }
 
     /**
-     * Create a resized version of the given image.
+     * Loads the bitmap resource from the file specified in imagePath.
      */
-    public static String createResizedImage(Context context, String imagePath, int newWidth,
-                                            int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation, String outputPath) throws IOException  {
+    private static Bitmap loadBitmapFromFile(Context context, String imagePath, int newWidth,
+                                             int newHeight) throws IOException  {
         // Decode the image bounds to find the size of the source image.
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -216,7 +218,55 @@ class ImageResizer {
         options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
         options.inJustDecodeBounds = false;
         System.out.println(options.inSampleSize);
-        Bitmap sourceImage = loadBitmap(context, imagePath, options);
+        return loadBitmap(context, imagePath, options);
+
+    }
+
+    /**
+     * Loads the bitmap resource from a base64 encoded jpg or png.
+     * Format is as such:
+     * png: 'data:image/png;base64,iVBORw0KGgoAA...'
+     * jpg: 'data:image/jpeg;base64,/9j/4AAQSkZJ...'
+     */
+    private static Bitmap loadBitmapFromBase64(String imagePath) {
+        Bitmap sourceImage = null;
+
+        // base64 image.  Convert to a bitmap.
+        final int prefixLen = BASE64_PREFIX.length();
+        final boolean isJpeg = (imagePath.indexOf("jpeg") == prefixLen);
+        final boolean isPng = (!isJpeg) && (imagePath.indexOf("png") == prefixLen);
+        int commaLocation = -1;
+        if (isJpeg || isPng){
+            commaLocation = imagePath.indexOf(',');
+        }
+        if (commaLocation > 0) {
+            final String encodedImage = imagePath.substring(commaLocation+1);
+            final byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+            sourceImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        }
+
+        return sourceImage;
+    }
+
+    /**
+     * Create a resized version of the given image.
+     */
+    public static String createResizedImage(Context context, String imagePath, int newWidth,
+                                            int newHeight, Bitmap.CompressFormat compressFormat,
+                                            int quality, int rotation, String outputPath) throws IOException  {
+        Bitmap sourceImage = null;
+
+        // If the BASE64_PREFIX is absent, load bitmap from a file.  Otherwise, load from base64.
+        if (imagePath.indexOf(BASE64_PREFIX) < 0) {
+            sourceImage = ImageResizer.loadBitmapFromFile(context, imagePath, newWidth, newHeight);
+        }
+        else {
+            sourceImage = ImageResizer.loadBitmapFromBase64(imagePath);
+        }
+
+        if (sourceImage == null){
+            return "";
+        }
 
         // Scale it first so there are fewer pixels to transform in the rotation
         Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight);
