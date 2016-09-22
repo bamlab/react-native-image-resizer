@@ -51,11 +51,45 @@ NSString * generateFilePath(NSString * ext, NSString * outputPath)
     return fullPath;
 }
 
+UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
+{
+
+    // We want only fixed 0, 90, 180, 270 degree rotations.
+    const int rotDiv90 = (int)round(rotationDegrees / 90);
+    const int rotQuadrant = rotDiv90 % 4;
+    const int rotQuadrantAbs = (rotQuadrant < 0) ? rotQuadrant + 4 : rotQuadrant;
+    
+    // Return the input image if no rotation specified.
+    if (0 == rotQuadrantAbs) {
+        return inputImage;
+    } else {
+        // Rotate the image by 80, 180, 270.
+        UIImageOrientation orientation = UIImageOrientationUp;
+        
+        switch(rotQuadrantAbs) {
+            case 1:
+                orientation = UIImageOrientationRight; // 90 deg CW
+                break;
+            case 2:
+                orientation = UIImageOrientationDown; // 180 deg rotation
+                break;
+            default:
+                orientation = UIImageOrientationLeft; // 90 deg CCW
+                break;
+        }
+        
+        return [[UIImage alloc] initWithCGImage: inputImage.CGImage
+                                                  scale: 1.0
+                                                  orientation: orientation];
+    }
+}
+
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   width:(float)width
                   height:(float)height
                   format:(NSString *)format
                   quality:(float)quality
+                  rotation:(float)rotation
                   outputPath:(NSString *)outputPath
                   callback:(RCTResponseSenderBlock)callback)
 {
@@ -72,6 +106,15 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
             }
             if (image == nil) {
                 callback(@[@"Can't retrieve the file from the path.", @""]);
+                return;
+            }
+        }
+
+        // Rotate image if rotation is specified.
+        if (0 != (int)rotation) {
+            image = rotateImage(image, rotation);
+            if (image == nil) {
+                callback(@[@"Can't rotate the image.", @""]);
                 return;
             }
         }
