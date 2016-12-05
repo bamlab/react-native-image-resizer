@@ -84,6 +84,38 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
+
+RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
+                  quality:(float)quality
+                  outputPath:(NSString *)outputPath
+                  callback:(RCTResponseSenderBlock)callback)
+{
+    NSString* fullPath = generateFilePath(@"jpg", outputPath);
+    [_bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
+        if (error || image == nil) {
+            if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
+                NSURL *imageUrl = [[NSURL alloc] initWithString:path];
+                image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageUrl]];
+            } else {
+                image = [[UIImage alloc] initWithContentsOfFile:path];
+            }
+            if (image == nil) {
+                callback(@[@"Can't retrieve the file from the path.", @""]);
+                return;
+            }
+        }
+        
+        // Compress and save the image
+        if (!saveImage(fullPath, image, @"JPEG", quality)) {
+            callback(@[@"Can't save the image. Check your compression ratio.", @""]);
+            return;
+        }
+        
+        callback(@[[NSNull null], fullPath]);
+    }];
+
+}
+
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   width:(float)width
                   height:(float)height
