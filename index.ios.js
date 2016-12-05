@@ -2,6 +2,22 @@ import {
   NativeModules,
 } from 'react-native';
 
+
+export default {
+  createCompressedImage: (path, quality, outputPath) => {
+
+    return new Promise((resolve, reject) => {
+      NativeModules.ImageResizer.createCompressedImage(path, quality, rotation, outputPath, (err, compressedPath) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(compressedPath);
+      });
+    });
+  },
+};
+
 export default {
   createResizedImage: (path, width, height, format, quality, rotation = 0, outputPath) => {
     if (format !== 'JPEG' && format !== 'PNG') {
