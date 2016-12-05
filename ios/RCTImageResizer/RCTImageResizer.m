@@ -85,7 +85,7 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
 }
 
 
-RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
+RCT_EXPORT_METHOD(createCompressedImage:(NSString *)path
                   quality:(float)quality
                   outputPath:(NSString *)outputPath
                   callback:(RCTResponseSenderBlock)callback)
