@@ -21,7 +21,7 @@ export default {
   createCompressedImage: (path, quality, outputPath) => {
 
     return new Promise((resolve, reject) => {
-      NativeModules.ImageResizer.createCompressedImage(path, quality, rotation, outputPath, (err, compressedPath) => {
+      NativeModules.ImageResizer.createCompressedImage(path, quality, outputPath, (err, compressedPath) => {
         if (err) {
           return reject(err);
         }
