@@ -30,4 +30,16 @@ export default {
       });
     });
   },
+  compressImages: (path, quality, scaleRatio) => {
+
+    return new Promise((resolve, reject) => {
+      NativeModules.ImageResizer.compressImages(path, quality, scaleRatio, (err, compressedPaths) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(compressedPaths);
+      });
+    });
+  },
 };
