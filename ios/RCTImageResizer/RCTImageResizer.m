@@ -83,7 +83,6 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
-
 RCT_EXPORT_METHOD(createCompressedImage:(NSString *)path
                   quality:(float)quality
                   scaleRatio:(float)scaleRatio
@@ -135,8 +134,6 @@ RCT_EXPORT_METHOD(compressImages:(NSArray *)paths
     callback(@[[NSNull null], paths]);
 }
 
-
-
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   width:(float)width
                   height:(float)height
@@ -147,9 +144,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   callback:(RCTResponseSenderBlock)callback)
 {
     CGSize newSize = CGSizeMake(width, height);
-    //    NSString* fullPath = generateFilePath(@"jpg", outputPath);
     NSString* fullPath = [NSString stringWithFormat:@"%@123.jpg", [path stringByDeletingPathExtension]];
-    NSLog(@"fullPath: %@", fullPath);
     [_bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
