@@ -144,7 +144,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   callback:(RCTResponseSenderBlock)callback)
 {
     CGSize newSize = CGSizeMake(width, height);
-    NSString* fullPath = [NSString stringWithFormat:@"%@123.jpg", [path stringByDeletingPathExtension]];
+    NSString* fullPath = generateFilePath(@"jpg", outputPath);
     [_bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
