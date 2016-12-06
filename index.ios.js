@@ -18,10 +18,10 @@ export default {
       });
     });
   },
-  createCompressedImage: (path, quality, outputPath) => {
+  createCompressedImage: (path, quality, scaleRatio, outputPath) => {
 
     return new Promise((resolve, reject) => {
-      NativeModules.ImageResizer.createCompressedImage(path, quality, outputPath, (err, compressedPath) => {
+      NativeModules.ImageResizer.createCompressedImage(path, quality, scaleRatio, outputPath, (err, compressedPath) => {
         if (err) {
           return reject(err);
         }
