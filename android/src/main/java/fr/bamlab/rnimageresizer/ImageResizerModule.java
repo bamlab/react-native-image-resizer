@@ -45,13 +45,19 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
                                            String compressFormatString, int quality, int rotation, String outputPath,
                                            final Callback successCb, final Callback failureCb) throws IOException {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
-        if (imagePath.indexOf("data:image/") < 0) {
-            imagePath = imagePath.replace("file:", "");
+        if (imagePath.startsWith(ImageResizer.FILE_PREFIX)) {
+            imagePath = imagePath.replaceFirst(ImageResizer.FILE_PREFIX, "");
         }
 
         String resizedImagePath = ImageResizer.createResizedImage(this.context, imagePath, newWidth,
                 newHeight, compressFormat, quality, rotation, outputPath);
 
-        successCb.invoke("file:" + resizedImagePath);
+        // If resizedImagePath is empty and this wasn't caught earlier, throw.
+        if (resizedImagePath == null || resizedImagePath.isEmpty()) {
+            throw new IOException("Error getting resized image path");
+        }
+
+        // Invoke success, prepending file prefix.
+        successCb.invoke(ImageResizer.FILE_PREFIX + resizedImagePath);
     }
 }
