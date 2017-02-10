@@ -29,7 +29,9 @@ import java.util.Date;
  */
 class ImageResizer {
 
-    private final static String BASE64_PREFIX = "data:image/";
+    public final static String BASE64_PREFIX = "data:image/";
+    public final static String CONTENT_PREFIX = "content://";
+    public final static String FILE_PREFIX = "file:";
 
     /**
      * Resize the specified bitmap, keeping its aspect ratio.
@@ -188,11 +190,20 @@ class ImageResizer {
     /**
      * Load a bitmap either from a real file or using the {@link ContentResolver} of the current
      * {@link Context} (to read gallery images for example).
+     *
+     * Note that, when options.inJustDecodeBounds = true, we actually expect sourceImage to remain
+     * as null (see https://developer.android.com/training/displaying-bitmaps/load-bitmap.html), so
+     * getting null sourceImage at the completion of this method is not always worthy of an error.
      */
     private static Bitmap loadBitmap(Context context, String imagePath, BitmapFactory.Options options) throws IOException {
         Bitmap sourceImage = null;
-        if (!imagePath.startsWith("content://") && !imagePath.startsWith("file://")) {
-            sourceImage = BitmapFactory.decodeFile(imagePath, options);
+        if (!imagePath.startsWith(CONTENT_PREFIX)) {
+            try {
+                sourceImage = BitmapFactory.decodeFile(imagePath, options);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new IOException("Error decoding image file");
+            }
         } else {
             ContentResolver cr = context.getContentResolver();
             InputStream input = cr.openInputStream(Uri.parse(imagePath));
@@ -256,16 +267,16 @@ class ImageResizer {
                                             int quality, int rotation, String outputPath) throws IOException  {
         Bitmap sourceImage = null;
 
-        // If the BASE64_PREFIX is absent, load bitmap from a file.  Otherwise, load from base64.
-        if (imagePath.indexOf(BASE64_PREFIX) < 0) {
+        // If the BASE64_PREFIX is absent, load bitmap from a file. Otherwise, load from base64.
+        if (!imagePath.startsWith(BASE64_PREFIX)) {
             sourceImage = ImageResizer.loadBitmapFromFile(context, imagePath, newWidth, newHeight);
         }
         else {
             sourceImage = ImageResizer.loadBitmapFromBase64(imagePath);
         }
 
-        if (sourceImage == null){
-            return "";
+        if (sourceImage == null) {
+            throw new IOException("Unable to load source image from path");
         }
 
         // Scale it first so there are fewer pixels to transform in the rotation
