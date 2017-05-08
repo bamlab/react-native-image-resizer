@@ -7,9 +7,9 @@ and allowing to resize it.
 
 Be sure to have React Native installed.
 
-```
+```bash
 cd example
-npm install
+yarn #or npm install
 ```
 
 ### iOS
@@ -28,7 +28,7 @@ react-native run-android
 
 If you want to use this sample app to develop `react-native-image-resizer`, erase the `node_modules/react-native-image-resizer` folder and replace it by the git repository:
 
-```
+```bash
 rm -rf node_modules/react-native-image-resizer
 cd node_modules && git clone git@github.com:bamlab/react-native-image-resizer.git
 ```
