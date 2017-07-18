@@ -131,8 +131,18 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
             callback(@[@"Can't save the image. Check your compression format.", @""]);
             return;
         }
+        NSURL *fileUrl = [[NSURL alloc] initFileURLWithPath:fullPath];
+        NSString *fileName = fileUrl.lastPathComponent;
+        NSError *attributesError = nil;
+        NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&attributesError];
+        NSNumber *fileSize = fileAttributes == nil ? 0 : [fileAttributes objectForKey:NSFileSize];
+        NSDictionary *response = @{@"path": fullPath,
+                                   @"uri": fileUrl.absoluteString,
+                                   @"name": fileName,
+                                   @"size": fileSize == nil ? 0 : fileSize
+                                   };
         
-        callback(@[[NSNull null], fullPath]);
+        callback(@[[NSNull null], response]);
     }];
 }
 

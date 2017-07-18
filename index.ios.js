@@ -9,12 +9,12 @@ export default {
     }
 
     return new Promise((resolve, reject) => {
-      NativeModules.ImageResizer.createResizedImage(path, width, height, format, quality, rotation, outputPath, (err, resizedPath) => {
+      NativeModules.ImageResizer.createResizedImage(path, width, height, format, quality, rotation, outputPath, (err, response) => {
         if (err) {
           return reject(err);
         }
 
-        resolve(resizedPath);
+        resolve(response);
       });
     });
   },
