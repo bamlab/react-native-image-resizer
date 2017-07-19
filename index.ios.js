@@ -18,4 +18,28 @@ export default {
       });
     });
   },
+  createCompressedImage: (path, quality, scaleRatio, outputPath) => {
+
+    return new Promise((resolve, reject) => {
+      NativeModules.ImageResizer.createCompressedImage(path, quality, scaleRatio, outputPath, (err, compressedPath) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(compressedPath);
+      });
+    });
+  },
+  compressImages: (path, quality, scaleRatio) => {
+
+    return new Promise((resolve, reject) => {
+      NativeModules.ImageResizer.compressImages(path, quality, scaleRatio, (err, compressedPaths) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(compressedPaths);
+      });
+    });
+  },
 };
