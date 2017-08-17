@@ -1,6 +1,6 @@
 {
   "name": "react-native-image-resizer",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Rescale local images with React Native",
   "repository": {
     "type": "git",
