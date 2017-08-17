@@ -1,4 +1,10 @@
 // @flow
+declare type ResizedImageInfo = {
+    path: string,
+    uri: string,
+    size?: number,
+    name?: string
+};
 
 declare export function createResizedImage(
     uri: string,
@@ -8,5 +14,5 @@ declare export function createResizedImage(
     quality: number,
     rotation?: number,
     outputPath?: string
-): Promise<string>;
+): Promise<ResizedImageInfo>;
 
