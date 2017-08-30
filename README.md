@@ -32,6 +32,27 @@ rnpm install react-native-image-resizer@0.0.12
 
 Note: on latest versions of React Native, you may have an error during the Gradle build on Android (`com.android.dex.DexException: Multiple dex files define Landroid/support/v7/appcompat/R$anim`). Run `cd android && ./gradlew clean` to fix this.
 
+#### Manual linking
+If your any reason you don want to link this project using 'react-native link', go to settings.gradle and add
+```
+include ':react-native-image-resizer'
+project(':react-native-image-resizer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-resizer/android')
+```
+then go the file that you build the ReactInstance and add the packager to it.
+
+```
+  ReactInstanceManager.Builder builder = ReactInstanceManager.builder()
+                .setApplication(application)
+                .setDefaultHardwareBackBtnHandler(application.getGAMActivity())
+                .setInitialLifecycleState(LifecycleState.RESUMED)
+                .setCurrentActivity((Activity) application.getGAMActivity())
+                .addPackage(new RealmReactPackage())
+                .addPackage(new MainReactPackageWrapper())
+                .addPackage(new StoreReactNativePackage())
+                .addPackage(new ImageResizerPackage()) <------- (Add this package on the Builder list)
+                .addPackage(gamCommunicationReactPackage);
+```
+
 ## Usage example
 
 ```javascript
