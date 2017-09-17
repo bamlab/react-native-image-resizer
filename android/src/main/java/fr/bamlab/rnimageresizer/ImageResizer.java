@@ -45,7 +45,11 @@ class ImageResizer {
 
             int finalWidth = (int) (width * ratio);
             int finalHeight = (int) (height * ratio);
-            newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            try {
+                newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            } catch (OutOfMemoryError e) {
+                return null;
+            }
         }
 
         return newImage;
@@ -60,7 +64,11 @@ class ImageResizer {
 
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        try {
+            retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        } catch (OutOfMemoryError e) {
+            return null;
+        }
         return retVal;
     }
 
