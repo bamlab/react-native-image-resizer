@@ -73,9 +73,9 @@ export default class ResizerExample extends Component {
 
   resize() {
     ImageResizer.createResizedImage(this.state.image.uri, 800, 600, 'JPEG', 80)
-    .then((resizedImageUri) => {
+    .then(({uri}) => {
       this.setState({
-        resizedImageUri,
+        resizedImageUri: uri,
       });
     }).catch((err) => {
       console.log(err);
