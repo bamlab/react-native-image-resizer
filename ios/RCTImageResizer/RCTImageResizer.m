@@ -42,7 +42,12 @@ NSString * generateFilePath(NSString * ext, NSString * outputPath)
     } else {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsDirectory = [paths objectAtIndex:0];
-        directory = [documentsDirectory stringByAppendingPathComponent:outputPath];
+        if ([outputPath hasPrefix:documentsDirectory]) {
+            directory = outputPath;
+        } else {
+            directory = [documentsDirectory stringByAppendingPathComponent:outputPath];
+        }
+        
         NSError *error;
         [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:&error];
         if (error) {
