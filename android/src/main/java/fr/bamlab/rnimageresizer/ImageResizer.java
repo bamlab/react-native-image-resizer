@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * Provide methods to resize and rotate an image file.
  */
-class ImageResizer {
+public class ImageResizer {
     private final static String IMAGE_JPEG = "image/jpeg";
     private final static String IMAGE_PNG = "image/png";
     private final static String SCHEME_DATA = "data";
