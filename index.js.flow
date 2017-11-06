@@ -13,7 +13,8 @@ declare function createResizedImage(
     format: 'PNG' | 'JPEG' | 'WEBP',
     quality: number,
     rotation?: number,
-    outputPath?: string
+    outputPath?: string,
+    outputImageName?: string
 ): Promise<ResizedImageInfo>;
 
 declare export default {
