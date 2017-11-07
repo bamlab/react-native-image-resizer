@@ -4,10 +4,10 @@ const ImageResizerAndroid = React.NativeModules.ImageResizerAndroid;
 
 export default {
   createResizedImage: (imagePath, newWidth, newHeight, compressFormat, quality, 
-      rotation = 0, outputPath, outputImageName) => {
+      rotation = 0, outputPath, outputFilename) => {
     return new Promise((resolve, reject) => {
       ImageResizerAndroid.createResizedImage(imagePath, newWidth, newHeight,
-        compressFormat, quality, rotation, outputPath, outputImageName, resolve, reject);
+        compressFormat, quality, rotation, outputPath, outputFilename, resolve, reject);
     });
   },
 };

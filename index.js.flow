@@ -14,7 +14,7 @@ declare function createResizedImage(
     quality: number,
     rotation?: number,
     outputPath?: string,
-    outputImageName?: string
+    outputFilename?: string
 ): Promise<ResizedImageInfo>;
 
 declare export default {

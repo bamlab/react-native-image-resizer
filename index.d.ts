@@ -9,6 +9,6 @@ declare module "react-native-image-resizer" {
         uri: string, width: number, height: number,
         format: "PNG" | "JPEG" | "WEBP", quality: number,
         rotation?: number, outputPath?: string, 
-        outputImageName?: string
+        outputFilename?: string
     ): Promise<Response>;
 }
