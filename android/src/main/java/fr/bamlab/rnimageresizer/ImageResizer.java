@@ -83,6 +83,7 @@ public class ImageResizer {
         }
 
         File newFile = new File(saveDirectory, fileName + "." + compressFormat.name());
+        newFile.getParentFile().mkdirs();
         if(!newFile.createNewFile()) {
             throw new IOException("The file already exists");
         }
