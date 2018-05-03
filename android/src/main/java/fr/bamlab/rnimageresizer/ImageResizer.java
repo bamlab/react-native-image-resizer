@@ -312,7 +312,7 @@ public class ImageResizer {
                                             WritableMap response) throws IOException  {
 
         Bitmap rotatedImage = createResizedImage(context, imageUri, newWidth, newHeight, rotation);
-        if (bitmap == null) {
+        if (rotatedImage == null) {
           throw new IOException("The bitmap couldn't be resized");
         }
         response.putDouble("width", rotatedImage.getWidth());
