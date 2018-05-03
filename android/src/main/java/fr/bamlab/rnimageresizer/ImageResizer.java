@@ -31,8 +31,8 @@ public class ImageResizer {
     private final static String SCHEME_FILE = "file";
 
     /**
-    * Resize the specified bitmap, keeping its aspect ratio.
-    */
+     * Resize the specified bitmap, keeping its aspect ratio.
+     */
     private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
         Bitmap newImage = null;
         if (image == null) {
@@ -57,9 +57,9 @@ public class ImageResizer {
         return newImage;
     }
 
-     /**
-      * Rotate the specified bitmap with the given angle, in degrees.
-      */
+    /**
+     * Rotate the specified bitmap with the given angle, in degrees.
+     */
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Bitmap retVal;
 
