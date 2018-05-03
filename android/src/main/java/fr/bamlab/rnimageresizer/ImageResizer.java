@@ -23,55 +23,54 @@ import com.facebook.react.bridge.WritableMap;
 /**
  * Provide methods to resize and rotate an image file.
  */
- public class ImageResizer {
-     private final static String IMAGE_JPEG = "image/jpeg";
-     private final static String IMAGE_PNG = "image/png";
-     private final static String SCHEME_DATA = "data";
-     private final static String SCHEME_CONTENT = "content";
-     private final static String SCHEME_FILE = "file";
+public class ImageResizer {
+    private final static String IMAGE_JPEG = "image/jpeg";
+    private final static String IMAGE_PNG = "image/png";
+    private final static String SCHEME_DATA = "data";
+    private final static String SCHEME_CONTENT = "content";
+    private final static String SCHEME_FILE = "file";
 
-     /**
-      * Resize the specified bitmap, keeping its aspect ratio.
-      */
-     private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
-         Bitmap newImage = null;
-         if (image == null) {
-             return null; // Can't load the image from the given path.
-         }
+    /**
+    * Resize the specified bitmap, keeping its aspect ratio.
+    */
+    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
+        Bitmap newImage = null;
+        if (image == null) {
+            return null; // Can't load the image from the given path.
+        }
 
-         if (maxHeight > 0 && maxWidth > 0) {
-             float width = image.getWidth();
-             float height = image.getHeight();
+        if (maxHeight > 0 && maxWidth > 0) {
+            float width = image.getWidth();
+            float height = image.getHeight();
 
-             float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+            float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
 
-             int finalWidth = (int) (width * ratio);
-             int finalHeight = (int) (height * ratio);
-             try {
-                 newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-             } catch (OutOfMemoryError e) {
-                 return null;
-             }
-         }
+            int finalWidth = (int) (width * ratio);
+            int finalHeight = (int) (height * ratio);
+            try {
+                newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            } catch (OutOfMemoryError e) {
+                return null;
+            }
+        }
 
-         return newImage;
-     }
+        return newImage;
+    }
 
      /**
       * Rotate the specified bitmap with the given angle, in degrees.
       */
-     public static Bitmap rotateImage(Bitmap source, float angle)
-     {
-         Bitmap retVal;
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Bitmap retVal;
 
-         Matrix matrix = new Matrix();
-         matrix.postRotate(angle);
-         try {
-             retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-         } catch (OutOfMemoryError e) {
-             return null;
-         }
-         return retVal;
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        try {
+            retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+        } catch (OutOfMemoryError e) {
+            return null;
+        }
+        return retVal;
     }
 
     /**
