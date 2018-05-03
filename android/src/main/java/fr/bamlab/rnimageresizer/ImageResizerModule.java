@@ -48,23 +48,18 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
                                            String compressFormatString, int quality, int rotation, String outputPath,
                                            final Callback successCb, final Callback failureCb) throws IOException {
-        Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
-        Uri imageUri = Uri.parse(imagePath);
-
-        File resizedImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth,
-                newHeight, compressFormat, quality, rotation, outputPath);
-
-        // If resizedImagePath is empty and this wasn't caught earlier, throw.
-        if (resizedImage.isFile()) {
+        try {
+            Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
+            Uri imageUri = Uri.parse(imagePath);
             WritableMap response = Arguments.createMap();
-            response.putString("path", resizedImage.getAbsolutePath());
-            response.putString("uri", Uri.fromFile(resizedImage).toString());
-            response.putString("name", resizedImage.getName());
-            response.putDouble("size", resizedImage.length());
-            // Invoke success
+
+            // createResizedImage populates the response map directly
+            ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, compressFormat,
+                    quality, rotation, outputPath, response);
+
             successCb.invoke(response);
-        } else {
-            failureCb.invoke("Error getting resized image path");
+        } catch (Throwable e) {
+            failureCb.invoke("Error getting resized image: " + e.getMessage());
         }
     }
 }
