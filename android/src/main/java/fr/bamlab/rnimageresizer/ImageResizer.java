@@ -18,81 +18,86 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.util.Date;
 
+import com.facebook.react.bridge.WritableMap;
+
 /**
  * Provide methods to resize and rotate an image file.
  */
-public class ImageResizer {
-    private final static String IMAGE_JPEG = "image/jpeg";
-    private final static String IMAGE_PNG = "image/png";
-    private final static String SCHEME_DATA = "data";
-    private final static String SCHEME_CONTENT = "content";
-    private final static String SCHEME_FILE = "file";
+ public class ImageResizer {
+     private final static String IMAGE_JPEG = "image/jpeg";
+     private final static String IMAGE_PNG = "image/png";
+     private final static String SCHEME_DATA = "data";
+     private final static String SCHEME_CONTENT = "content";
+     private final static String SCHEME_FILE = "file";
 
-    /**
-     * Resize the specified bitmap, keeping its aspect ratio.
-     */
-    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
-        Bitmap newImage = null;
-        if (image == null) {
-            return null; // Can't load the image from the given path.
-        }
+     /**
+      * Resize the specified bitmap, keeping its aspect ratio.
+      */
+     private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
+         Bitmap newImage = null;
+         if (image == null) {
+             return null; // Can't load the image from the given path.
+         }
 
-        if (maxHeight > 0 && maxWidth > 0) {
-            float width = image.getWidth();
-            float height = image.getHeight();
+         if (maxHeight > 0 && maxWidth > 0) {
+             float width = image.getWidth();
+             float height = image.getHeight();
 
-            float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+             float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
 
-            int finalWidth = (int) (width * ratio);
-            int finalHeight = (int) (height * ratio);
-            try {
-                newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-            } catch (OutOfMemoryError e) {
-                return null;
-            }
-        }
+             int finalWidth = (int) (width * ratio);
+             int finalHeight = (int) (height * ratio);
+             try {
+                 newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+             } catch (OutOfMemoryError e) {
+                 return null;
+             }
+         }
 
-        return newImage;
+         return newImage;
+     }
+
+     /**
+      * Rotate the specified bitmap with the given angle, in degrees.
+      */
+     public static Bitmap rotateImage(Bitmap source, float angle)
+     {
+         Bitmap retVal;
+
+         Matrix matrix = new Matrix();
+         matrix.postRotate(angle);
+         try {
+             retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+         } catch (OutOfMemoryError e) {
+             return null;
+         }
+         return retVal;
     }
 
     /**
-     * Rotate the specified bitmap with the given angle, in degrees.
+     * Write the bitmap to bytes
      */
-    public static Bitmap rotateImage(Bitmap source, float angle)
-    {
-        Bitmap retVal;
-
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        try {
-            retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-        } catch (OutOfMemoryError e) {
-            return null;
-        }
-        return retVal;
-    }
-
-    /**
-     * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
-     */
-    private static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
-                                    Bitmap.CompressFormat compressFormat, int quality)
+    private static byte[] writeImage(Bitmap bitmap, Bitmap.CompressFormat compressFormat, int quality)
             throws IOException {
-        if (bitmap == null) {
-            throw new IOException("The bitmap couldn't be resized");
-        }
 
-        File newFile = new File(saveDirectory, fileName + "." + compressFormat.name());
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();) {
+            bitmap.compress(compressFormat, quality, outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    /**
+     * Save the given bitmap in a directory.
+     */
+    private static File saveImage(File saveDirectory, String fileName, String ext,
+                                    byte[] bitmapData)
+            throws IOException {
+
+        File newFile = new File(saveDirectory, fileName + "." + ext);
+        newFile.getParentFile().mkdirs();
         if(!newFile.createNewFile()) {
             throw new IOException("The file already exists");
         }
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(compressFormat, quality, outputStream);
-        byte[] bitmapData = outputStream.toByteArray();
-
-        outputStream.flush();
-        outputStream.close();
 
         FileOutputStream fos = new FileOutputStream(newFile);
         fos.write(bitmapData);
@@ -266,9 +271,8 @@ public class ImageResizer {
     /**
      * Create a resized version of the given image.
      */
-    public static File createResizedImage(Context context, Uri imageUri, int newWidth,
-                                            int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation, String outputPath) throws IOException  {
+    private static Bitmap createResizedImage(Context context, Uri imageUri, int newWidth,
+                                            int newHeight, int rotation) throws IOException  {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
         if (imageUriScheme == null || imageUriScheme.equalsIgnoreCase(SCHEME_FILE) || imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)) {
@@ -297,18 +301,50 @@ public class ImageResizer {
             scaledImage.recycle();
         }
 
+        return rotatedImage;
+    }
+
+    /**
+     * Create a resized version of the given image.
+     */
+    public static void createResizedImage(Context context, Uri imageUri, int newWidth,
+                                            int newHeight, Bitmap.CompressFormat compressFormat,
+                                            int quality, int rotation, String outputPath,
+                                            WritableMap response) throws IOException  {
+
+        Bitmap rotatedImage = createResizedImage(context, imageUri, newWidth, newHeight, rotation);
+        if (bitmap == null) {
+          throw new IOException("The bitmap couldn't be resized");
+        }
+        response.putDouble("width", rotatedImage.getWidth());
+        response.putDouble("height", rotatedImage.getHeight());
+
+        byte[] bytes = writeImage(rotatedImage, compressFormat, quality);
+        response.putDouble("size", bytes.length);
+
+        // Clean up remaining image
+        rotatedImage.recycle();
+
+        if (outputPath != null && outputPath.equals("base64")) {
+          String base64 = Base64.encodeToString(bytes, Base64.DEFAULT);
+          response.putString("base64", base64);
+          return;
+        }
+
         // Save the resulting image
         File path = context.getCacheDir();
         if (outputPath != null) {
             path = new File(outputPath);
         }
+        // Extension is automatically generated using the bitmap format.
+        File newFile = ImageResizer.saveImage(path, Long.toString(new Date().getTime()),
+                compressFormat.name(), bytes);
 
-        File newFile = ImageResizer.saveImage(rotatedImage, path,
-                Long.toString(new Date().getTime()), compressFormat, quality);
+        if (!newFile.isFile())
+            throw new IOException("failed writing to file");
 
-        // Clean up remaining image
-        rotatedImage.recycle();
-
-        return newFile;
+        response.putString("path", newFile.getAbsolutePath());
+        response.putString("uri", Uri.fromFile(newFile).toString());
+        response.putString("name", newFile.getName());
     }
 }
