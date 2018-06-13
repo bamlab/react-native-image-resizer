@@ -2156,8 +2156,8 @@ react-native-gifted-spinner@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/react-native-gifted-spinner/-/react-native-gifted-spinner-0.1.0.tgz#2c76094fa0469c59e96dead270cd5bca5a55962a"
 
-"react-native-image-resizer@file:../":
-  version "0.1.0"
+"react-native-image-resizer@file:..":
+  version "1.0.0"
 
 react-native@^0.41.0:
   version "0.41.2"
