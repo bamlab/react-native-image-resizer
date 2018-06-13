@@ -5,9 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import {
-  AppRegistry,
-} from 'react-native';
+import { AppRegistry } from 'react-native';
 import ResizerExample from './app';
 
 AppRegistry.registerComponent('ResizerExample', () => ResizerExample);

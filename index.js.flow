@@ -1,21 +1,21 @@
 // @flow
 declare type ResizedImageInfo = {
-    path: string,
-    uri: string,
-    size?: number,
-    name?: string
+  path: string,
+  uri: string,
+  size?: number,
+  name?: string,
 };
 
 declare function createResizedImage(
-    uri: string,
-    width: number,
-    height: number,
-    format: 'PNG' | 'JPEG' | 'WEBP',
-    quality: number,
-    rotation?: number,
-    outputPath?: string
+  uri: string,
+  width: number,
+  height: number,
+  format: 'PNG' | 'JPEG' | 'WEBP',
+  quality: number,
+  rotation?: number,
+  outputPath?: string
 ): Promise<ResizedImageInfo>;
 
 declare export default {
-  createResizedImage: createResizedImage
+  createResizedImage: createResizedImage,
 };

@@ -4,16 +4,7 @@
  */
 
 import React, { Component } from 'react';
-import {
-  AppRegistry,
-  CameraRoll,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Alert,
-  TouchableOpacity
-} from 'react-native';
+import { AppRegistry, CameraRoll, StyleSheet, Text, View, Image, Alert, TouchableOpacity } from 'react-native';
 import Spinner from 'react-native-gifted-spinner';
 import ImageResizer from 'react-native-image-resizer';
 
@@ -42,7 +33,7 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontWeight: 'bold',
     marginBottom: 5,
-  }
+  },
 });
 
 export default class ResizerExample extends Component {
@@ -56,60 +47,53 @@ export default class ResizerExample extends Component {
   }
 
   componentDidMount() {
-    CameraRoll.getPhotos({first: 1}).then((photos) => {
-      if (!photos.edges || photos.edges.length === 0) {
-        return Alert.alert('Unable to load camera roll',
-          'Check that you authorized the access to the camera roll photos and that there is at least one photo in it');
-      }
+    CameraRoll.getPhotos({ first: 1 })
+      .then(photos => {
+        if (!photos.edges || photos.edges.length === 0) {
+          return Alert.alert(
+            'Unable to load camera roll',
+            'Check that you authorized the access to the camera roll photos and that there is at least one photo in it'
+          );
+        }
 
-      this.setState({
-        image: photos.edges[0].node.image,
+        this.setState({
+          image: photos.edges[0].node.image,
+        });
       })
-    }).catch(() => {
-      return Alert.alert('Unable to load camera roll',
-        'Check that you authorized the access to the camera roll photos');
-    });
+      .catch(() => {
+        return Alert.alert(
+          'Unable to load camera roll',
+          'Check that you authorized the access to the camera roll photos'
+        );
+      });
   }
 
   resize() {
-    ImageResizer.createResizedImage(this.state.image.uri, 800, 600, 'JPEG', 80)
-    .then(({uri}) => {
-      this.setState({
-        resizedImageUri: uri,
+    ImageResizer.createResizedImage(this.state.image.uri, 8, 6, 'JPEG', 80)
+      .then(({ uri }) => {
+        this.setState({
+          resizedImageUri: uri,
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        return Alert.alert('Unable to resize the photo', 'Check the console for full the error message');
       });
-    }).catch((err) => {
-      console.log(err);
-      return Alert.alert('Unable to resize the photo',
-        'Check the console for full the error message');
-    });
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Image Resizer example
-        </Text>
-        <Text style={styles.instructions}>
-          This is the original image:
-        </Text>
-        {
-          this.state.image ?
-            <Image style={styles.image} source={{uri: this.state.image.uri}} /> :
-            <Spinner />
-        }
-        <Text style={styles.instructions}>
-          Resized image:
-        </Text>
+        <Text style={styles.welcome}>Image Resizer example</Text>
+        <Text style={styles.instructions}>This is the original image:</Text>
+        {this.state.image ? <Image style={styles.image} source={{ uri: this.state.image.uri }} /> : <Spinner />}
+        <Text style={styles.instructions}>Resized image:</Text>
         <TouchableOpacity onPress={() => this.resize()}>
-          <Text style={styles.resizeButton}>
-            Click me to resize the image
-          </Text>
+          <Text style={styles.resizeButton}>Click me to resize the image</Text>
         </TouchableOpacity>
-        {
-          this.state.resizedImageUri ?
-          <Image style={styles.image} source={{uri: this.state.resizedImageUri}} /> : null
-        }
+        {this.state.resizedImageUri ? (
+          <Image style={styles.image} source={{ uri: this.state.resizedImageUri }} />
+        ) : null}
       </View>
     );
   }
