@@ -96,6 +96,54 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
+void transformImage(UIImage *image,
+                    RCTResponseSenderBlock callback,
+                    int rotation,
+                    CGSize newSize,
+                    NSString* fullPath,
+                    NSString* format,
+                    int quality)
+{
+    if (image == nil) {
+        callback(@[@"Can't retrieve the file from the path.", @""]);
+        return;
+    }
+
+    // Rotate image if rotation is specified.
+    if (0 != (int)rotation) {
+        image = rotateImage(image, rotation);
+        if (image == nil) {
+            callback(@[@"Can't rotate the image.", @""]);
+            return;
+        }
+    }
+
+    // Do the resizing
+    UIImage * scaledImage = [image scaleToSize:newSize];
+    if (scaledImage == nil) {
+        callback(@[@"Can't resize the image.", @""]);
+        return;
+    }
+
+    // Compress and save the image
+    if (!saveImage(fullPath, scaledImage, format, quality)) {
+        callback(@[@"Can't save the image. Check your compression format and your output path", @""]);
+        return;
+    }
+    NSURL *fileUrl = [[NSURL alloc] initFileURLWithPath:fullPath];
+    NSString *fileName = fileUrl.lastPathComponent;
+    NSError *attributesError = nil;
+    NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&attributesError];
+    NSNumber *fileSize = fileAttributes == nil ? 0 : [fileAttributes objectForKey:NSFileSize];
+    NSDictionary *response = @{@"path": fullPath,
+                               @"uri": fileUrl.absoluteString,
+                               @"name": fileName,
+                               @"size": fileSize == nil ? @(0) : fileSize
+                               };
+
+    callback(@[[NSNull null], response]);
+}
+
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   width:(float)width
                   height:(float)height
@@ -105,71 +153,40 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   outputPath:(NSString *)outputPath
                   callback:(RCTResponseSenderBlock)callback)
 {
-    CGSize newSize = CGSizeMake(width, height);
-    
-    //Set image extension
-    NSString *extension = @"jpg";
-    if ([format isEqualToString:@"PNG"]) {
-        extension = @"png";
-    }
-
-    
-    NSString* fullPath;
-    @try {
-        fullPath = generateFilePath(extension, outputPath);
-    } @catch (NSException *exception) {
-        callback(@[@"Invalid output path.", @""]);
-        return;
-    }
-
-    [_bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
-        if (error || image == nil) {
-            if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
-                NSURL *imageUrl = [[NSURL alloc] initWithString:path];
-                image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageUrl]];
-            } else {
-                image = [[UIImage alloc] initWithContentsOfFile:path];
-            }
-            if (image == nil) {
-                callback(@[@"Can't retrieve the file from the path.", @""]);
-                return;
-            }
-        }
-
-        // Rotate image if rotation is specified.
-        if (0 != (int)rotation) {
-            image = rotateImage(image, rotation);
-            if (image == nil) {
-                callback(@[@"Can't rotate the image.", @""]);
-                return;
-            }
-        }
-
-        // Do the resizing
-        UIImage * scaledImage = [image scaleToSize:newSize];
-        if (scaledImage == nil) {
-            callback(@[@"Can't resize the image.", @""]);
-            return;
-        }
-
-        // Compress and save the image
-        if (!saveImage(fullPath, scaledImage, format, quality)) {
-            callback(@[@"Can't save the image. Check your compression format and your output path", @""]);
-            return;
-        }
-        NSURL *fileUrl = [[NSURL alloc] initFileURLWithPath:fullPath];
-        NSString *fileName = fileUrl.lastPathComponent;
-        NSError *attributesError = nil;
-        NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&attributesError];
-        NSNumber *fileSize = fileAttributes == nil ? 0 : [fileAttributes objectForKey:NSFileSize];
-        NSDictionary *response = @{@"path": fullPath,
-                                   @"uri": fileUrl.absoluteString,
-                                   @"name": fileName,
-                                   @"size": fileSize == nil ? @(0) : fileSize
-                                   };
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        CGSize newSize = CGSizeMake(width, height);
         
-        callback(@[[NSNull null], response]);
-    }];
+        //Set image extension
+        NSString *extension = @"jpg";
+        if ([format isEqualToString:@"PNG"]) {
+            extension = @"png";
+        }
+        
+        
+        NSString* fullPath;
+        @try {
+            fullPath = generateFilePath(extension, outputPath);
+        } @catch (NSException *exception) {
+            callback(@[@"Invalid output path.", @""]);
+            return;
+        }
+        
+        if ([path hasPrefix:@"rct_image_store"]) {
+            [_bridge.imageLoader loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
+                if (error) {
+                    callback(@[@"Can't retrieve the file from the path.", @""]);
+                    return;
+                }
+                
+                transformImage(image, callback, rotation, newSize, fullPath, format, quality);
+            }];
+        } else if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
+            NSURL *imageUrl = [[NSURL alloc] initWithString:path];
+            transformImage([UIImage imageWithData:[NSData dataWithContentsOfURL:imageUrl]], callback, rotation, newSize, fullPath, format, quality);
+        } else {
+            transformImage([[UIImage alloc] initWithContentsOfFile:path], callback, rotation, newSize, fullPath, format, quality);
+        }
+    });
 }
 
 @end
