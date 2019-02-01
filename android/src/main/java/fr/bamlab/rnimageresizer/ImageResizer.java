@@ -65,7 +65,11 @@ public class ImageResizer {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         try {
-            retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            if (source != null) {
+              retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            } else {
+              retVal = null;
+            }
         } catch (OutOfMemoryError e) {
             return null;
         }
