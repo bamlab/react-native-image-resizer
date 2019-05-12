@@ -3,6 +3,7 @@ package fr.bamlab.rnimageresizer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -10,12 +11,14 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.GuardedAsyncTask;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
  * Created by almouro on 19/11/15.
+ * Updated by Cristiano on 2019-05-12
  */
 class ImageResizerModule extends ReactContextBaseJavaModule {
     private Context context;
@@ -35,14 +38,20 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createResizedImage(String imagePath, int newWidth, int newHeight, String compressFormat,
-                            int quality, int rotation, String outputPath, final Callback successCb, final Callback failureCb) {
-        try {
-            createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality,
-                    rotation, outputPath, successCb, failureCb);
-        } catch (IOException e) {
-            failureCb.invoke(e.getMessage());
-        }
+    public void createResizedImage(final String imagePath, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final Callback successCb, final Callback failureCb) {
+
+        // Run in guarded async task to prevent blocking the React bridge
+        new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
+            @Override
+            protected void doInBackgroundGuarded(Void... params) {
+                try {
+                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, successCb, failureCb);
+                }
+                catch (IOException e) {
+                    failureCb.invoke(e.getMessage());
+                }
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
