@@ -232,7 +232,7 @@ public class ImageResizer {
         // Set a sample size according to the image size to lower memory usage.
         options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
         options.inJustDecodeBounds = false;
-        System.out.println(options.inSampleSize);
+        //System.out.println(options.inSampleSize);
         return loadBitmap(context, imageUri, options);
 
     }
