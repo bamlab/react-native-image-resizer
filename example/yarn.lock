@@ -1160,8 +1160,8 @@ express-session@~1.11.3:
     utils-merge "1.0.0"
 
 extend@~3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
 
 extsprintf@1.0.2:
   version "1.0.2"
@@ -2157,7 +2157,7 @@ react-native-gifted-spinner@^0.1.0:
   resolved "https://registry.yarnpkg.com/react-native-gifted-spinner/-/react-native-gifted-spinner-0.1.0.tgz#2c76094fa0469c59e96dead270cd5bca5a55962a"
 
 "react-native-image-resizer@file:..":
-  version "1.0.0"
+  version "1.0.1"
 
 react-native@^0.41.0:
   version "0.41.2"
