@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * Created by almouro on 19/11/15.
  */
-class ImageResizerModule extends ReactContextBaseJavaModule {
+public class ImageResizerModule extends ReactContextBaseJavaModule {
     private Context context;
 
     public ImageResizerModule(ReactApplicationContext reactContext) {
