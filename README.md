@@ -6,9 +6,15 @@ A React Native module that can create scaled versions of local images (also supp
 
 Install the package:
 
-* 😻 React Native >= 0.40
+* React Native >= 0.60
 ```
-npm install --save react-native-image-resizer
+yarn add react-native-image-resizer
+cd ios && pod install
+```
+
+* React Native <= 0.59
+```
+yarn add react-native-image-resizer
 react-native link react-native-image-resizer
 ```
 
