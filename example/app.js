@@ -3,9 +3,16 @@
  * https://github.com/facebook/react-native
  */
 
-import React, { Component } from 'react';
-import { AppRegistry, CameraRoll, StyleSheet, Text, View, Image, Alert, TouchableOpacity } from 'react-native';
-import Spinner from 'react-native-gifted-spinner';
+import React, {Component} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import CameraRoll from '@react-native-community/cameraroll';
 import ImageResizer from 'react-native-image-resizer';
 
 const styles = StyleSheet.create({
@@ -47,12 +54,12 @@ export default class ResizerExample extends Component {
   }
 
   componentDidMount() {
-    CameraRoll.getPhotos({ first: 1 })
+    CameraRoll.getPhotos({first: 1})
       .then(photos => {
         if (!photos.edges || photos.edges.length === 0) {
           return Alert.alert(
             'Unable to load camera roll',
-            'Check that you authorized the access to the camera roll photos and that there is at least one photo in it'
+            'Check that you authorized the access to the camera roll photos and that there is at least one photo in it',
           );
         }
 
@@ -63,21 +70,24 @@ export default class ResizerExample extends Component {
       .catch(() => {
         return Alert.alert(
           'Unable to load camera roll',
-          'Check that you authorized the access to the camera roll photos'
+          'Check that you authorized the access to the camera roll photos',
         );
       });
   }
 
   resize() {
-    ImageResizer.createResizedImage(this.state.image.uri, 8, 6, 'JPEG', 80)
-      .then(({ uri }) => {
+    ImageResizer.createResizedImage(this.state.image.uri, 80, 60, 'JPEG', 100)
+      .then(({uri}) => {
         this.setState({
           resizedImageUri: uri,
         });
       })
       .catch(err => {
         console.log(err);
-        return Alert.alert('Unable to resize the photo', 'Check the console for full the error message');
+        return Alert.alert(
+          'Unable to resize the photo',
+          'Check the console for full the error message',
+        );
       });
   }
 
@@ -86,13 +96,18 @@ export default class ResizerExample extends Component {
       <View style={styles.container}>
         <Text style={styles.welcome}>Image Resizer example</Text>
         <Text style={styles.instructions}>This is the original image:</Text>
-        {this.state.image ? <Image style={styles.image} source={{ uri: this.state.image.uri }} /> : <Spinner />}
+        {this.state.image ? (
+          <Image style={styles.image} source={{uri: this.state.image.uri}} />
+        ) : null}
         <Text style={styles.instructions}>Resized image:</Text>
         <TouchableOpacity onPress={() => this.resize()}>
           <Text style={styles.resizeButton}>Click me to resize the image</Text>
         </TouchableOpacity>
         {this.state.resizedImageUri ? (
-          <Image style={styles.image} source={{ uri: this.state.resizedImageUri }} />
+          <Image
+            style={styles.image}
+            source={{uri: this.state.resizedImageUri}}
+          />
         ) : null}
       </View>
     );
