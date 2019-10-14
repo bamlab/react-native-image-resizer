@@ -15,6 +15,7 @@ import com.facebook.react.bridge.GuardedAsyncTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Created by almouro on 19/11/15.
@@ -57,11 +58,23 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
                                            String compressFormatString, int quality, int rotation, String outputPath,
                                            final Callback successCb, final Callback failureCb) throws IOException {
+
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         Uri imageUri = Uri.parse(imagePath);
 
-        File resizedImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth,
-                newHeight, compressFormat, quality, rotation, outputPath);
+        Bitmap rotatedImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, quality, rotation);
+
+        if (rotatedImage == null) {
+          throw new IOException("The image failed to be resized; invalid Bitmap result.");
+        }
+
+        // Save the resulting image
+        File path = context.getCacheDir();
+        if (outputPath != null) {
+            path = new File(outputPath);
+        }
+
+        File resizedImage = ImageResizer.saveImage(rotatedImage, path, Long.toString(new Date().getTime()), compressFormat, quality);
 
         // If resizedImagePath is empty and this wasn't caught earlier, throw.
         if (resizedImage.isFile()) {
@@ -70,10 +83,16 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
             response.putString("uri", Uri.fromFile(resizedImage).toString());
             response.putString("name", resizedImage.getName());
             response.putDouble("size", resizedImage.length());
+            response.putDouble("width", rotatedImage.getWidth());
+            response.putDouble("height", rotatedImage.getHeight());
             // Invoke success
             successCb.invoke(response);
         } else {
             failureCb.invoke("Error getting resized image path");
         }
+
+
+        // Clean up bitmap
+        rotatedImage.recycle();
     }
 }

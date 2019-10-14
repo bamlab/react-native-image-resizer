@@ -75,7 +75,7 @@ public class ImageResizer {
     /**
      * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
      */
-    private static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
+    public static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
                                     Bitmap.CompressFormat compressFormat, int quality)
             throws IOException {
         if (bitmap == null) {
@@ -264,11 +264,12 @@ public class ImageResizer {
     }
 
     /**
-     * Create a resized version of the given image.
+     * Create a resized version of the given image and returns a Bitmap object
+     * ready to be saved or converted. Ensure that the result is cleaned up after use
+     * by using recycle
      */
-    public static File createResizedImage(Context context, Uri imageUri, int newWidth,
-                                            int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation, String outputPath) throws IOException  {
+    public static Bitmap createResizedImage(Context context, Uri imageUri, int newWidth,
+                                            int newHeight, int quality, int rotation) throws IOException  {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
         if (imageUriScheme == null || imageUriScheme.equalsIgnoreCase(SCHEME_FILE) || imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)) {
@@ -297,18 +298,7 @@ public class ImageResizer {
             scaledImage.recycle();
         }
 
-        // Save the resulting image
-        File path = context.getCacheDir();
-        if (outputPath != null) {
-            path = new File(outputPath);
-        }
 
-        File newFile = ImageResizer.saveImage(rotatedImage, path,
-                Long.toString(new Date().getTime()), compressFormat, quality);
-
-        // Clean up remaining image
-        rotatedImage.recycle();
-
-        return newFile;
+        return rotatedImage;
     }
 }

@@ -165,7 +165,9 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         NSDictionary *response = @{@"path": fullPath,
                                    @"uri": fileUrl.absoluteString,
                                    @"name": fileName,
-                                   @"size": fileSize == nil ? @(0) : fileSize
+                                   @"size": fileSize == nil ? @(0) : fileSize,
+                                   @"width": @(scaledImage.size.width),
+                                   @"height": @(scaledImage.size.height)
                                    };
         
         callback(@[[NSNull null], response]);
