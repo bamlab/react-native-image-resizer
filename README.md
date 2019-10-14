@@ -6,26 +6,16 @@ A React Native module that can create scaled versions of local images (also supp
 
 Install the package:
 
-* 😻 React Native >= 0.40
+* React Native >= 0.60
 ```
-npm install --save react-native-image-resizer
+yarn add react-native-image-resizer
+cd ios && pod install
+```
+
+* React Native <= 0.59
+```
+yarn add react-native-image-resizer
 react-native link react-native-image-resizer
-```
-
-> ⚠️ **Heads up, breaking change!** If you're upgrading *react-native-image-resizer* to version 1.0.0, please note that the response of `createResizedImage` changed. You must now read the image uri from property `uri` of the returned object. [Here is an example](https://github.com/bamlab/react-native-image-resizer/commit/15ea06d7651faf316b946170427efa90ea48dc4e). Easy, huh?
-
-## Older versions:
-
-* 👨 React Native >= 0.29.2 and < 0.40
-```
-npm install --save react-native-image-resizer@0.0.12
-react-native link react-native-image-resizer
-```
-
-* 👴 React Native >= 0.28 and < 0.29.2
-```
-npm install rnpm -g
-rnpm install react-native-image-resizer@0.0.12
 ```
 
 ### Android
