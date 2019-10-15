@@ -292,12 +292,21 @@ public class ImageResizer {
         rotation = orientation + rotation;
         rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
 
+        if(rotatedImage == null){
+            throw new IOException("Unable to rotate image. Most likely due to not enough memory.");
+        }
+
         if (rotatedImage != rotatedImage) {
             sourceImage.recycle();
         }
 
         // Scale image
         Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight);
+
+        if(scaledImage == null){
+            throw new IOException("Unable to resize image. Most likely due to not enough memory.");
+        }
+
         if (scaledImage != rotatedImage) {
             rotatedImage.recycle();
         }
