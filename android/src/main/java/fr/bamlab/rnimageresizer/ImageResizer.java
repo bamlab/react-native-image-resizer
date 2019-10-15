@@ -272,6 +272,7 @@ public class ImageResizer {
                                             int newHeight, int quality, int rotation) throws IOException  {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
+
         if (imageUriScheme == null || imageUriScheme.equalsIgnoreCase(SCHEME_FILE) || imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)) {
             sourceImage = ImageResizer.loadBitmapFromFile(context, imageUri, newWidth, newHeight);
         } else if (imageUriScheme.equalsIgnoreCase(SCHEME_DATA)) {
@@ -282,23 +283,25 @@ public class ImageResizer {
             throw new IOException("Unable to load source image from path");
         }
 
-        // Scale it first so there are fewer pixels to transform in the rotation
-        Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight);
-        if (sourceImage != scaledImage) {
+
+        // Rotate if necessary. Rotate first because we will otherwise
+        // get wrong dimensions if we want the new dimensions to be after rotation.
+        // NOTE: This will "fix" the image using it's exif info if it is rotated as well.
+        Bitmap rotatedImage = sourceImage;
+        int orientation = getOrientation(context, imageUri);
+        rotation = orientation + rotation;
+        rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
+
+        if (rotatedImage != rotatedImage) {
             sourceImage.recycle();
         }
 
-        // Rotate if necessary
-        Bitmap rotatedImage = scaledImage;
-        int orientation = getOrientation(context, imageUri);
-        rotation = orientation + rotation;
-        rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
-
+        // Scale image
+        Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight);
         if (scaledImage != rotatedImage) {
-            scaledImage.recycle();
+            rotatedImage.recycle();
         }
 
-
-        return rotatedImage;
+        return scaledImage;
     }
 }

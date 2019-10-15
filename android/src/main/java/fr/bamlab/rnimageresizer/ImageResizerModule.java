@@ -62,9 +62,9 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         Uri imageUri = Uri.parse(imagePath);
 
-        Bitmap rotatedImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, quality, rotation);
+        Bitmap scaledImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, quality, rotation);
 
-        if (rotatedImage == null) {
+        if (scaledImage == null) {
           throw new IOException("The image failed to be resized; invalid Bitmap result.");
         }
 
@@ -74,7 +74,7 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
             path = new File(outputPath);
         }
 
-        File resizedImage = ImageResizer.saveImage(rotatedImage, path, Long.toString(new Date().getTime()), compressFormat, quality);
+        File resizedImage = ImageResizer.saveImage(scaledImage, path, Long.toString(new Date().getTime()), compressFormat, quality);
 
         // If resizedImagePath is empty and this wasn't caught earlier, throw.
         if (resizedImage.isFile()) {
@@ -83,8 +83,8 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
             response.putString("uri", Uri.fromFile(resizedImage).toString());
             response.putString("name", resizedImage.getName());
             response.putDouble("size", resizedImage.length());
-            response.putDouble("width", rotatedImage.getWidth());
-            response.putDouble("height", rotatedImage.getHeight());
+            response.putDouble("width", scaledImage.getWidth());
+            response.putDouble("height", scaledImage.getHeight());
             // Invoke success
             successCb.invoke(response);
         } else {
@@ -93,6 +93,6 @@ class ImageResizerModule extends ReactContextBaseJavaModule {
 
 
         // Clean up bitmap
-        rotatedImage.recycle();
+        scaledImage.recycle();
     }
 }
