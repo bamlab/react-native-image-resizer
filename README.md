@@ -49,7 +49,8 @@ A basic, sample app is available in [the `example` folder](https://github.com/ba
 
 ### `promise createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation = 0, outputPath)`
 
-The promise resolves with an object containing: `path`, `uri`, `name` and `size` of the new file. The URI can be used directly as the `source` of an [`<Image>`](https://facebook.github.io/react-native/docs/image.html) component.
+The promise resolves with an object containing: `path`, `uri`, `name`, `size` and (currently Android only) `width` and `height` of the new file. The URI can be used directly as the `source` of an [`<Image>`](https://facebook.github.io/react-native/docs/image.html) component.
+If outputPath="base64" the promise resolves with `base64` instead of `path` and `uri` (Android only).
 
 Option | Description
 ------ | -----------
@@ -59,7 +60,7 @@ maxHeight | Image max height (ratio is preserved)
 compressFormat | Can be either JPEG, PNG or WEBP (android only).
 quality | A number between 0 and 100. Used for the JPEG compression.
 rotation | Rotation to apply to the image, in degrees, for android. On iOS, rotation is limited (and rounded) to multiples of 90 degrees.
-outputPath | The resized image path. If null, resized image will be stored in cache folder. To set outputPath make sure to add option for rotation too (if no rotation is needed, just set it to 0).
+outputPath | The resized image path. If null, resized image will be stored in cache folder. To set outputPath make sure to add option for rotation too (if no rotation is needed, just set it to 0). For base64 output, set to "base64" (Android only).
 
 ## Other open-source modules by the folks at [BAM](http://github.com/bamlab)
 
