@@ -75,7 +75,7 @@ public class ImageResizer {
     /**
      * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
      */
-    private static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
+    public static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
                                     Bitmap.CompressFormat compressFormat, int quality)
             throws IOException {
         if (bitmap == null) {
@@ -232,7 +232,7 @@ public class ImageResizer {
         // Set a sample size according to the image size to lower memory usage.
         options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
         options.inJustDecodeBounds = false;
-        System.out.println(options.inSampleSize);
+        //System.out.println(options.inSampleSize);
         return loadBitmap(context, imageUri, options);
 
     }
@@ -264,13 +264,15 @@ public class ImageResizer {
     }
 
     /**
-     * Create a resized version of the given image.
+     * Create a resized version of the given image and returns a Bitmap object
+     * ready to be saved or converted. Ensure that the result is cleaned up after use
+     * by using recycle
      */
-    public static File createResizedImage(Context context, Uri imageUri, int newWidth,
-                                            int newHeight, Bitmap.CompressFormat compressFormat,
-                                            int quality, int rotation, String outputPath) throws IOException  {
+    public static Bitmap createResizedImage(Context context, Uri imageUri, int newWidth,
+                                            int newHeight, int quality, int rotation) throws IOException  {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
+
         if (imageUriScheme == null || imageUriScheme.equalsIgnoreCase(SCHEME_FILE) || imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)) {
             sourceImage = ImageResizer.loadBitmapFromFile(context, imageUri, newWidth, newHeight);
         } else if (imageUriScheme.equalsIgnoreCase(SCHEME_DATA)) {
@@ -281,34 +283,34 @@ public class ImageResizer {
             throw new IOException("Unable to load source image from path");
         }
 
-        // Scale it first so there are fewer pixels to transform in the rotation
-        Bitmap scaledImage = ImageResizer.resizeImage(sourceImage, newWidth, newHeight);
-        if (sourceImage != scaledImage) {
+
+        // Rotate if necessary. Rotate first because we will otherwise
+        // get wrong dimensions if we want the new dimensions to be after rotation.
+        // NOTE: This will "fix" the image using it's exif info if it is rotated as well.
+        Bitmap rotatedImage = sourceImage;
+        int orientation = getOrientation(context, imageUri);
+        rotation = orientation + rotation;
+        rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
+
+        if(rotatedImage == null){
+            throw new IOException("Unable to rotate image. Most likely due to not enough memory.");
+        }
+
+        if (rotatedImage != rotatedImage) {
             sourceImage.recycle();
         }
 
-        // Rotate if necessary
-        Bitmap rotatedImage = scaledImage;
-        int orientation = getOrientation(context, imageUri);
-        rotation = orientation + rotation;
-        rotatedImage = ImageResizer.rotateImage(scaledImage, rotation);
+        // Scale image
+        Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight);
+
+        if(scaledImage == null){
+            throw new IOException("Unable to resize image. Most likely due to not enough memory.");
+        }
 
         if (scaledImage != rotatedImage) {
-            scaledImage.recycle();
+            rotatedImage.recycle();
         }
 
-        // Save the resulting image
-        File path = context.getCacheDir();
-        if (outputPath != null) {
-            path = new File(outputPath);
-        }
-
-        File newFile = ImageResizer.saveImage(rotatedImage, path,
-                Long.toString(new Date().getTime()), compressFormat, quality);
-
-        // Clean up remaining image
-        rotatedImage.recycle();
-
-        return newFile;
+        return scaledImage;
     }
 }
