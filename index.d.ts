@@ -4,6 +4,8 @@ declare module 'react-native-image-resizer' {
     uri: string;
     size?: number;
     name?: string;
+    width: number;
+    height: number;
   }
 
   export default class ImageResizer {
