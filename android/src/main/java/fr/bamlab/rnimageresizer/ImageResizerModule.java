@@ -21,7 +21,7 @@ import java.util.Date;
  * Created by almouro on 19/11/15.
  * Updated by Cristiano on 2019-05-12
  */
-class ImageResizerModule extends ReactContextBaseJavaModule {
+public class ImageResizerModule extends ReactContextBaseJavaModule {
     private Context context;
 
     public ImageResizerModule(ReactApplicationContext reactContext) {
