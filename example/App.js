@@ -86,9 +86,6 @@ export default class ResizerExample extends Component {
 
     ImageResizer.createResizedImage(this.state.image.uri, width, height, 'PNG', 100)
         .then(({uri}) => {
-
-          return;
-
           this.setState(state => {
 
             return (setLoadingState) ? {
@@ -129,7 +126,6 @@ export default class ResizerExample extends Component {
   }
 
   render() {
-    console.log('render');
     return (
         <View style={styles.container}>
           <ScrollView>
