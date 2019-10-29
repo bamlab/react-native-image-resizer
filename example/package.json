@@ -5,15 +5,14 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start",
+    "start": "npx react-native start",
     "test": "jest",
     "lint": "eslint ."
   },
   "dependencies": {
     "@react-native-community/cameraroll": "^1.2.1",
     "react": "16.9.0",
-    "react-native": "0.61.1",
-    "react-native-image-resizer": "^1.0.1"
+    "react-native": "0.61.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

@@ -184,7 +184,7 @@ PODS:
   - React-jsinspector (0.61.1)
   - react-native-cameraroll (1.2.1):
     - React
-  - react-native-image-resizer (1.0.1):
+  - react-native-image-resizer (1.1.0):
     - React
   - React-RCTActionSheet (0.61.1):
     - React-Core/RCTActionSheetHeaders (= 0.61.1)
@@ -241,7 +241,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
-  - react-native-image-resizer (from `../node_modules/react-native-image-resizer`)
+  - react-native-image-resizer (from `../../`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
@@ -256,7 +256,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - boost-for-react-native
 
 EXTERNAL SOURCES:
@@ -291,7 +291,7 @@ EXTERNAL SOURCES:
   react-native-cameraroll:
     :path: "../node_modules/@react-native-community/cameraroll"
   react-native-image-resizer:
-    :path: "../node_modules/react-native-image-resizer"
+    :path: "../../"
   React-RCTActionSheet:
     :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
   React-RCTAnimation:
@@ -332,7 +332,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: ee45274419eb95614bbbadb98e20684c5f29996e
   React-jsinspector: 574d597112f9ea3d1b717f6fb62aef764c70dd6f
   react-native-cameraroll: 3e5e34d36d93548ae7770ee8ab7b2ae9e778f571
-  react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
+  react-native-image-resizer: 1ffe71ec5f2596c3a24d42548c03bfbfb06fe810
   React-RCTActionSheet: af4d951113b1e068bb30611f91b984a7a73597ff
   React-RCTAnimation: 4f518d70bb6890b7c3d9d732f84786d6693ca297
   React-RCTBlob: 072a4888c08de0eef6d04eaa727d25e577e6ff26
@@ -345,6 +345,6 @@ SPEC CHECKSUMS:
   ReactCommon: 4fba5be89efdf0b5720e0adb3d8d7edf6e532db0
   Yoga: d8c572ddec8d05b7dba08e4e5f1924004a177078
 
-PODFILE CHECKSUM: 7ca0fe75412500d5f7a5b29839ab0f3175a4bc16
+PODFILE CHECKSUM: 198c91073c30ce994a8343d6562d48d4bb26e82d
 
-COCOAPODS: 1.7.3
+COCOAPODS: 1.8.3

@@ -16,6 +16,7 @@
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* MyTestAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* MyTestAppTests.m */; };
+		7504354F236842F500C6E17E /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 7504354E236842F500C6E17E /* assets */; };
 		7BB7BE0ED3D8FD5C8C7093C9 /* libPods-MyTestAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 57BE2A8876179F2D7A2D80FC /* libPods-MyTestAppTests.a */; };
 		A19C2499D0E6003C8EABDB3C /* libPods-MyTestApp-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A160A0BBF0B51168A23D99AC /* libPods-MyTestApp-tvOS.a */; };
 		A9444306885D7390B3F37DAB /* libPods-MyTestApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4191B5214FAC7A55780BB584 /* libPods-MyTestApp.a */; };
@@ -59,6 +60,7 @@
 		57BE2A8876179F2D7A2D80FC /* libPods-MyTestAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MyTestAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B614FC386E6A5666477FEBD /* Pods-MyTestApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyTestApp.debug.xcconfig"; path = "Target Support Files/Pods-MyTestApp/Pods-MyTestApp.debug.xcconfig"; sourceTree = "<group>"; };
 		712F5B70789364D50247C5ED /* Pods-MyTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyTestApp.release.xcconfig"; path = "Target Support Files/Pods-MyTestApp/Pods-MyTestApp.release.xcconfig"; sourceTree = "<group>"; };
+		7504354E236842F500C6E17E /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../assets; sourceTree = "<group>"; };
 		8E9699E580258EE654D52A2E /* Pods-MyTestAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyTestAppTests.debug.xcconfig"; path = "Target Support Files/Pods-MyTestAppTests/Pods-MyTestAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		8EFFA20395EAA9CF35A88EAF /* Pods-MyTestApp-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyTestApp-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-MyTestApp-tvOSTests/Pods-MyTestApp-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		9EA096E33C64ADB53E3D5E9A /* Pods-MyTestApp-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyTestApp-tvOS.release.xcconfig"; path = "Target Support Files/Pods-MyTestApp-tvOS/Pods-MyTestApp-tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				7504354E236842F500C6E17E /* assets */,
 				13B07FAE1A68108700A75B9A /* MyTestApp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* MyTestAppTests */,
@@ -194,7 +197,6 @@
 				8E9699E580258EE654D52A2E /* Pods-MyTestAppTests.debug.xcconfig */,
 				44FA752BF7284B28795070C5 /* Pods-MyTestAppTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -308,6 +310,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -336,6 +339,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7504354F236842F500C6E17E /* assets in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
@@ -371,7 +375,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		179914A6D384C5B447297870 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
