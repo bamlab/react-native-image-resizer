@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -39,14 +40,14 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createResizedImage(final String imagePath, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final Callback successCb, final Callback failureCb) {
+    public void createResizedImage(final String imagePath, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final boolean keepMeta, final Callback successCb, final Callback failureCb) {
 
         // Run in guarded async task to prevent blocking the React bridge
         new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
             @Override
             protected void doInBackgroundGuarded(Void... params) {
                 try {
-                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, successCb, failureCb);
+                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, keepMeta, successCb, failureCb);
                 }
                 catch (IOException e) {
                     failureCb.invoke(e.getMessage());
@@ -57,6 +58,7 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
 
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
                                            String compressFormatString, int quality, int rotation, String outputPath,
+                                           final boolean keepMeta,
                                            final Callback successCb, final Callback failureCb) throws IOException {
 
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
@@ -85,6 +87,17 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
             response.putDouble("size", resizedImage.length());
             response.putDouble("width", scaledImage.getWidth());
             response.putDouble("height", scaledImage.getHeight());
+
+            // Copy file's metadata/exif info if required
+            if(keepMeta){
+                try{
+                    ImageResizer.copyExif(this.context, imageUri, resizedImage.getAbsolutePath());
+                }
+                catch(Exception ignored){
+                    Log.e("ImageResizer::createResizedImageWithExceptions", "EXIF copy failed", ignored);
+                };
+            }
+
             // Invoke success
             successCb.invoke(response);
         } else {

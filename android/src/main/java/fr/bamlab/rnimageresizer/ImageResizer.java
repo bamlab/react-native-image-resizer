@@ -6,10 +6,11 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,6 +28,80 @@ public class ImageResizer {
     private final static String SCHEME_DATA = "data";
     private final static String SCHEME_CONTENT = "content";
     private final static String SCHEME_FILE = "file";
+
+    // List of known EXIF tags we will be copying.
+    // Orientation, width, height, and some others are ignored
+    // TODO: Find any missing tag that might be useful
+    private final static String[] EXIF_TO_COPY_ROTATED = new String[]
+    {
+        ExifInterface.TAG_APERTURE_VALUE,
+        ExifInterface.TAG_MAX_APERTURE_VALUE,
+        ExifInterface.TAG_METERING_MODE,
+        ExifInterface.TAG_ARTIST,
+        ExifInterface.TAG_BITS_PER_SAMPLE,
+        ExifInterface.TAG_BODY_SERIAL_NUMBER,
+        ExifInterface.TAG_BRIGHTNESS_VALUE,
+        ExifInterface.TAG_CONTRAST,
+        ExifInterface.TAG_CAMERA_OWNER_NAME,
+        ExifInterface.TAG_COLOR_SPACE,
+        ExifInterface.TAG_COPYRIGHT,
+        ExifInterface.TAG_DATETIME,
+        ExifInterface.TAG_DATETIME_DIGITIZED,
+        ExifInterface.TAG_DATETIME_ORIGINAL,
+        ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
+        ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
+        ExifInterface.TAG_EXIF_VERSION,
+        ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
+        ExifInterface.TAG_EXPOSURE_INDEX,
+        ExifInterface.TAG_EXPOSURE_MODE,
+        ExifInterface.TAG_EXPOSURE_TIME,
+        ExifInterface.TAG_EXPOSURE_PROGRAM,
+        ExifInterface.TAG_FLASH,
+        ExifInterface.TAG_FLASH_ENERGY,
+        ExifInterface.TAG_FOCAL_LENGTH,
+        ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM,
+        ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
+        ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
+        ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
+        ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
+        ExifInterface.TAG_F_NUMBER,
+        ExifInterface.TAG_GAIN_CONTROL,
+        ExifInterface.TAG_GAMMA,
+        ExifInterface.TAG_GPS_ALTITUDE,
+        ExifInterface.TAG_GPS_AREA_INFORMATION,
+        ExifInterface.TAG_GPS_DATESTAMP,
+        ExifInterface.TAG_GPS_DOP,
+        ExifInterface.TAG_GPS_IMG_DIRECTION,
+        ExifInterface.TAG_GPS_LATITUDE,
+        ExifInterface.TAG_GPS_LONGITUDE,
+        ExifInterface.TAG_GPS_STATUS,
+        ExifInterface.TAG_IMAGE_DESCRIPTION,
+        ExifInterface.TAG_IMAGE_UNIQUE_ID,
+        ExifInterface.TAG_ISO_SPEED,
+        ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+        ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
+        ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
+        ExifInterface.TAG_LENS_MAKE,
+        ExifInterface.TAG_LENS_MODEL,
+        ExifInterface.TAG_LENS_SERIAL_NUMBER,
+        ExifInterface.TAG_LENS_SPECIFICATION,
+        ExifInterface.TAG_LIGHT_SOURCE,
+        ExifInterface.TAG_MAKE,
+        ExifInterface.TAG_MAKER_NOTE,
+        ExifInterface.TAG_MODEL,
+        // ExifInterface.TAG_ORIENTATION, // removed
+        ExifInterface.TAG_SATURATION,
+        ExifInterface.TAG_SHARPNESS,
+        ExifInterface.TAG_SHUTTER_SPEED_VALUE,
+        ExifInterface.TAG_SOFTWARE,
+        ExifInterface.TAG_SUBJECT_DISTANCE,
+        ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
+        ExifInterface.TAG_SUBJECT_LOCATION,
+        ExifInterface.TAG_USER_COMMENT,
+        ExifInterface.TAG_WHITE_BALANCE
+    };
+
+
 
     /**
      * Resize the specified bitmap, keeping its aspect ratio.
@@ -133,6 +208,54 @@ public class ImageResizer {
         return file;
     }
 
+    /**
+     * Attempts to copy exif info from one file to another. Note: orientation, width, and height
+        exif attributes are not copied since those are lost after image rotation.
+
+     * imageUri: original image URI as provided from JS
+     * dstPath: final image output path
+     * Returns true if copy was successful, false otherwise.
+    */
+    public static boolean copyExif(Context context, Uri imageUri, String dstPath){
+        ExifInterface src = null;
+        ExifInterface dst = null;
+
+        try {
+
+            File file = getFileFromUri(context, imageUri);
+            if (!file.exists()) {
+                return false;
+            }
+
+            src = new ExifInterface(file.getAbsolutePath());
+            dst = new ExifInterface(dstPath);
+
+        } catch (Exception ignored) {
+            Log.e("ImageResizer::copyExif", "EXIF read failed", ignored);
+        }
+
+        if(src == null || dst == null){
+            return false;
+        }
+
+        try{
+
+            for (String attr : EXIF_TO_COPY_ROTATED)
+            {
+                String value = src.getAttribute(attr);
+                if (value != null){
+                    dst.setAttribute(attr, value);
+                }
+            }
+            dst.saveAttributes();
+
+        } catch (Exception ignored) {
+            Log.e("ImageResizer::copyExif", "EXIF copy failed", ignored);
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Get orientation by reading Image metadata

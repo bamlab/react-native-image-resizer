@@ -103,6 +103,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   quality:(float)quality
                   rotation:(float)rotation
                   outputPath:(NSString *)outputPath
+                  keepMeta:(BOOL)keepMeta
                   callback:(RCTResponseSenderBlock)callback)
 {
     CGSize newSize = CGSizeMake(width, height);
