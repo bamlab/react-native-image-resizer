@@ -8,6 +8,8 @@
 #include "RCTImageResizer.h"
 #include "ImageHelpers.h"
 #import <React/RCTImageLoader.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @implementation ImageResizer
 
@@ -15,21 +17,67 @@
 
 RCT_EXPORT_MODULE();
 
-bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality)
+bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality, NSMutableDictionary *metadata)
 {
-    NSData* data = nil;
-    if ([format isEqualToString:@"JPEG"]) {
-        data = UIImageJPEGRepresentation(image, quality / 100.0);
-    } else if ([format isEqualToString:@"PNG"]) {
-        data = UIImagePNGRepresentation(image);
+    if(metadata == nil){
+        NSData* data = nil;
+        if ([format isEqualToString:@"JPEG"]) {
+            data = UIImageJPEGRepresentation(image, quality / 100.0);
+        } else if ([format isEqualToString:@"PNG"]) {
+            data = UIImagePNGRepresentation(image);
+        }
+        
+        if (data == nil) {
+            return NO;
+        }
+        
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
     }
     
-    if (data == nil) {
-        return NO;
+    // process / write metadata together with image data
+    else{
+        
+        CFStringRef imgType = kUTTypeJPEG;
+        
+        if ([format isEqualToString:@"JPEG"]) {
+            [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+        }
+        else if([format isEqualToString:@"PNG"]){
+            imgType = kUTTypePNG;
+        }
+        else{
+            return NO;
+        }
+        
+        NSMutableData * destData = [NSMutableData data];
+
+        CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, imgType, 1, NULL);
+
+        @try{
+            CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef) metadata);
+
+            // write final image data with metadata to our destination
+            if (CGImageDestinationFinalize(destination)){
+                
+                NSFileManager* fileManager = [NSFileManager defaultManager];
+                return [fileManager createFileAtPath:fullPath contents:destData attributes:nil];
+            }
+            else{
+                return NO;
+            }
+        }
+        @finally{
+            @try{
+                CFRelease(destination);
+            }
+            @catch(NSException *exception){
+                NSLog(@"Failed to release CGImageDestinationRef: %@", exception);
+            }
+        }
     }
     
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
+    
 }
 
 NSString * generateFilePath(NSString * ext, NSString * outputPath)
@@ -96,6 +144,60 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
+// Returns the image's metadata, or nil if failed to retrieve it.
+NSMutableDictionary * getImageMeta(NSString * path)
+{
+    if([path hasPrefix:@"assets-library"]) {
+
+        __block NSMutableDictionary* res = nil;
+        
+        ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
+        {
+
+            NSDictionary *exif = [[myasset defaultRepresentation] metadata];
+            res = [exif mutableCopy];
+
+        };
+
+        ALAssetsLibrary* assetslibrary = [[ALAssetsLibrary alloc] init];
+        NSURL *url = [NSURL URLWithString:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        
+        [assetslibrary assetForURL:url resultBlock:resultblock failureBlock:^(NSError *error) { NSLog(@"error couldn't image from assets library"); }];
+        
+        return res;
+
+    } else {
+
+        NSData* imageData = nil;
+        
+        if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
+            NSURL *imageUrl = [[NSURL alloc] initWithString:path];
+            imageData = [NSData dataWithContentsOfURL:imageUrl];
+            
+        } else {
+            imageData = [NSData dataWithContentsOfFile:path];
+        }
+        
+        if(imageData == nil){
+            NSLog(@"Could not get image file data to extract metadata.");
+            return nil;
+        }
+        
+        CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+                    
+        if(source != nil){
+            NSDictionary *meta = (__bridge NSDictionary *) CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
+            
+            return [meta mutableCopy];
+        }
+        else{
+            return nil;
+        }
+
+    }
+    
+}
+
 RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   width:(float)width
                   height:(float)height
@@ -124,6 +226,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
     }
 
     [[_bridge moduleForClass:[RCTImageLoader class]] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
+                
         if (error || image == nil) {
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
                 NSURL *imageUrl = [[NSURL alloc] initWithString:path];
@@ -136,6 +239,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                 return;
             }
         }
+        
 
         // Rotate image if rotation is specified.
         if (0 != (int)rotation) {
@@ -153,8 +257,24 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
             return;
         }
 
+        NSMutableDictionary *metadata = nil;
+        
+        // to be consistent with Android, we will only allow JPEG
+        // to do this.
+        if(keepMeta && [format isEqualToString:@"JPEG"]){
+            
+            
+            metadata = getImageMeta(path);
+            
+            // remove orientation (since we fix it)
+            // width/height meta is adjusted automatically
+            // NOTE: This might still leave some stale values due to resize
+            metadata[(NSString*)kCGImagePropertyOrientation] = @(1);
+            
+        }
+        
         // Compress and save the image
-        if (!saveImage(fullPath, scaledImage, format, quality)) {
+        if (!saveImage(fullPath, scaledImage, format, quality, metadata)) {
             callback(@[@"Can't save the image. Check your compression format and your output path", @""]);
             return;
         }
