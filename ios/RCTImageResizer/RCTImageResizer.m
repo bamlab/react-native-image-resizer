@@ -185,10 +185,24 @@ NSMutableDictionary * getImageMeta(NSString * path)
         
         CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
                     
+        
         if(source != nil){
-            NSDictionary *meta = (__bridge NSDictionary *) CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
             
-            return [meta mutableCopy];
+            CFDictionaryRef metaRef = CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
+            
+            // release CF image
+            CFRelease(source);
+            
+            CFMutableDictionaryRef metaRefMutable = CFDictionaryCreateMutableCopy(NULL, 0, metaRef);
+            
+            // release the source meta ref now that we've copie it
+            CFRelease(metaRef);
+                        
+            // bridge CF object so it auto releases
+            NSMutableDictionary* res = (NSMutableDictionary *)CFBridgingRelease(metaRefMutable);
+            
+            return res;
+            
         }
         else{
             return nil;
