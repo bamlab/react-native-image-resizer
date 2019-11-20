@@ -6,7 +6,6 @@
 //
 
 #include "RCTImageResizer.h"
-#include "ImageHelpers.h"
 #import <React/RCTImageLoader.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -144,6 +143,61 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
+float getScaleForProportionalResize( CGSize theSize, CGSize intoSize, bool onlyScaleDown, bool maximize )
+{
+    float    sx = theSize.width;
+    float    sy = theSize.height;
+    float    dx = intoSize.width;
+    float    dy = intoSize.height;
+    float    scale    = 1;
+
+    if( sx != 0 && sy != 0 )
+    {
+        dx    = dx / sx;
+        dy    = dy / sy;
+
+        // if maximize is true, take LARGER of the scales, else smaller
+        if( maximize )        scale    = (dx > dy)    ? dx : dy;
+        else                scale    = (dx < dy)    ? dx : dy;
+
+        if( scale > 1 && onlyScaleDown )    // reset scale
+            scale    = 1;
+    }
+    else
+    {
+        scale     = 0;
+    }
+    return scale;
+}
+
+
+// returns a resized image keeping aspect ratio and considering
+// any :image scale factor.
+// The returned image is an unscaled image (scale = 1.0)
+// so no additional scaling math needs to be done to get its pixel dimensions
+UIImage* scaleImage (UIImage* image, CGSize toSize)
+{
+    
+    // Need to do scaling corrections
+    // based on scale, since UIImage width/height gives us
+    // a possibly scaled image (dimensions in points)
+    // Idea taken from RNCamera resize code
+    CGSize imageSize = CGSizeMake(image.size.width * image.scale, image.size.height * image.scale);
+    
+    float scale = getScaleForProportionalResize(imageSize, toSize, false, false);
+    
+    // using this instead of ImageHelpers allows us to consider
+    // rotation variations
+    CGSize newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+    
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
 // Returns the image's metadata, or nil if failed to retrieve it.
 NSMutableDictionary * getImageMeta(NSString * path)
 {
@@ -265,7 +319,8 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         }
 
         // Do the resizing
-        UIImage * scaledImage = [image scaleToSize:newSize];
+        UIImage * scaledImage = scaleImage(image, newSize);
+        
         if (scaledImage == nil) {
             callback(@[@"Can't resize the image.", @""]);
             return;
@@ -276,7 +331,6 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         // to be consistent with Android, we will only allow JPEG
         // to do this.
         if(keepMeta && [format isEqualToString:@"JPEG"]){
-            
             
             metadata = getImageMeta(path);
             
