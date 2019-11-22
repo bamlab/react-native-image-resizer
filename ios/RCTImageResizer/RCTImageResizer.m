@@ -7,7 +7,17 @@
 
 #include "RCTImageResizer.h"
 #include "ImageHelpers.h"
+
+#if __has_include(<React/RCTBridgeModule.h>)
+#import <React/RCTBridgeModule.h>
 #import <React/RCTImageLoader.h>
+#import <React/RCTImageURLLoader.h>
+#else
+#import "RCTBridgeModule.h"
+#import "RCTImageLoader.h"
+#import "RCTImageURLLoader.h"
+#endif
+
 
 @implementation ImageResizer
 
@@ -122,7 +132,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         return;
     }
 
-    [[_bridge moduleForClass:[RCTImageLoader class]] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
+    [[self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) {
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
                 NSURL *imageUrl = [[NSURL alloc] initWithString:path];
