@@ -41,7 +41,7 @@ public class ImageResizer {
             float width = image.getWidth();
             float height = image.getHeight();
 
-            float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+            float ratio = Math.min((float) maxWidth / width, (float) maxHeight / height);
 
             int finalWidth = (int) (width * ratio);
             int finalHeight = (int) (height * ratio);
@@ -58,8 +58,7 @@ public class ImageResizer {
     /**
      * Rotate the specified bitmap with the given angle, in degrees.
      */
-    public static Bitmap rotateImage(Bitmap source, float angle)
-    {
+    public static Bitmap rotateImage(Bitmap source, float angle) {
         Bitmap retVal;
 
         Matrix matrix = new Matrix();
@@ -76,14 +75,20 @@ public class ImageResizer {
      * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
      */
     public static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
-                                    Bitmap.CompressFormat compressFormat, int quality)
+                                 Bitmap.CompressFormat compressFormat, int quality)
             throws IOException {
         if (bitmap == null) {
             throw new IOException("The bitmap couldn't be resized");
         }
 
-        File newFile = new File(saveDirectory, fileName + "." + compressFormat.name());
-        if(!newFile.createNewFile()) {
+        String compressFormatString = compressFormat.name();
+
+        if (compressFormat.name() == "JPEG") {
+            compressFormatString = "jpg";
+        }
+
+        File newFile = new File(saveDirectory, fileName + "." + compressFormatString);
+        if (!newFile.createNewFile()) {
             throw new IOException("The file already exists");
         }
 
@@ -144,7 +149,8 @@ public class ImageResizer {
                 ExifInterface ei = new ExifInterface(file.getAbsolutePath());
                 return getOrientation(ei);
             }
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
 
         return 0;
     }
@@ -193,7 +199,7 @@ public class ImageResizer {
     /**
      * Load a bitmap either from a real file or using the {@link ContentResolver} of the current
      * {@link Context} (to read gallery images for example).
-     *
+     * <p>
      * Note that, when options.inJustDecodeBounds = true, we actually expect sourceImage to remain
      * as null (see https://developer.android.com/training/displaying-bitmaps/load-bitmap.html), so
      * getting null sourceImage at the completion of this method is not always worthy of an error.
@@ -223,7 +229,7 @@ public class ImageResizer {
      * Loads the bitmap resource from the file specified in imagePath.
      */
     private static Bitmap loadBitmapFromFile(Context context, Uri imageUri, int newWidth,
-                                             int newHeight) throws IOException  {
+                                             int newHeight) throws IOException {
         // Decode the image bounds to find the size of the source image.
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -248,7 +254,7 @@ public class ImageResizer {
         String imagePath = imageUri.getSchemeSpecificPart();
         int commaLocation = imagePath.indexOf(',');
         if (commaLocation != -1) {
-            final String mimeType = imagePath.substring(0, commaLocation).replace('\\','/').toLowerCase();
+            final String mimeType = imagePath.substring(0, commaLocation).replace('\\', '/').toLowerCase();
             final boolean isJpeg = mimeType.startsWith(IMAGE_JPEG);
             final boolean isPng = !isJpeg && mimeType.startsWith(IMAGE_PNG);
 
@@ -269,7 +275,7 @@ public class ImageResizer {
      * by using recycle
      */
     public static Bitmap createResizedImage(Context context, Uri imageUri, int newWidth,
-                                            int newHeight, int quality, int rotation) throws IOException  {
+                                            int newHeight, int quality, int rotation) throws IOException {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
 
@@ -292,7 +298,7 @@ public class ImageResizer {
         rotation = orientation + rotation;
         rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
 
-        if(rotatedImage == null){
+        if (rotatedImage == null) {
             throw new IOException("Unable to rotate image. Most likely due to not enough memory.");
         }
 
@@ -303,7 +309,7 @@ public class ImageResizer {
         // Scale image
         Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight);
 
-        if(scaledImage == null){
+        if (scaledImage == null) {
             throw new IOException("Unable to resize image. Most likely due to not enough memory.");
         }
 
@@ -314,3 +320,4 @@ public class ImageResizer {
         return scaledImage;
     }
 }
+
