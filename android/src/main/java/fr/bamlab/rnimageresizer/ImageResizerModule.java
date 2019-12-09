@@ -39,14 +39,14 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createResizedImage(final String imagePath, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final Callback successCb, final Callback failureCb) {
+    public void createResizedImage(final String imagePath, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final String imageName, final Callback successCb, final Callback failureCb) {
 
         // Run in guarded async task to prevent blocking the React bridge
         new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
             @Override
             protected void doInBackgroundGuarded(Void... params) {
                 try {
-                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, successCb, failureCb);
+                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, imageName, successCb, failureCb);
                 }
                 catch (IOException e) {
                     failureCb.invoke(e.getMessage());
@@ -56,8 +56,8 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
-                                           String compressFormatString, int quality, int rotation, String outputPath,
-                                           final Callback successCb, final Callback failureCb) throws IOException {
+                                                  String compressFormatString, int quality, int rotation, String outputPath,final String imageName,
+                                                  final Callback successCb, final Callback failureCb) throws IOException {
 
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         Uri imageUri = Uri.parse(imagePath);
@@ -65,7 +65,7 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
         Bitmap scaledImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, quality, rotation);
 
         if (scaledImage == null) {
-          throw new IOException("The image failed to be resized; invalid Bitmap result.");
+            throw new IOException("The image failed to be resized; invalid Bitmap result.");
         }
 
         // Save the resulting image
@@ -74,7 +74,9 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
             path = new File(outputPath);
         }
 
-        File resizedImage = ImageResizer.saveImage(scaledImage, path, Long.toString(new Date().getTime()), compressFormat, quality);
+        File resizedImage = ImageResizer.saveImage(scaledImage, path,
+//                Long.toString(new Date().getTime())
+                imageName, compressFormat, quality);
 
         // If resizedImagePath is empty and this wasn't caught earlier, throw.
         if (resizedImage.isFile()) {

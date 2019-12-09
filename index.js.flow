@@ -5,7 +5,8 @@ declare type ResizedImageInfo = {
   size?: number,
   name?: string,
   height: number,
-  width: number
+  width: number,
+  imageName: string,
 };
 
 declare function createResizedImage(
@@ -15,7 +16,8 @@ declare function createResizedImage(
   format: 'PNG' | 'JPEG' | 'WEBP',
   quality: number,
   rotation?: number,
-  outputPath?: string
+  outputPath?: string,
+  imageName?:string,
 ): Promise<ResizedImageInfo>;
 
 declare export default {
