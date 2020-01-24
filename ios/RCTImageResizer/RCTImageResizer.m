@@ -6,8 +6,9 @@
 //
 
 #include "RCTImageResizer.h"
-#include "ImageHelpers.h"
 #import <React/RCTImageLoader.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @implementation ImageResizer
 
@@ -15,21 +16,65 @@
 
 RCT_EXPORT_MODULE();
 
-bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality)
+bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality, NSMutableDictionary *metadata)
 {
-    NSData* data = nil;
-    if ([format isEqualToString:@"JPEG"]) {
-        data = UIImageJPEGRepresentation(image, quality / 100.0);
-    } else if ([format isEqualToString:@"PNG"]) {
-        data = UIImagePNGRepresentation(image);
+    if(metadata == nil){
+        NSData* data = nil;
+        if ([format isEqualToString:@"JPEG"]) {
+            data = UIImageJPEGRepresentation(image, quality / 100.0);
+        } else if ([format isEqualToString:@"PNG"]) {
+            data = UIImagePNGRepresentation(image);
+        }
+
+        if (data == nil) {
+            return NO;
+        }
+
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
     }
 
-    if (data == nil) {
-        return NO;
-    }
+    // process / write metadata together with image data
+    else{
 
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
+        CFStringRef imgType = kUTTypeJPEG;
+
+        if ([format isEqualToString:@"JPEG"]) {
+            [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+        }
+        else if([format isEqualToString:@"PNG"]){
+            imgType = kUTTypePNG;
+        }
+        else{
+            return NO;
+        }
+
+        NSMutableData * destData = [NSMutableData data];
+
+        CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, imgType, 1, NULL);
+
+        @try{
+            CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef) metadata);
+
+            // write final image data with metadata to our destination
+            if (CGImageDestinationFinalize(destination)){
+
+                NSFileManager* fileManager = [NSFileManager defaultManager];
+                return [fileManager createFileAtPath:fullPath contents:destData attributes:nil];
+            }
+            else{
+                return NO;
+            }
+        }
+        @finally{
+            @try{
+                CFRelease(destination);
+            }
+            @catch(NSException *exception){
+                NSLog(@"Failed to release CGImageDestinationRef: %@", exception);
+            }
+        }
+    }
 }
 
 NSString * generateFilePath(NSString * ext, NSString * outputPath)
@@ -96,13 +141,137 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
+float getScaleForProportionalResize( CGSize theSize, CGSize intoSize, bool onlyScaleDown, bool maximize )
+{
+    float    sx = theSize.width;
+    float    sy = theSize.height;
+    float    dx = intoSize.width;
+    float    dy = intoSize.height;
+    float    scale    = 1;
+
+    if( sx != 0 && sy != 0 )
+    {
+        dx    = dx / sx;
+        dy    = dy / sy;
+
+        // if maximize is true, take LARGER of the scales, else smaller
+        if( maximize )        scale    = (dx > dy)    ? dx : dy;
+        else                scale    = (dx < dy)    ? dx : dy;
+
+        if( scale > 1 && onlyScaleDown )    // reset scale
+            scale    = 1;
+    }
+    else
+    {
+        scale     = 0;
+    }
+    return scale;
+}
+
+
+// returns a resized image keeping aspect ratio and considering
+// any :image scale factor.
+// The returned image is an unscaled image (scale = 1.0)
+// so no additional scaling math needs to be done to get its pixel dimensions
+UIImage* scaleImage (UIImage* image, CGSize toSize)
+{
+
+    // Need to do scaling corrections
+    // based on scale, since UIImage width/height gives us
+    // a possibly scaled image (dimensions in points)
+    // Idea taken from RNCamera resize code
+    CGSize imageSize = CGSizeMake(image.size.width * image.scale, image.size.height * image.scale);
+
+    float scale = getScaleForProportionalResize(imageSize, toSize, false, false);
+
+    // using this instead of ImageHelpers allows us to consider
+    // rotation variations
+    CGSize newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+
+
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+// Returns the image's metadata, or nil if failed to retrieve it.
+NSMutableDictionary * getImageMeta(NSString * path)
+{
+    if([path hasPrefix:@"assets-library"]) {
+
+        __block NSMutableDictionary* res = nil;
+
+        ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
+        {
+
+            NSDictionary *exif = [[myasset defaultRepresentation] metadata];
+            res = [exif mutableCopy];
+
+        };
+
+        ALAssetsLibrary* assetslibrary = [[ALAssetsLibrary alloc] init];
+        NSURL *url = [NSURL URLWithString:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+
+        [assetslibrary assetForURL:url resultBlock:resultblock failureBlock:^(NSError *error) { NSLog(@"error couldn't image from assets library"); }];
+
+        return res;
+
+    } else {
+
+        NSData* imageData = nil;
+
+        if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
+            NSURL *imageUrl = [[NSURL alloc] initWithString:path];
+            imageData = [NSData dataWithContentsOfURL:imageUrl];
+
+        } else {
+            imageData = [NSData dataWithContentsOfFile:path];
+        }
+
+        if(imageData == nil){
+            NSLog(@"Could not get image file data to extract metadata.");
+            return nil;
+        }
+
+        CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+
+
+        if(source != nil){
+
+            CFDictionaryRef metaRef = CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
+
+            // release CF image
+            CFRelease(source);
+
+            CFMutableDictionaryRef metaRefMutable = CFDictionaryCreateMutableCopy(NULL, 0, metaRef);
+
+            // release the source meta ref now that we've copie it
+            CFRelease(metaRef);
+
+            // bridge CF object so it auto releases
+            NSMutableDictionary* res = (NSMutableDictionary *)CFBridgingRelease(metaRefMutable);
+
+            return res;
+
+        }
+        else{
+            return nil;
+        }
+
+    }
+}
+
 void transformImage(UIImage *image,
+                    NSString * originalPath,
                     RCTResponseSenderBlock callback,
                     int rotation,
                     CGSize newSize,
                     NSString* fullPath,
                     NSString* format,
-                    int quality)
+                    int quality,
+                    BOOL keepMeta)
 {
     if (image == nil) {
         callback(@[@"Can't retrieve the file from the path.", @""]);
@@ -119,17 +288,35 @@ void transformImage(UIImage *image,
     }
 
     // Do the resizing
-    UIImage * scaledImage = [image scaleToSize:newSize];
+    UIImage * scaledImage = scaleImage(image, newSize);
+
     if (scaledImage == nil) {
         callback(@[@"Can't resize the image.", @""]);
         return;
     }
 
+
+    NSMutableDictionary *metadata = nil;
+
+    // to be consistent with Android, we will only allow JPEG
+    // to do this.
+    if(keepMeta && [format isEqualToString:@"JPEG"]){
+
+        metadata = getImageMeta(originalPath);
+
+        // remove orientation (since we fix it)
+        // width/height meta is adjusted automatically
+        // NOTE: This might still leave some stale values due to resize
+        metadata[(NSString*)kCGImagePropertyOrientation] = @(1);
+
+    }
+
     // Compress and save the image
-    if (!saveImage(fullPath, scaledImage, format, quality)) {
+    if (!saveImage(fullPath, scaledImage, format, quality, metadata)) {
         callback(@[@"Can't save the image. Check your compression format and your output path", @""]);
         return;
     }
+
     NSURL *fileUrl = [[NSURL alloc] initFileURLWithPath:fullPath];
     NSString *fileName = fileUrl.lastPathComponent;
     NSError *attributesError = nil;
@@ -153,6 +340,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   quality:(float)quality
                   rotation:(float)rotation
                   outputPath:(NSString *)outputPath
+                  keepMeta:(BOOL)keepMeta
                   callback:(RCTResponseSenderBlock)callback)
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -172,16 +360,15 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
             return;
         }
 
+
         [[_bridge moduleForClass:[RCTImageLoader class]] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
             if (error) {
                 callback(@[@"Can't retrieve the file from the path.", @""]);
                 return;
             }
 
-            transformImage(image, callback, rotation, newSize, fullPath, format, quality);
+            transformImage(image, path, callback, rotation, newSize, fullPath, format, quality, keepMeta);
         }];
-
-
     });
 }
 
