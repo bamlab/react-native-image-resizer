@@ -6,7 +6,7 @@
 //
 
 #include "RCTImageResizer.h"
-#import <React/RCTImageLoader.h>
+#import <React/RCTImageLoaderProtocol.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -361,7 +361,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         }
 
 
-        [[_bridge moduleForClass:[RCTImageLoader class]] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
+        [[_bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
             if (error) {
                 callback(@[@"Can't retrieve the file from the path.", @""]);
                 return;
