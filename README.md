@@ -1,6 +1,10 @@
 # React Native Image Resizer
 
 A React Native module that can create scaled versions of local images (also supports the assets library on iOS).
+|react-native| react-native-image-resizer|
+| --- | --- |
+| ≤ 0.60 | 1.1.0 |
+| 0.61 | 1.2.0 |
 
 ## Setup
 
