@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>MyTestApp</string>
+	<string>example</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -20,14 +20,14 @@
 	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-	<string>yolo</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>yolo</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Some request</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Some request</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
