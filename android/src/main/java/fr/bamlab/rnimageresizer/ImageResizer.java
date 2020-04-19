@@ -130,22 +130,46 @@ public class ImageResizer {
 
 
     /**
-     * Resize the specified bitmap, keeping its aspect ratio.
+     * Resize the specified bitmap.
      */
-    private static Bitmap resizeImage(Bitmap image, int maxWidth, int maxHeight) {
+    private static Bitmap resizeImage(Bitmap image, int newWidth, int newHeight,
+                                      String mode, boolean onlyScaleDown) {
         Bitmap newImage = null;
         if (image == null) {
             return null; // Can't load the image from the given path.
         }
 
-        if (maxHeight > 0 && maxWidth > 0) {
-            float width = image.getWidth();
-            float height = image.getHeight();
+        int width = image.getWidth();
+        int height = image.getHeight();
 
-            float ratio = Math.min((float)maxWidth / width, (float)maxHeight / height);
+        if (newHeight > 0 && newWidth > 0) {
+            int finalWidth;
+            int finalHeight;
 
-            int finalWidth = (int) (width * ratio);
-            int finalHeight = (int) (height * ratio);
+            if (mode.equals("stretch")) {
+                // Distort aspect ratio
+                finalWidth = newWidth;
+                finalHeight = newHeight;
+
+                if (onlyScaleDown) {
+                    finalWidth = Math.min(width, finalWidth);
+                    finalHeight = Math.min(height, finalHeight);
+                }
+            } else {
+                // "contain" (default) or "cover": keep its aspect ratio
+                float widthRatio = (float) newWidth / width;
+                float heightRatio = (float) newHeight / height;
+
+                float ratio = mode.equals("cover") ? 
+                    Math.max(widthRatio, heightRatio) :
+                    Math.min(widthRatio, heightRatio);
+
+                if (onlyScaleDown) ratio = Math.min(ratio, 1);
+
+                finalWidth = (int) Math.round(width * ratio);
+                finalHeight = (int) Math.round(height * ratio);
+            }
+
             try {
                 newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
             } catch (OutOfMemoryError e) {
@@ -418,7 +442,8 @@ public class ImageResizer {
      * by using recycle
      */
     public static Bitmap createResizedImage(Context context, Uri imageUri, int newWidth,
-                                            int newHeight, int quality, int rotation) throws IOException  {
+                                            int newHeight, int quality, int rotation,
+                                            String mode, boolean onlyScaleDown) throws IOException  {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
 
@@ -450,7 +475,7 @@ public class ImageResizer {
         }
 
         // Scale image
-        Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight);
+        Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight, mode, onlyScaleDown);
 
         if(scaledImage == null){
             throw new IOException("Unable to resize image. Most likely due to not enough memory.");

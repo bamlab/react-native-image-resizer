@@ -4,6 +4,24 @@ const ImageResizerAndroid = NativeModules.ImageResizerAndroid;
 
 let exportObject = {};
 
+/** Validate `options` object: used by both Android and iOS entry points */
+function validateOptions(options) {
+  const mode = options.mode || 'stretch';
+  const possibleModes = ['contain', 'cover', 'stretch'];
+  if (possibleModes.indexOf(mode) === -1) {
+    throw new Error(`createResizedImage's options.mode must be one of "${possibleModes.join('", "')}"`);
+  }
+
+  if (options.onlyScaleDown && typeof options.onlyScaleDown !== 'boolean') {
+    throw new Error(`createResizedImage\'s option.onlyScaleDown must be a boolean: got ${options.onlyScaleDown}`);
+  }
+
+  return {
+    mode,
+    onlyScaleDown: !!options.onlyScaleDown,
+  };
+}
+
 if (Platform.OS === 'android') {
   exportObject = {
     createResizedImage: (
@@ -14,8 +32,11 @@ if (Platform.OS === 'android') {
       quality,
       rotation = 0,
       outputPath,
-      keepMeta = false
+      keepMeta = false,
+      options = {}
     ) => {
+      const validatedOptions = validateOptions(options);
+  
       return new Promise((resolve, reject) => {
         ImageResizerAndroid.createResizedImage(
           imagePath,
@@ -26,6 +47,7 @@ if (Platform.OS === 'android') {
           rotation,
           outputPath,
           keepMeta,
+          validatedOptions,
           resolve,
           reject
         );
@@ -34,11 +56,23 @@ if (Platform.OS === 'android') {
   };
 } else {
   exportObject = {
-    createResizedImage: (path, width, height, format, quality, rotation = 0, outputPath, keepMeta = false) => {
+    createResizedImage: (
+      path,
+      width,
+      height,
+      format,
+      quality,
+      rotation = 0,
+      outputPath,
+      keepMeta = false,
+      options = {}
+    ) => {
       if (format !== 'JPEG' && format !== 'PNG') {
         throw new Error('Only JPEG and PNG format are supported by createResizedImage');
       }
-
+  
+      const validatedOptions = validateOptions(options);
+  
       return new Promise((resolve, reject) => {
         NativeModules.ImageResizer.createResizedImage(
           path,
@@ -49,11 +83,12 @@ if (Platform.OS === 'android') {
           rotation,
           outputPath,
           keepMeta,
+          validatedOptions,
           (err, response) => {
             if (err) {
               return reject(err);
             }
-
+  
             resolve(response);
           }
         );

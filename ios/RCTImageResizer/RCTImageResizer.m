@@ -149,7 +149,7 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
-float getScaleForProportionalResize( CGSize theSize, CGSize intoSize, bool onlyScaleDown, bool maximize )
+float getScaleForProportionalResize(CGSize theSize, CGSize intoSize, bool onlyScaleDown, bool maximize)
 {
     float    sx = theSize.width;
     float    sy = theSize.height;
@@ -163,11 +163,15 @@ float getScaleForProportionalResize( CGSize theSize, CGSize intoSize, bool onlyS
         dy    = dy / sy;
 
         // if maximize is true, take LARGER of the scales, else smaller
-        if( maximize )        scale    = (dx > dy)    ? dx : dy;
-        else                scale    = (dx < dy)    ? dx : dy;
+        if (maximize) {
+            scale = MAX(dx, dy);
+        } else {
+            scale = MIN(dx, dy);
+        }
 
-        if( scale > 1 && onlyScaleDown )    // reset scale
-            scale    = 1;
+        if (onlyScaleDown) {
+            scale = MIN(scale, 1);
+        }
     }
     else
     {
@@ -181,7 +185,7 @@ float getScaleForProportionalResize( CGSize theSize, CGSize intoSize, bool onlyS
 // any :image scale factor.
 // The returned image is an unscaled image (scale = 1.0)
 // so no additional scaling math needs to be done to get its pixel dimensions
-UIImage* scaleImage (UIImage* image, CGSize toSize)
+UIImage* scaleImage (UIImage* image, CGSize toSize, NSString* mode, bool onlyScaleDown)
 {
 
     // Need to do scaling corrections
@@ -190,12 +194,27 @@ UIImage* scaleImage (UIImage* image, CGSize toSize)
     // Idea taken from RNCamera resize code
     CGSize imageSize = CGSizeMake(image.size.width * image.scale, image.size.height * image.scale);
 
-    float scale = getScaleForProportionalResize(imageSize, toSize, false, false);
-
     // using this instead of ImageHelpers allows us to consider
     // rotation variations
-    CGSize newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+    CGSize newSize;
+    
+    if ([mode isEqualToString:@"stretch"]) {
+        // Distort aspect ratio
+        int width = toSize.width;
+        int height = toSize.height;
 
+        if (onlyScaleDown) {
+            width = MIN(width, imageSize.width);
+            height = MIN(height, imageSize.height);
+        }
+
+        newSize = CGSizeMake(width, height);
+    } else {
+        // Either "contain" (default) or "cover": preserve aspect ratio
+        bool maximize = [mode isEqualToString:@"cover"];
+        float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown, maximize);
+        newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+    }
 
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
@@ -279,7 +298,8 @@ void transformImage(UIImage *image,
                     NSString* fullPath,
                     NSString* format,
                     int quality,
-                    BOOL keepMeta)
+                    BOOL keepMeta,
+                    NSDictionary* options)
 {
     if (image == nil) {
         callback(@[@"Can't retrieve the file from the path.", @""]);
@@ -296,7 +316,12 @@ void transformImage(UIImage *image,
     }
 
     // Do the resizing
-    UIImage * scaledImage = scaleImage(image, newSize);
+    UIImage * scaledImage = scaleImage(
+        image,
+        newSize,
+        options[@"mode"],
+        [[options objectForKey:@"onlyScaleDown"] boolValue]
+    );
 
     if (scaledImage == nil) {
         callback(@[@"Can't resize the image.", @""]);
@@ -349,6 +374,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                   rotation:(float)rotation
                   outputPath:(NSString *)outputPath
                   keepMeta:(BOOL)keepMeta
+                  options:(NSDictionary *)options
                   callback:(RCTResponseSenderBlock)callback)
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -375,7 +401,7 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
                 return;
             }
 
-            transformImage(image, path, callback, rotation, newSize, fullPath, format, quality, keepMeta);
+            transformImage(image, path, callback, rotation, newSize, fullPath, format, quality, keepMeta, options);
         }];
     });
 }

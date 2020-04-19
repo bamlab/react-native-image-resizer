@@ -11,6 +11,7 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.GuardedAsyncTask;
 
@@ -40,14 +41,25 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createResizedImage(final String imagePath, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final boolean keepMeta, final Callback successCb, final Callback failureCb) {
-
+    public void createResizedImage(
+        final String imagePath,
+        final int newWidth,
+        final int newHeight,
+        final String compressFormat,
+        final int quality,
+        final int rotation,
+        final String outputPath,
+        final boolean keepMeta,
+        final ReadableMap options,
+        final Callback successCb,
+        final Callback failureCb
+    ) {
         // Run in guarded async task to prevent blocking the React bridge
         new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
             @Override
             protected void doInBackgroundGuarded(Void... params) {
                 try {
-                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, keepMeta, successCb, failureCb);
+                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, keepMeta, options, successCb, failureCb);
                 }
                 catch (IOException e) {
                     failureCb.invoke(e.getMessage());
@@ -59,12 +71,14 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
     private void createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
                                            String compressFormatString, int quality, int rotation, String outputPath,
                                            final boolean keepMeta,
+                                           final ReadableMap options,
                                            final Callback successCb, final Callback failureCb) throws IOException {
 
         Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
         Uri imageUri = Uri.parse(imagePath);
 
-        Bitmap scaledImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, quality, rotation);
+        Bitmap scaledImage = ImageResizer.createResizedImage(this.context, imageUri, newWidth, newHeight, quality, rotation,
+                                                             options.getString("mode"), options.getBoolean("onlyScaleDown"));
 
         if (scaledImage == null) {
           throw new IOException("The image failed to be resized; invalid Bitmap result.");

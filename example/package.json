@@ -12,7 +12,9 @@
   "dependencies": {
     "@react-native-community/cameraroll": "^1.2.1",
     "react": "16.11.0",
-    "react-native": "0.62.0"
+    "react-native": "0.62.0",
+    "react-native-picker-select": "^7.0.0",
+    "react-native-image-resizer": "link:.."
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
