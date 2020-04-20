@@ -56,17 +56,17 @@ A basic, sample app is available in [the `example` folder](https://github.com/ba
 
 ## API
 
-```js
+```javascript
 createResizedImage(
   path,
   maxWidth,
   maxHeight,
   compressFormat,
   quality,
-  (rotation = 0),
+  rotation = 0,
   outputPath,
-  (keepMeta = false),
-  (options = {})
+  keepMeta = false,
+  options = {}
 ); // Returns a Promise
 ```
 

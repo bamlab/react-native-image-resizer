@@ -8,12 +8,15 @@ declare module 'react-native-image-resizer' {
     height: number;
   }
 
+  export type ResizeFormat = 'PNG' | 'JPEG' | 'WEBP';
+  export type ResizeMode = 'contain' | 'cover' | 'stretch';
+
   export default class ImageResizer {
     static createResizedImage(
       uri: string,
       width: number,
       height: number,
-      format: 'PNG' | 'JPEG' | 'WEBP',
+      format: ResizeFormat,
       quality: number,
       rotation?: number,
       outputPath?: string,
@@ -31,7 +34,7 @@ declare module 'react-native-image-resizer' {
          *   
          * (Default: 'contain')
          */
-        mode?: 'contain' | 'cover' | 'stretch';
+        mode?: ResizeMode;
         /** 
          * Whether to avoid resizing the image to be larger than the original.
          * (Default: false)
