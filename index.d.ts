@@ -2,8 +2,8 @@ declare module 'react-native-image-resizer' {
   export interface Response {
     path: string;
     uri: string;
-    size?: number;
-    name?: string;
+    size: number;
+    name: string;
     width: number;
     height: number;
   }

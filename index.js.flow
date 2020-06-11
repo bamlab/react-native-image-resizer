@@ -2,10 +2,10 @@
 declare type ResizedImageInfo = {
   path: string,
   uri: string,
-  size?: number,
-  name?: string,
+  size: number,
+  name: string,
   height: number,
-  width: number
+  width: number,
 };
 
 declare function createResizedImage(
@@ -20,5 +20,5 @@ declare function createResizedImage(
 ): Promise<ResizedImageInfo>;
 
 declare export default {
-  createResizedImage: createResizedImage,
+  createResizedImage: typeof createResizedImage,
 };
