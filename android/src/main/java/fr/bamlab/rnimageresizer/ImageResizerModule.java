@@ -40,14 +40,14 @@ public class ImageResizerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void copyExif(final String imageSrc, final int newWidth, final int newHeight, final String compressFormat, final int quality, final int rotation, final String outputPath, final boolean keepMeta, final Callback successCb, final Callback failureCb) {
+    public void copyExif(final String imageSrc, final String imageDest, final Callback successCb, final Callback failureCb) {
 
         // Run in guarded async task to prevent blocking the React bridge
         new GuardedAsyncTask<Void, Void>(getReactApplicationContext()) {
             @Override
             protected void doInBackgroundGuarded(Void... params) {
                 try {
-                    createResizedImageWithExceptions(imagePath, newWidth, newHeight, compressFormat, quality, rotation, outputPath, keepMeta, successCb, failureCb);
+                    //nothing
                 }
                 catch (IOException e) {
                     failureCb.invoke(e.getMessage());
