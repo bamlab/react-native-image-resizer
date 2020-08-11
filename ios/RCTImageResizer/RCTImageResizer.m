@@ -380,4 +380,14 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
     });
 }
 
+RCT_EXPORT_METHOD(copyExif:(NSString *)imageSrc
+                  imageDest:(NSString *)imageDest
+                  callback:(RCTResponseSenderBlock)callback)
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        callback(@[@"Can't retrieve the file from the path.", @""]);
+        return;
+    });
+}
+
 @end

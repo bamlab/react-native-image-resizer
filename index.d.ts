@@ -19,5 +19,10 @@ declare module 'react-native-image-resizer' {
       outputPath?: string,
       keepMeta?: boolean
     ): Promise<Response>;
+
+    static copyExif(
+      imageSrc: string,
+      imageDest: string
+    ): Promise<Response>;
   }
 }

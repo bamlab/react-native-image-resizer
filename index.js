@@ -31,6 +31,19 @@ if (Platform.OS === 'android') {
         );
       });
     },
+    copyExif: (
+      imageSrc,
+      imageDest
+      ) => {
+      return new Promise((resolve, reject) => {
+        ImageResizerAndroid.copyExif(
+          imageSrc,
+          imageDest,
+          resolve,
+          reject
+        );
+      });
+    },
   };
 } else {
   exportObject = {
@@ -56,6 +69,19 @@ if (Platform.OS === 'android') {
 
             resolve(response);
           }
+        );
+      });
+    },
+    copyExif: (
+      imageSrc,
+      imageDest
+      ) => {
+      return new Promise((resolve, reject) => {
+        ImageResizerAndroid.copyExif(
+          imageSrc,
+          imageDest,
+          resolve,
+          reject
         );
       });
     },
