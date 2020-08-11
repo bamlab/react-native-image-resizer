@@ -368,16 +368,8 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
             return;
         }
 
-        RCTImageLoader *loader = [self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES];
-        NSURLRequest *request = [RCTConvert NSURLRequest:path];
-        [loader loadImageWithURLRequest:request
-                                   size:newSize
-                                  scale:1
-                                clipped:YES
-                             resizeMode:RCTResizeModeStretch
-                          progressBlock:nil
-                       partialLoadBlock:nil
-                        completionBlock:^(NSError *error, UIImage *image) {
+
+        [[self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
             if (error) {
                 callback(@[@"Can't retrieve the file from the path.", @""]);
                 return;
