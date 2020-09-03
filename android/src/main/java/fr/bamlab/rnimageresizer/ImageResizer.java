@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -28,6 +30,9 @@ public class ImageResizer {
     private final static String SCHEME_DATA = "data";
     private final static String SCHEME_CONTENT = "content";
     private final static String SCHEME_FILE = "file";
+    private final static String SCHEME_HTTP = "http";
+    private final static String SCHEME_HTTPS = "https";
+
 
     // List of known EXIF tags we will be copying.
     // Orientation, width, height, and some others are ignored
@@ -387,6 +392,76 @@ public class ImageResizer {
     }
 
     /**
+     * Loads the bitmap resource from an URL
+     */
+    private static Bitmap loadBitmapFromURL(Uri imageUri, int newWidth,
+                                             int newHeight) throws IOException  {
+
+        InputStream input = null;
+        Bitmap sourceImage = null;
+
+        try{
+            URL url = new URL(imageUri.toString());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            input = connection.getInputStream();
+
+            if (input != null) {
+
+                // need to load into memory since inputstream is not seekable
+                // we still won't load the whole bitmap into memory
+                // Also need this ugly code since we are on Java8...
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[1024];
+                byte[] imageData = null;
+
+                try{
+                    while ((nRead = input.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, nRead);
+                    }
+                    buffer.flush();
+                    imageData = buffer.toByteArray();
+                }
+                finally{
+                    buffer.close();
+                }
+
+
+                // Decode the image bounds to find the size of the source image.
+                // Do it here so we only do one request
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+
+                // Set a sample size according to the image size to lower memory usage.
+                options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+                options.inJustDecodeBounds = false;
+
+                sourceImage = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new IOException("Error fetching remote image file.");
+        }
+        finally{
+            try {
+                if(input != null){
+                    input.close();
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+       return sourceImage;
+
+    }
+
+    /**
      * Loads the bitmap resource from a base64 encoded jpg or png.
      * Format is as such:
      * png: 'data:image/png;base64,iVBORw0KGgoAA...'
@@ -422,8 +497,13 @@ public class ImageResizer {
         Bitmap sourceImage = null;
         String imageUriScheme = imageUri.getScheme();
 
-        if (imageUriScheme == null || imageUriScheme.equalsIgnoreCase(SCHEME_FILE) || imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)) {
+        if (imageUriScheme == null ||
+            imageUriScheme.equalsIgnoreCase(SCHEME_FILE) ||
+            imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)
+        ) {
             sourceImage = ImageResizer.loadBitmapFromFile(context, imageUri, newWidth, newHeight);
+        } else if (imageUriScheme.equalsIgnoreCase(SCHEME_HTTP) || imageUriScheme.equalsIgnoreCase(SCHEME_HTTPS)){
+            sourceImage = ImageResizer.loadBitmapFromURL(imageUri, newWidth, newHeight);
         } else if (imageUriScheme.equalsIgnoreCase(SCHEME_DATA)) {
             sourceImage = ImageResizer.loadBitmapFromBase64(imageUri);
         }
