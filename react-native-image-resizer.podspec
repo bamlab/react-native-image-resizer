@@ -16,5 +16,5 @@ Pod::Spec.new do |s|
   s.preserve_paths = 'README.md', 'LICENSE', 'package.json', 'index.js'
   s.source_files   = "ios/RCTImageResizer/*.{h,m}"
 
-  s.dependency 'React'
+  s.dependency 'React-Core'
 end
