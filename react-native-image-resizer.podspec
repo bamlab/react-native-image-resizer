@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
   s.source_files   = "ios/RCTImageResizer/*.{h,m}"
 
   s.dependency 'React-Core'
+  s.dependency 'React-RCTImage'
 end
