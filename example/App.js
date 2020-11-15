@@ -11,6 +11,8 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  PermissionsAndroid,
+  Platform
 } from 'react-native';
 import CameraRoll from '@react-native-community/cameraroll';
 import ImageResizer from 'react-native-image-resizer';
@@ -53,7 +55,13 @@ export default class ResizerExample extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    let isAllowedToAccessPhotosOnAndroid = false
+    if (Platform.OS === "android") {
+      isAllowedToAccessPhotosOnAndroid = await this.hasAndroidPermission()
+
+    }
+    if (Platform.OS === "ios" || isAllowedToAccessPhotosOnAndroid){
     CameraRoll.getPhotos({first: 1})
       .then(photos => {
         if (!photos.edges || photos.edges.length === 0) {
@@ -74,6 +82,19 @@ export default class ResizerExample extends Component {
         );
       });
   }
+}
+
+hasAndroidPermission = async ()=> {
+  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+  const hasPermission = await PermissionsAndroid.check(permission);
+  if (hasPermission) {
+    return true;
+  }
+
+  const status = await PermissionsAndroid.request(permission);
+  return status === 'granted';
+}
 
   resize() {
     ImageResizer.createResizedImage(this.state.image.uri, 80, 60, 'JPEG', 100)
@@ -89,7 +110,8 @@ export default class ResizerExample extends Component {
           'Check the console for full the error message',
         );
       });
-  }
+    }
+  
 
   render() {
     return (
