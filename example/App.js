@@ -13,6 +13,8 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  PermissionsAndroid,
+  Platform
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -88,11 +90,12 @@ export default class ResizerExample extends Component {
   }
 
   async componentDidMount() {
-    if (Platform.OS === 'android') {
-      const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-      await PermissionsAndroid.request(permission);
-    }
+    let isAllowedToAccessPhotosOnAndroid = false
+    if (Platform.OS === "android") {
+      isAllowedToAccessPhotosOnAndroid = await this.hasAndroidPermission()
 
+    }
+    if (Platform.OS === "ios" || isAllowedToAccessPhotosOnAndroid){
     CameraRoll.getPhotos({first: 1})
       .then(photos => {
         if (!photos.edges || photos.edges.length === 0) {
@@ -113,6 +116,19 @@ export default class ResizerExample extends Component {
         );
       });
   }
+}
+
+hasAndroidPermission = async ()=> {
+  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+  const hasPermission = await PermissionsAndroid.check(permission);
+  if (hasPermission) {
+    return true;
+  }
+
+  const status = await PermissionsAndroid.request(permission);
+  return status === 'granted';
+}
 
   resize = () => {
     const { mode, onlyScaleDown, resizeTargetSize } = this.state;
@@ -130,7 +146,8 @@ export default class ResizerExample extends Component {
           'Check the console for full the error message',
         );
       });
-  }
+    }
+  
 
   render() {
     const { resizedImage } = this.state;

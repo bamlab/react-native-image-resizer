@@ -29,6 +29,9 @@ echo.
 echo Please set the JAVA_HOME variable in your environment to match the
 echo location of your Java installation.
 
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
 goto fail
 
 :findJavaFromJavaHome
