@@ -37,7 +37,7 @@ Manual link information for Android: [Link](docs/android_manual_config.md)
 ```javascript
 import ImageResizer from 'react-native-image-resizer';
 
-ImageResizer.createResizedImage(imageUri, newWidth, newHeight, compressFormat, quality, rotation, outputPath)
+ImageResizer.createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation, outputPath)
   .then(response => {
     // response.uri is the URI of the new image that can now be displayed, uploaded...
     // response.path is the path of the new image
