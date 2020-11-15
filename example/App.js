@@ -4,7 +4,6 @@
  */
 
 import React, {Component} from 'react';
-import {PermissionsAndroid, Platform} from 'react-native';
 import {
   StyleSheet,
   Text,
