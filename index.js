@@ -6,7 +6,7 @@ let exportObject = {};
 
 /** Validate `options` object: used by both Android and iOS entry points */
 function validateOptions(options) {
-  const mode = options.mode || 'stretch';
+  const mode = options.mode || 'contain';
   const possibleModes = ['contain', 'cover', 'stretch'];
   if (possibleModes.indexOf(mode) === -1) {
     throw new Error(`createResizedImage's options.mode must be one of "${possibleModes.join('", "')}"`);
