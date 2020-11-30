@@ -31,7 +31,8 @@
   },
   "homepage": "https://github.com/bamlab/react-native-image-resizer#readme",
   "devDependencies": {
-    "cz-conventional-changelog": "^1.2.0"
+    "cz-conventional-changelog": "^1.2.0",
+    "prettier": "2.2.1"
   },
   "config": {
     "commitizen": {
