@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5D72D2EC1C16249000E22EC1 /* RCTImageResizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */; };
 		5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */; };
+		85B051B625852E8B00CB7FCD /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B051B525852E8B00CB7FCD /* ImageResizer.swift */; };
 		B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,8 @@
 		5D72D2E81C16249000E22EC1 /* libRCTImageResizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTImageResizer.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTImageResizer.h; sourceTree = "<group>"; };
 		5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTImageResizer.m; sourceTree = "<group>"; };
+		85B051B425852E8B00CB7FCD /* RCTImageResizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTImageResizer-Bridging-Header.h"; sourceTree = "<group>"; };
+		85B051B525852E8B00CB7FCD /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
 		B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageHelpers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -67,6 +70,8 @@
 				5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */,
 				B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */,
 				B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */,
+				85B051B525852E8B00CB7FCD /* ImageResizer.swift */,
+				85B051B425852E8B00CB7FCD /* RCTImageResizer-Bridging-Header.h */,
 			);
 			path = RCTImageResizer;
 			sourceTree = "<group>";
@@ -102,6 +107,7 @@
 				TargetAttributes = {
 					5D72D2E71C16249000E22EC1 = {
 						CreatedOnToolsVersion = 7.1.1;
+						LastSwiftMigration = 1220;
 					};
 				};
 			};
@@ -110,6 +116,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 5D72D2DF1C16249000E22EC1;
@@ -128,6 +135,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */,
+				85B051B625852E8B00CB7FCD /* ImageResizer.swift in Sources */,
 				B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,7 +179,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -208,7 +216,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -218,6 +226,7 @@
 		5D72D2F21C16249000E22EC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -225,15 +234,20 @@
 					"$(SRCROOT)/../../react-native/Libraries/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RCTImageResizer/RCTImageResizer-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		5D72D2F31C16249000E22EC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -241,9 +255,12 @@
 					"$(SRCROOT)/../../react-native/Libraries/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "RCTImageResizer/RCTImageResizer-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

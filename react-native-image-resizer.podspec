@@ -11,10 +11,10 @@ Pod::Spec.new do |s|
   s.author   = package['author']
   s.source   = { :git => "https://github.com/bamlab/react-native-image-resizer.git", :tag => "v#{s.version}" }
 
-  s.platform = :ios, "8.0"
+  s.platform = :ios, "10.0"
 
   s.preserve_paths = 'README.md', 'LICENSE', 'package.json', 'index.js'
-  s.source_files   = "ios/RCTImageResizer/*.{h,m}"
+  s.source_files   = "ios/RCTImageResizer/*.{h,m,swift}"
 
   s.dependency 'React-Core'
 end
