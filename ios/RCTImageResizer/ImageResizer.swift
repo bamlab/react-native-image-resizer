@@ -4,437 +4,342 @@ import Foundation
 public class ImageResizer: NSObject {
     
     @objc
-    public func createResizedImage(_ path:NSString, width:Float, height:Float, format:NSString, quality:Float, rotation: Float, outputPath: NSString, keepMeta: Bool, options: NSDictionary, callback: RCTResponseSenderBlock) {
-
-        let response: Any = [
-            "path": path,
-            "uri": path,
-            "name": "hello world",
-            "size": 100,
-            "width": 80,
-            "height": 80,
+    open var bridge: RCTBridge?
+    
+    @objc
+    public func createResizedImage(_ path:NSString, width:Float, height:Float, format:NSString, quality:CGFloat, rotation: Float, outputPath: NSString, keepMeta: Bool, options: Dictionary<String, Any>, callback: @escaping RCTResponseSenderBlock) {
+        let main = DispatchQueue.global()
+        main.async {
+            let newSize = CGSize(width: CGFloat(width), height: CGFloat(height))
+            let fileExtension = format == "PNG" ? "png" : "jpg"
+            let fullPath = self.generateFilePath(fileExtension: fileExtension, outputPath: outputPath as String)
+            
+            let loader = self.bridge?.module(forName: "ImageLoader", lazilyLoadIfNecessary: true) as! RCTImageLoader
+            loader.loadImage(with: RCTConvert.nsurlRequest(path),
+                             size: newSize,
+                             scale: 1,
+                             clipped: false,
+                             resizeMode: RCTResizeMode.contain,
+                             progressBlock: nil,
+                             partialLoad: nil,
+                             completionBlock: { (error, image) in
+                                if (error != nil) {
+                                    callback(["Can't retrieve the file from the path when loading the image."])
+                                    return
+                                }
+                                
+                                guard let image = image else {
+                                    callback(["Can't retrieve the file from the path when loading the image."])
+                                    return
+                                }
+                                
+                                self.transformImage(image: image, originalPath: path as String, callback: callback, rotation: Int(rotation), newSize: newSize, fullPath: fullPath, format: format as String, quality: Int(quality), keepMeta: keepMeta, options: options)
+                             })
+            
+        }
+    }
+    
+    func saveImage(fullPath: String, image: UIImage, format: String, quality: CGFloat, metadata: [String: Any]) -> Bool {
+        var metaDataCopy = metadata
+        var maybeData: Data? = nil
+        
+        if metadata.isEmpty {
+            if format == "JPEG" {
+                maybeData = image.jpegData(compressionQuality: quality / 100.0)
+            }
+            else if format == "PNG" {
+                maybeData = image.pngData()
+            }
+            guard let data = maybeData else {
+                return false
+            }
+            
+            do {
+                try data.write(to: URL(fileURLWithPath: fullPath))
+            }
+            catch let error {
+                print(error)
+                return false
+            }
+            
+            return true
+        }
+        else {
+            var imageType: CFString = kUTTypeJPEG
+            
+            if format == "JPEG" {
+                metaDataCopy["kCGImageDestinationLossyCompressionQuality"] = quality / 100.0
+            } else if format == "PNG" {
+                imageType = kUTTypePNG
+            } else {
+                return false
+            }
+            
+            let destData = NSMutableData()
+            guard let dest = CGImageDestinationCreateWithData(destData as CFMutableData, imageType, 1, nil) else { return false }
+            CGImageDestinationAddImage(dest, image.cgImage!, nil)
+            
+            if CGImageDestinationFinalize(dest) {
+                try! destData.write(to: URL(fileURLWithPath: fullPath))
+                return true
+            }
+        }
+        return false
+    }
+    
+    func generateFilePath(fileExtension: String, outputPath: String) -> String {
+        var directory: String?
+        
+        
+        if outputPath.count == 0 {
+            let paths = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
+            directory = paths.first
+        }
+        else {
+            let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+            // TODO remove casting
+            let documentsDirectory = paths.first!
+            
+            if outputPath.hasPrefix(documentsDirectory) {
+                directory = outputPath
+            }
+            else {
+                directory =  URL(string: documentsDirectory)?.appendingPathComponent(outputPath).absoluteString
+            }
+            
+            do {
+                // TODO remove casting
+                try FileManager.default.createDirectory(atPath: directory!, withIntermediateDirectories: true, attributes: nil)
+            }
+            catch let error {
+                // TODO: callback ?
+                print(error)
+            }
+        }
+        let fileName = UUID().uuidString
+        let fullName = "\(fileName).\(fileExtension)"
+        
+        // Remove casting
+        let fullPath = URL(string: directory!)!.appendingPathComponent(fullName).relativeString
+        return fullPath
+    }
+    
+    func rotateImage(inputImage: UIImage, rotationDegrees: CGFloat) -> UIImage {
+        
+        guard let inputCGImage = inputImage.cgImage else {
+            // TODO: add log
+            return inputImage
+        }
+        
+        let rotDiv90 = (rotationDegrees / 90).rounded(.toNearestOrEven)
+        let rotQuadrant = rotDiv90.truncatingRemainder(dividingBy: 4)
+        let rotQuadrantAbs = (rotQuadrant < 0) ? rotQuadrant + 4 : rotQuadrant
+        
+        switch rotQuadrantAbs {
+        case 1: // 90 deg CW
+            return UIImage(cgImage: inputCGImage, scale: 1.0, orientation: .right)
+        case 2: // 180 deg
+            return UIImage(cgImage: inputCGImage, scale: 1.0, orientation: .down)
+        case 3: // 270 deg CW
+            return UIImage(cgImage: inputCGImage, scale: 1.0, orientation: .left)
+        default:
+            return inputImage
+        }
+    }
+    
+    func getScaleForProportionalResize(originSize: CGSize, intoSize: CGSize, onlyScaleDown: Bool, maximize: Bool) -> CGFloat {
+        let sizeX = originSize.width
+        let sizeY = originSize.height
+        var deltaX = intoSize.width
+        var deltaY = intoSize.height
+        var scale: CGFloat = 1
+        
+        if sizeX != 0 && sizeY != 0 {
+            deltaX = deltaX / sizeX
+            deltaY = deltaY / sizeY
+            
+            // if maximize is true, take LARGER of the scales, else smaller
+            if (maximize) {
+                scale = CGFloat.maximum(deltaX, deltaY)
+            } else {
+                scale = CGFloat.minimum(deltaX, deltaY)
+            }
+            
+            if onlyScaleDown {
+                scale = CGFloat.minimum(scale, 1);
+            }
+            
+        } else {
+            scale = 0
+        }
+        return scale
+    }
+    
+    // returns a resized image keeping aspect ratio and considering
+    // any :image scale factor.
+    // The returned image is an unscaled image (scale = 1.0)
+    // so no additional scaling math needs to be done to get its pixel dimensions
+    func scaleImage(inputImage: UIImage, toSize: CGSize, mode: String, onlyScaleDown: Bool) -> UIImage {
+        // Need to do scaling corrections
+        // based on scale, since UIImage width/height gives us
+        // a possibly scaled image (dimensions in points)
+        // Idea taken from RNCamera resize code
+        let inputImageSize = CGSize(width: inputImage.size.width * inputImage.scale, height: inputImage.size.height * inputImage.scale);
+        
+        var newSize: CGSize
+        
+        if mode == "stretch" {
+            // Distort aspect ratio
+            var width = toSize.width;
+            var height = toSize.height;
+            
+            if (onlyScaleDown) {
+                width = CGFloat.minimum(width, inputImageSize.width);
+                height =  CGFloat.minimum(height, inputImageSize.height);
+            }
+            
+            newSize = CGSize(width: width, height: height);
+        } else {
+            // Either "contain" (default) or "cover": preserve aspect ratio
+            let maximize = mode == "cover"
+            let scale = getScaleForProportionalResize(originSize: inputImageSize, intoSize: toSize, onlyScaleDown: onlyScaleDown, maximize: maximize)
+            
+            newSize = CGSize(
+                width: (inputImageSize.width * scale).rounded(.toNearestOrEven),
+                height: (inputImageSize.height * scale).rounded(.toNearestOrEven)
+            )
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        inputImage.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+        let maybeNewImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        guard let newImage = maybeNewImage else {
+            print("Unable to scale the image. Falling back to the original image")
+            return inputImage
+        }
+        return newImage
+    }
+    
+    func getImageMetaData(path: String) -> [String: Any]? {
+        var res: [String: Any]? = nil
+        
+        if path.hasPrefix("assets-library") {
+            res = nil
+            
+            let resultsBlock: ALAssetsLibraryAssetForURLResultBlock  = { asset in
+                // TODO: remove casting
+                let representation = asset!.defaultRepresentation()
+                var exif = representation!.metadata()
+            }
+            let assetsLibrary = ALAssetsLibrary()
+            // TODO: casting
+            let url = URL(string: path.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)
+            assetsLibrary.asset(for: url, resultBlock: resultsBlock, failureBlock: { error in
+                print(["error couldn't image from assets library"])
+            })
+            
+            return res
+        }
+        else {
+            var imageData: Data? = nil
+            do {
+                imageData = try NSData(contentsOfFile: path) as Data
+            }
+            catch {
+                print("Could not get image file data to extract metadata.")
+                return nil
+            }
+            // TODO casting
+            let source = CGImageSourceCreateWithData(imageData! as CFData, nil)
+            
+            if let source = source {
+                let metaRef = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+                let metaRefMutable = CFDictionaryCreateMutableCopy(nil, 0, metaRef)
+                
+                // TODO: casting
+                return metaRefMutable as? [String : Any]
+            }
+            else {
+                return nil
+            }
+            
+        }
+    }
+    
+    func transformImage(image: UIImage,
+                        originalPath: String,
+                        callback: @escaping RCTResponseSenderBlock,
+                        rotation: Int,
+                        newSize: CGSize,
+                        fullPath: String,
+                        format: String,
+                        quality: Int,
+                        keepMeta: Bool,
+                        options: Dictionary<String, Any>) {
+        
+        var mutableImage = image
+        
+        // Rotate image if rotation is specified.
+        if (rotation != 0) {
+            mutableImage = rotateImage(inputImage: mutableImage, rotationDegrees: CGFloat(rotation))
+        }
+        
+        // Do the resizing
+        // TODO: remove casting
+        mutableImage = scaleImage(
+            inputImage: mutableImage,
+            toSize: newSize,
+            mode: options["mode"] as! String,
+            onlyScaleDown: options["onlyScaleDown"] as! Bool
+        )
+        
+        var metaData: [String:Any] = [:]
+        // to be consistent with Android, we will only allow JPEG
+        // to do this.
+        if(keepMeta && format  == "JPEG"){
+            
+            metaData = getImageMetaData(path: originalPath) ?? [:]
+            
+            // remove orientation (since we fix it)
+            // width/height meta is adjusted automatically
+            // NOTE: This might still leave some stale values due to resize
+            // TODO : is this the right translation ?
+            metaData["kCGImagePropertyOrientation"] = 1
+            
+        }
+        
+        // Compress and save the image
+        let hasSavedImage = saveImage(fullPath: fullPath, image: mutableImage, format: format, quality: CGFloat(quality), metadata: metaData)
+        if !hasSavedImage {
+            callback(["Can't save the image. Check your compression format and your output path"]);
+            return
+        }
+        
+        let fileUrl = URL(fileURLWithPath: fullPath)
+        let fileName = fileUrl.lastPathComponent
+        var fileAttributes: [FileAttributeKey : Any] = [:]
+        do {
+            fileAttributes = try FileManager.default.attributesOfItem(atPath: fullPath)
+        }
+        catch let error {
+            //TODO
+            print(error)
+            print("Unable to fetch attributes of image")
+        }
+        let fileSize = fileAttributes[FileAttributeKey.size] ?? 0
+        // TODO: investigate why uri: fileUrl in previous implementation
+        let response: [String: Any] = [
+            "path": fullPath,
+            "uri": fileUrl.absoluteString,
+            "name": fileName,
+            "size": fileSize,
+            "width": mutableImage.size.width,
+            "height": mutableImage.size.height
         ]
-        callback([nil, response])
+        
+        callback([nil, response]);
     }
     
 }
-
-/*
- //
- //  ImageResize.m
- //  ChoozItApp
- //
- //  Created by Florian Rival on 19/11/15.
- //
-
- #include "RCTImageResizer.h"
-
- #if __has_include(<React/RCTBridgeModule.h>)
- #import <React/RCTBridgeModule.h>
- #import <React/RCTImageLoader.h>
- #else
- #import "RCTBridgeModule.h"
- #import "RCTImageLoader.h"
- #endif
-
- #import <AssetsLibrary/AssetsLibrary.h>
- #import <MobileCoreServices/MobileCoreServices.h>
-
- @implementation ImageResizer
-
- @synthesize bridge = _bridge;
-
- RCT_EXPORT_MODULE();
-
- bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality, NSMutableDictionary *metadata)
- {
-     if(metadata == nil){
-         NSData* data = nil;
-         if ([format isEqualToString:@"JPEG"]) {
-             data = UIImageJPEGRepresentation(image, quality / 100.0);
-         } else if ([format isEqualToString:@"PNG"]) {
-             data = UIImagePNGRepresentation(image);
-         }
-
-         if (data == nil) {
-             return NO;
-         }
-
-         NSFileManager* fileManager = [NSFileManager defaultManager];
-         return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
-     }
-
-     // process / write metadata together with image data
-     else{
-
-         CFStringRef imgType = kUTTypeJPEG;
-
-         if ([format isEqualToString:@"JPEG"]) {
-             [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
-         }
-         else if([format isEqualToString:@"PNG"]){
-             imgType = kUTTypePNG;
-         }
-         else{
-             return NO;
-         }
-
-         NSMutableData * destData = [NSMutableData data];
-
-         CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, imgType, 1, NULL);
-
-         @try{
-             CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef) metadata);
-
-             // write final image data with metadata to our destination
-             if (CGImageDestinationFinalize(destination)){
-
-                 NSFileManager* fileManager = [NSFileManager defaultManager];
-                 return [fileManager createFileAtPath:fullPath contents:destData attributes:nil];
-             }
-             else{
-                 return NO;
-             }
-         }
-         @finally{
-             @try{
-                 CFRelease(destination);
-             }
-             @catch(NSException *exception){
-                 NSLog(@"Failed to release CGImageDestinationRef: %@", exception);
-             }
-         }
-     }
- }
-
- NSString * generateFilePath(NSString * ext, NSString * outputPath)
- {
-     NSString* directory;
-
-     if ([outputPath length] == 0) {
-         NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-         directory = [paths firstObject];
-     } else {
-         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-         NSString *documentsDirectory = [paths objectAtIndex:0];
-         if ([outputPath hasPrefix:documentsDirectory]) {
-             directory = outputPath;
-         } else {
-             directory = [documentsDirectory stringByAppendingPathComponent:outputPath];
-         }
-
-         NSError *error;
-         [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:&error];
-         if (error) {
-             NSLog(@"Error creating documents subdirectory: %@", error);
-             @throw [NSException exceptionWithName:@"InvalidPathException" reason:[NSString stringWithFormat:@"Error creating documents subdirectory: %@", error] userInfo:nil];
-         }
-     }
-
-     NSString* name = [[NSUUID UUID] UUIDString];
-     NSString* fullName = [NSString stringWithFormat:@"%@.%@", name, ext];
-     NSString* fullPath = [directory stringByAppendingPathComponent:fullName];
-
-     return fullPath;
- }
-
- UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
- {
-
-     // We want only fixed 0, 90, 180, 270 degree rotations.
-     const int rotDiv90 = (int)round(rotationDegrees / 90);
-     const int rotQuadrant = rotDiv90 % 4;
-     const int rotQuadrantAbs = (rotQuadrant < 0) ? rotQuadrant + 4 : rotQuadrant;
-
-     // Return the input image if no rotation specified.
-     if (0 == rotQuadrantAbs) {
-         return inputImage;
-     } else {
-         // Rotate the image by 80, 180, 270.
-         UIImageOrientation orientation = UIImageOrientationUp;
-
-         switch(rotQuadrantAbs) {
-             case 1:
-                 orientation = UIImageOrientationRight; // 90 deg CW
-                 break;
-             case 2:
-                 orientation = UIImageOrientationDown; // 180 deg rotation
-                 break;
-             default:
-                 orientation = UIImageOrientationLeft; // 90 deg CCW
-                 break;
-         }
-
-         return [[UIImage alloc] initWithCGImage: inputImage.CGImage
-                                                   scale: 1.0
-                                                   orientation: orientation];
-     }
- }
-
- float getScaleForProportionalResize(CGSize theSize, CGSize intoSize, bool onlyScaleDown, bool maximize)
- {
-     float    sx = theSize.width;
-     float    sy = theSize.height;
-     float    dx = intoSize.width;
-     float    dy = intoSize.height;
-     float    scale    = 1;
-
-     if( sx != 0 && sy != 0 )
-     {
-         dx    = dx / sx;
-         dy    = dy / sy;
-
-         // if maximize is true, take LARGER of the scales, else smaller
-         if (maximize) {
-             scale = MAX(dx, dy);
-         } else {
-             scale = MIN(dx, dy);
-         }
-
-         if (onlyScaleDown) {
-             scale = MIN(scale, 1);
-         }
-     }
-     else
-     {
-         scale     = 0;
-     }
-     return scale;
- }
-
-
- // returns a resized image keeping aspect ratio and considering
- // any :image scale factor.
- // The returned image is an unscaled image (scale = 1.0)
- // so no additional scaling math needs to be done to get its pixel dimensions
- UIImage* scaleImage (UIImage* image, CGSize toSize, NSString* mode, bool onlyScaleDown)
- {
-
-     // Need to do scaling corrections
-     // based on scale, since UIImage width/height gives us
-     // a possibly scaled image (dimensions in points)
-     // Idea taken from RNCamera resize code
-     CGSize imageSize = CGSizeMake(image.size.width * image.scale, image.size.height * image.scale);
-
-     // using this instead of ImageHelpers allows us to consider
-     // rotation variations
-     CGSize newSize;
-     
-     if ([mode isEqualToString:@"stretch"]) {
-         // Distort aspect ratio
-         int width = toSize.width;
-         int height = toSize.height;
-
-         if (onlyScaleDown) {
-             width = MIN(width, imageSize.width);
-             height = MIN(height, imageSize.height);
-         }
-
-         newSize = CGSizeMake(width, height);
-     } else {
-         // Either "contain" (default) or "cover": preserve aspect ratio
-         bool maximize = [mode isEqualToString:@"cover"];
-         float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown, maximize);
-         newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
-     }
-
-     UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
-     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-     UIGraphicsEndImageContext();
-     return newImage;
- }
-
- // Returns the image's metadata, or nil if failed to retrieve it.
- NSMutableDictionary * getImageMeta(NSString * path)
- {
-     if([path hasPrefix:@"assets-library"]) {
-
-         __block NSMutableDictionary* res = nil;
-
-         ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
-         {
-
-             NSDictionary *exif = [[myasset defaultRepresentation] metadata];
-             res = [exif mutableCopy];
-
-         };
-
-         ALAssetsLibrary* assetslibrary = [[ALAssetsLibrary alloc] init];
-         NSURL *url = [NSURL URLWithString:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-
-         [assetslibrary assetForURL:url resultBlock:resultblock failureBlock:^(NSError *error) { NSLog(@"error couldn't image from assets library"); }];
-
-         return res;
-
-     } else {
-
-         NSData* imageData = nil;
-
-         if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
-             NSURL *imageUrl = [[NSURL alloc] initWithString:path];
-             imageData = [NSData dataWithContentsOfURL:imageUrl];
-
-         } else {
-             imageData = [NSData dataWithContentsOfFile:path];
-         }
-
-         if(imageData == nil){
-             NSLog(@"Could not get image file data to extract metadata.");
-             return nil;
-         }
-
-         CGImageSourceRef source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
-
-
-         if(source != nil){
-
-             CFDictionaryRef metaRef = CGImageSourceCopyPropertiesAtIndex(source, 0, NULL);
-
-             // release CF image
-             CFRelease(source);
-
-             CFMutableDictionaryRef metaRefMutable = CFDictionaryCreateMutableCopy(NULL, 0, metaRef);
-
-             // release the source meta ref now that we've copie it
-             CFRelease(metaRef);
-
-             // bridge CF object so it auto releases
-             NSMutableDictionary* res = (NSMutableDictionary *)CFBridgingRelease(metaRefMutable);
-
-             return res;
-
-         }
-         else{
-             return nil;
-         }
-
-     }
- }
-
- void transformImage(UIImage *image,
-                     NSString * originalPath,
-                     RCTResponseSenderBlock callback,
-                     int rotation,
-                     CGSize newSize,
-                     NSString* fullPath,
-                     NSString* format,
-                     int quality,
-                     BOOL keepMeta,
-                     NSDictionary* options)
- {
-     if (image == nil) {
-         callback(@[@"Can't retrieve the file from the path.", @""]);
-         return;
-     }
-
-     // Rotate image if rotation is specified.
-     if (0 != (int)rotation) {
-         image = rotateImage(image, rotation);
-         if (image == nil) {
-             callback(@[@"Can't rotate the image.", @""]);
-             return;
-         }
-     }
-
-     // Do the resizing
-     UIImage * scaledImage = scaleImage(
-         image,
-         newSize,
-         options[@"mode"],
-         [[options objectForKey:@"onlyScaleDown"] boolValue]
-     );
-
-     if (scaledImage == nil) {
-         callback(@[@"Can't resize the image.", @""]);
-         return;
-     }
-
-
-     NSMutableDictionary *metadata = nil;
-
-     // to be consistent with Android, we will only allow JPEG
-     // to do this.
-     if(keepMeta && [format isEqualToString:@"JPEG"]){
-
-         metadata = getImageMeta(originalPath);
-
-         // remove orientation (since we fix it)
-         // width/height meta is adjusted automatically
-         // NOTE: This might still leave some stale values due to resize
-         metadata[(NSString*)kCGImagePropertyOrientation] = @(1);
-
-     }
-
-     // Compress and save the image
-     if (!saveImage(fullPath, scaledImage, format, quality, metadata)) {
-         callback(@[@"Can't save the image. Check your compression format and your output path", @""]);
-         return;
-     }
-
-     NSURL *fileUrl = [[NSURL alloc] initFileURLWithPath:fullPath];
-     NSString *fileName = fileUrl.lastPathComponent;
-     NSError *attributesError = nil;
-     NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&attributesError];
-     NSNumber *fileSize = fileAttributes == nil ? 0 : [fileAttributes objectForKey:NSFileSize];
-     NSDictionary *response = @{@"path": fullPath,
-                                @"uri": fileUrl.absoluteString,
-                                @"name": fileName,
-                                @"size": fileSize == nil ? @(0) : fileSize,
-                                @"width": @(scaledImage.size.width),
-                                @"height": @(scaledImage.size.height)
-                                };
-
-     callback(@[[NSNull null], response]);
- }
-
- RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
-                   width:(float)width
-                   height:(float)height
-                   format:(NSString *)format
-                   quality:(float)quality
-                   rotation:(float)rotation
-                   outputPath:(NSString *)outputPath
-                   keepMeta:(BOOL)keepMeta
-                   options:(NSDictionary *)options
-                   callback:(RCTResponseSenderBlock)callback)
- {
-     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-         CGSize newSize = CGSizeMake(width, height);
-
-         //Set image extension
-         NSString *extension = @"jpg";
-         if ([format isEqualToString:@"PNG"]) {
-             extension = @"png";
-         }
-
-         NSString* fullPath;
-         @try {
-             fullPath = generateFilePath(extension, outputPath);
-         } @catch (NSException *exception) {
-             callback(@[@"Invalid output path.", @""]);
-             return;
-         }
-
-         RCTImageLoader *loader = [self.bridge moduleForName:@"ImageLoader" lazilyLoadIfNecessary:YES];
-         NSURLRequest *request = [RCTConvert NSURLRequest:path];
-         [loader loadImageWithURLRequest:request
-                                    size:newSize
-                                   scale:1
-                                 clipped:NO
-                              resizeMode:RCTResizeModeContain
-                           progressBlock:nil
-                        partialLoadBlock:nil
-                         completionBlock:^(NSError *error, UIImage *image) {
-             if (error) {
-                 callback(@[@"Can't retrieve the file from the path.", @""]);
-                 return;
-             }
-
-             transformImage(image, path, callback, rotation, newSize, fullPath, format, quality, keepMeta, options);
-         }];
-     });
- }
-
- @end
- */

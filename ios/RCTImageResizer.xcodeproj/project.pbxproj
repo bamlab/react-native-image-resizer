@@ -10,7 +10,6 @@
 		5D72D2EC1C16249000E22EC1 /* RCTImageResizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */; };
 		5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */; };
 		85B051B625852E8B00CB7FCD /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B051B525852E8B00CB7FCD /* ImageResizer.swift */; };
-		B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,8 +31,6 @@
 		5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTImageResizer.m; sourceTree = "<group>"; };
 		85B051B425852E8B00CB7FCD /* RCTImageResizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTImageResizer-Bridging-Header.h"; sourceTree = "<group>"; };
 		85B051B525852E8B00CB7FCD /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
-		B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
-		B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageHelpers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,8 +65,6 @@
 			children = (
 				5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */,
 				5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */,
-				B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */,
-				B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */,
 				85B051B525852E8B00CB7FCD /* ImageResizer.swift */,
 				85B051B425852E8B00CB7FCD /* RCTImageResizer-Bridging-Header.h */,
 			);
@@ -136,7 +131,6 @@
 			files = (
 				5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */,
 				85B051B625852E8B00CB7FCD /* ImageResizer.swift in Sources */,
-				B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
