@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -317,6 +318,12 @@ public class ImageResizer {
      */
     public static int getOrientation(Context context, Uri uri) {
         try {
+            // ExifInterface(InputStream) only exists since Android N (r24)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                InputStream input = context.getContentResolver().openInputStream(uri);
+                ExifInterface ei = new ExifInterface(input);
+                return getOrientation(ei);
+            }
             File file = getFileFromUri(context, uri);
             if (file.exists()) {
                 ExifInterface ei = new ExifInterface(file.getAbsolutePath());
