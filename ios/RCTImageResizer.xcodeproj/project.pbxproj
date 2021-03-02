@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5D72D2EC1C16249000E22EC1 /* RCTImageResizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */; };
 		5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */; };
+		907A159425EDCFEB00C7CEA2 /* UIImage+HEIC.m in Sources */ = {isa = PBXBuildFile; fileRef = 907A159325EDCFEB00C7CEA2 /* UIImage+HEIC.m */; };
 		B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,8 @@
 		5D72D2E81C16249000E22EC1 /* libRCTImageResizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTImageResizer.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D72D2EB1C16249000E22EC1 /* RCTImageResizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTImageResizer.h; sourceTree = "<group>"; };
 		5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTImageResizer.m; sourceTree = "<group>"; };
+		907A159225EDCFEB00C7CEA2 /* UIImage+HEIC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+HEIC.h"; sourceTree = "<group>"; };
+		907A159325EDCFEB00C7CEA2 /* UIImage+HEIC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+HEIC.m"; sourceTree = "<group>"; };
 		B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
 		B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageHelpers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -67,6 +70,8 @@
 				5D72D2ED1C16249000E22EC1 /* RCTImageResizer.m */,
 				B62D1C4A1C95C21300AD70F2 /* ImageHelpers.h */,
 				B62D1C4B1C95C21300AD70F2 /* ImageHelpers.m */,
+				907A159225EDCFEB00C7CEA2 /* UIImage+HEIC.h */,
+				907A159325EDCFEB00C7CEA2 /* UIImage+HEIC.m */,
 			);
 			path = RCTImageResizer;
 			sourceTree = "<group>";
@@ -110,6 +115,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 5D72D2DF1C16249000E22EC1;
@@ -127,6 +133,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				907A159425EDCFEB00C7CEA2 /* UIImage+HEIC.m in Sources */,
 				5D72D2EE1C16249000E22EC1 /* RCTImageResizer.m in Sources */,
 				B62D1C4C1C95C21300AD70F2 /* ImageHelpers.m in Sources */,
 			);
