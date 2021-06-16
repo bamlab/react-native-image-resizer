@@ -35,9 +35,9 @@ if (Platform.OS === 'android') {
       keepMeta = false,
       options = {}
     ) => {
-      const validatedOptions = validateOptions(options);
-  
       return new Promise((resolve, reject) => {
+        const validatedOptions = validateOptions(options);
+        
         ImageResizerAndroid.createResizedImage(
           imagePath,
           newWidth,
@@ -67,13 +67,13 @@ if (Platform.OS === 'android') {
       keepMeta = false,
       options = {}
     ) => {
-      if (format !== 'JPEG' && format !== 'PNG') {
-        throw new Error('Only JPEG and PNG format are supported by createResizedImage');
-      }
-  
-      const validatedOptions = validateOptions(options);
-  
       return new Promise((resolve, reject) => {
+        if (format !== 'JPEG' && format !== 'PNG') {
+          throw new Error('Only JPEG and PNG format are supported by createResizedImage');
+        }
+  
+        const validatedOptions = validateOptions(options);
+  
         NativeModules.ImageResizer.createResizedImage(
           path,
           width,
