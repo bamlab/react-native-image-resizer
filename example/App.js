@@ -13,7 +13,7 @@ import {
   Alert,
   TouchableOpacity,
   PermissionsAndroid,
-  Platform
+  Platform,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -56,21 +56,23 @@ const styles = StyleSheet.create({
     padding: 5,
     width: '50%',
     borderColor: 'gray',
-    borderWidth: 1 ,
+    borderWidth: 1,
   },
 });
 
-const modeOptions = ['contain', 'cover', 'stretch'].map(
-  mode => ({ label: mode, value: mode })
-);
+const modeOptions = ['contain', 'cover', 'stretch'].map((mode) => ({
+  label: mode,
+  value: mode,
+}));
 
-const onlyScaleDownOptions = [false, true].map(
-  onlyScaleDown => ({ label: onlyScaleDown.toString(), value: onlyScaleDown })
-);
+const onlyScaleDownOptions = [false, true].map((onlyScaleDown) => ({
+  label: onlyScaleDown.toString(),
+  value: onlyScaleDown,
+}));
 
 const targetSizeOptions = [
-  { label: '80x80', value: 80 },
-  { label: '5000x5000', value: 5000 },
+  {label: '80x80', value: 80},
+  {label: '5000x5000', value: 5000},
 ];
 
 export default class ResizerExample extends Component {
@@ -89,74 +91,88 @@ export default class ResizerExample extends Component {
   }
 
   async componentDidMount() {
-    let isAllowedToAccessPhotosOnAndroid = false
-    if (Platform.OS === "android") {
-      isAllowedToAccessPhotosOnAndroid = await this.hasAndroidPermission()
-
+    let isAllowedToAccessPhotosOnAndroid = false;
+    if (Platform.OS === 'android') {
+      isAllowedToAccessPhotosOnAndroid = await this.hasAndroidPermission();
     }
-    if (Platform.OS === "ios" || isAllowedToAccessPhotosOnAndroid){
-    CameraRoll.getPhotos({first: 1})
-      .then(photos => {
-        if (!photos.edges || photos.edges.length === 0) {
+    if (Platform.OS === 'ios' || isAllowedToAccessPhotosOnAndroid) {
+      CameraRoll.getPhotos({first: 1})
+        .then((photos) => {
+          if (!photos.edges || photos.edges.length === 0) {
+            return Alert.alert(
+              'Unable to load camera roll',
+              'Check that you authorized the access to the camera roll photos and that there is at least one photo in it',
+            );
+          }
+
+          this.setState({
+            image: photos.edges[0].node.image,
+          });
+        })
+        .catch(() => {
           return Alert.alert(
             'Unable to load camera roll',
-            'Check that you authorized the access to the camera roll photos and that there is at least one photo in it',
+            'Check that you authorized the access to the camera roll photos',
           );
-        }
-
-        this.setState({
-          image: photos.edges[0].node.image,
         });
-      })
-      .catch(() => {
-        return Alert.alert(
-          'Unable to load camera roll',
-          'Check that you authorized the access to the camera roll photos',
-        );
-      });
-  }
-}
-
-hasAndroidPermission = async ()=> {
-  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-
-  const hasPermission = await PermissionsAndroid.check(permission);
-  if (hasPermission) {
-    return true;
+    }
   }
 
-  const status = await PermissionsAndroid.request(permission);
-  return status === 'granted';
-}
+  hasAndroidPermission = async () => {
+    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      return true;
+    }
+
+    const status = await PermissionsAndroid.request(permission);
+    return status === 'granted';
+  };
 
   resize = () => {
-    const { mode, onlyScaleDown, resizeTargetSize } = this.state;
+    const {mode, onlyScaleDown, resizeTargetSize} = this.state;
 
-    this.setState({ resizedImage: null });
+    this.setState({resizedImage: null});
 
-    ImageResizer.createResizedImage(this.state.image.uri, resizeTargetSize, resizeTargetSize, 'JPEG', 100, 0, undefined, false, { mode, onlyScaleDown })
-      .then(resizedImage => {
-        this.setState({ resizedImage });
+    ImageResizer.createResizedImage(
+      this.state.image.uri,
+      resizeTargetSize,
+      resizeTargetSize,
+      'JPEG',
+      100,
+      0,
+      undefined,
+      false,
+      {mode, onlyScaleDown},
+    )
+      .then((resizedImage) => {
+        this.setState({resizedImage});
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return Alert.alert(
           'Unable to resize the photo',
           'Check the console for full the error message',
         );
       });
-    }
-  
+  };
 
   render() {
-    const { resizedImage } = this.state;
+    const {resizedImage} = this.state;
 
     return (
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}>
         <Text style={styles.welcome}>Image Resizer example</Text>
         <Text style={styles.instructions}>This is the original image:</Text>
         {this.state.image ? (
-          <Image style={styles.image} source={{uri: this.state.image.uri}} resizeMode="contain" />
+          <Image
+            style={styles.image}
+            source={{uri: this.state.image.uri}}
+            resizeMode={this.state.mode}
+          />
         ) : null}
         <Text style={styles.instructions}>Resized image:</Text>
 
@@ -165,9 +181,9 @@ hasAndroidPermission = async ()=> {
 
           <RNPickerSelect
             value={this.state.mode}
-            onValueChange={(mode) => this.setState({ mode })}
+            onValueChange={(mode) => this.setState({mode})}
             items={modeOptions}
-            style={{ viewContainer: styles.pickerView }}
+            style={{viewContainer: styles.pickerView}}
           />
         </View>
 
@@ -176,9 +192,9 @@ hasAndroidPermission = async ()=> {
 
           <RNPickerSelect
             value={this.state.onlyScaleDown}
-            onValueChange={(onlyScaleDown) => this.setState({ onlyScaleDown })}
+            onValueChange={(onlyScaleDown) => this.setState({onlyScaleDown})}
             items={onlyScaleDownOptions}
-            style={{ viewContainer: styles.pickerView }}
+            style={{viewContainer: styles.pickerView}}
           />
         </View>
 
@@ -187,9 +203,11 @@ hasAndroidPermission = async ()=> {
 
           <RNPickerSelect
             value={this.state.resizeTargetSize}
-            onValueChange={(resizeTargetSize) => this.setState({ resizeTargetSize })}
+            onValueChange={(resizeTargetSize) =>
+              this.setState({resizeTargetSize})
+            }
             items={targetSizeOptions}
-            style={{ viewContainer: styles.pickerView }}
+            style={{viewContainer: styles.pickerView}}
           />
         </View>
 
@@ -202,7 +220,7 @@ hasAndroidPermission = async ()=> {
             <Image
               style={styles.image}
               source={{uri: resizedImage.uri}}
-              resizeMode="contain"
+              resizeMode={this.state.mode}
             />
             <Text>Width: {resizedImage.width}</Text>
             <Text>Height: {resizedImage.height}</Text>

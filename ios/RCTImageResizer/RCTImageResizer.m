@@ -149,7 +149,7 @@ UIImage * rotateImage(UIImage *inputImage, float rotationDegrees)
     }
 }
 
-float getScaleForProportionalResize(CGSize theSize, CGSize intoSize, bool onlyScaleDown, bool maximize)
+float getScaleForProportionalResize(CGSize theSize, CGSize intoSize, bool onlyScaleDown)
 {
     float    sx = theSize.width;
     float    sy = theSize.height;
@@ -161,13 +161,8 @@ float getScaleForProportionalResize(CGSize theSize, CGSize intoSize, bool onlySc
     {
         dx    = dx / sx;
         dy    = dy / sy;
+        scale = MIN(dx, dy);
 
-        // if maximize is true, take LARGER of the scales, else smaller
-        if (maximize) {
-            scale = MAX(dx, dy);
-        } else {
-            scale = MIN(dx, dy);
-        }
 
         if (onlyScaleDown) {
             scale = MIN(scale, 1);
@@ -209,13 +204,65 @@ UIImage* scaleImage (UIImage* image, CGSize toSize, NSString* mode, bool onlySca
         }
 
         newSize = CGSizeMake(width, height);
-    } else {
-        // Either "contain" (default) or "cover": preserve aspect ratio
-        bool maximize = [mode isEqualToString:@"cover"];
-        float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown, maximize);
+    } else if([mode isEqualToString:@"contain"]) {
+        float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown);
         newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+    }else {
+        UIImage *newImage = nil;
+        CGSize imageSize = image.size;
+        CGFloat width = imageSize.width;
+        CGFloat height = imageSize.height;
+        CGFloat targetWidth = toSize.width;
+        CGFloat targetHeight = toSize.height;
+        CGFloat scaleFactor = 0.0;
+        CGFloat scaledWidth = targetWidth;
+        CGFloat scaledHeight = targetHeight;
+        CGPoint thumbnailPoint = CGPointMake(0.0,0.0);
+        
+        if (CGSizeEqualToSize(imageSize, toSize) == NO){
+            CGFloat widthFactor = targetWidth / width;
+            CGFloat heightFactor = targetHeight / height;
+            
+            if (widthFactor > heightFactor)        {
+                scaleFactor = widthFactor; // scale to fit height
+            }
+            else {
+                scaleFactor = heightFactor; // scale to fit width
+            }
+            scaledWidth  = width * scaleFactor;
+            scaledHeight = height * scaleFactor;
+            // center the image
+            if (widthFactor > heightFactor)        {
+                thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5;
+            }
+            else {
+                if (widthFactor < heightFactor)            {
+                    thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+                }
+            }
+        }
+        
+        UIGraphicsBeginImageContext(toSize); // this will crop
+        
+        CGRect thumbnailRect = CGRectZero;
+        thumbnailRect.origin = thumbnailPoint;
+        thumbnailRect.size.width  = scaledWidth;
+        thumbnailRect.size.height = scaledHeight;
+        
+        [image drawInRect:thumbnailRect];
+        
+        newImage = UIGraphicsGetImageFromCurrentImageContext();
+        
+        if(newImage == nil) {
+            NSLog(@"could not scale image");
+        }
+        
+        //pop the context to get back to the default
+        UIGraphicsEndImageContext();
+        
+        return newImage;
     }
-
+    
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
