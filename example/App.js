@@ -134,7 +134,7 @@ hasAndroidPermission = async ()=> {
 
     this.setState({ resizedImage: null });
 
-    ImageResizer.createResizedImage(this.state.image.uri, resizeTargetSize, resizeTargetSize, 'JPEG', 100, 0, undefined, false, { mode, onlyScaleDown })
+    ImageResizer.createResizedImage(this.state.image.uri, resizeTargetSize, resizeTargetSize, 'HEIC', 100, 0, undefined, false, { mode, onlyScaleDown })
       .then(resizedImage => {
         this.setState({ resizedImage });
       })

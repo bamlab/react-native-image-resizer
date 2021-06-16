@@ -17,6 +17,7 @@
 
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "UIImage+HEIC.h"
 
 @implementation ImageResizer
 
@@ -32,6 +33,8 @@ bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float qu
             data = UIImageJPEGRepresentation(image, quality / 100.0);
         } else if ([format isEqualToString:@"PNG"]) {
             data = UIImagePNGRepresentation(image);
+        } else if ([format isEqualToString:@"HEIC"]) {
+            data = tj_UIImageHEICRepresentation(image, 0.8);
         }
 
         if (data == nil) {
@@ -384,7 +387,9 @@ RCT_EXPORT_METHOD(createResizedImage:(NSString *)path
         NSString *extension = @"jpg";
         if ([format isEqualToString:@"PNG"]) {
             extension = @"png";
-        }
+        } else if ([format isEqualToString:@"HEIC"]) {
+            extension = @"heic";
+		}
 
         NSString* fullPath;
         @try {

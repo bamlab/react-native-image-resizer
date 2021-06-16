@@ -238,7 +238,7 @@ PODS:
   - React-jsinspector (0.63.3)
   - react-native-cameraroll (4.0.1):
     - React
-  - react-native-image-resizer (1.3.0):
+  - react-native-image-resizer (1.4.3):
     - React-Core
   - React-RCTActionSheet (0.63.3):
     - React-Core/RCTActionSheetHeaders (= 0.63.3)
@@ -456,7 +456,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b56c03e61c0dd5f5801255f2160a815f4a53d451
   React-jsinspector: 8e68ffbfe23880d3ee9bafa8be2777f60b25cbe2
   react-native-cameraroll: 60ba0068826eab1c8d43146191bafd4363ea58a7
-  react-native-image-resizer: a79bcffdef1b52160ff91db0d6fa24816a4ff332
+  react-native-image-resizer: 5dfbf934fe5788c11ed06ebbcdb6e6fb6beec20c
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
   React-RCTAnimation: 1befece0b5183c22ae01b966f5583f42e69a83c2
   React-RCTBlob: 0b284339cbe4b15705a05e2313a51c6d8b51fa40
@@ -472,4 +472,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 893b3f5aa841eb3409bcefa30c3ddc9e1dc48230
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.1

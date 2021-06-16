@@ -67,8 +67,8 @@ if (Platform.OS === 'android') {
       keepMeta = false,
       options = {}
     ) => {
-      if (format !== 'JPEG' && format !== 'PNG') {
-        throw new Error('Only JPEG and PNG format are supported by createResizedImage');
+      if (format !== 'JPEG' && format !== 'PNG' && format !== 'HEIC') {
+        throw new Error('Only JPEG, HEIC and PNG format are supported by createResizedImage');
       }
   
       const validatedOptions = validateOptions(options);
