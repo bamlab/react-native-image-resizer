@@ -1,5 +1,5 @@
-#import <React/RCTBridgeModule.h>
+#import "RNImageResizerSpec.h"
 
-@interface ImageResizer : NSObject <RCTBridgeModule>
+@interface ImageResizer : NSObject <NativeImageResizerSpec>
 
 @end

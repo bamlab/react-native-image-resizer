@@ -1,14 +1,16 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-image-resizer';
+import { multiply, addition } from 'react-native-image-resizer';
 
-const result = multiply(3, 7);
+const multiplyResult = multiply(3, 7);
+const additionResult = addition(2, 3);
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result multiply: {multiplyResult}</Text>
+      <Text>Result addition: {additionResult}</Text>
     </View>
   );
 }
