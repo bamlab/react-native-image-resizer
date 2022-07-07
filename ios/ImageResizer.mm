@@ -5,8 +5,10 @@
 
 #if __has_include(<React/RCTLog.h>)
 #import <React/RCTLog.h>
+#import <React/RCTImageLoader.h>
 #else
-#import "React/RCTLog.h"
+#import "RCTLog.h"
+#import "RCTImageLoader.h"
 #endif
 
 #ifdef RCT_NEW_ARCH_ENABLED
@@ -72,19 +74,18 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(addition,
         [NSException raise:@"Error not handle" format:@"Error not handle"];
     }
 
-    // GetImage
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    BOOL isFileExist = [fileManager fileExistsAtPath:uri];
+    NSURL * fileURL = [[NSURL alloc] initWithString:uri];
+    
+    NSError *err;
+    if ([fileURL checkResourceIsReachableAndReturnError:&err] == NO)
+        RCTLogError(@"File does not exist.");
+    
+    NSData * imageData = [NSData dataWithContentsOfURL:fileURL];
+    
     UIImage *image;
-    if (isFileExist) {
-        image = [[UIImage alloc] initWithContentsOfFile:uri];
-        NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
-        return response;
-    }
-    else {
-        RCTLogError(@"Can't retrieve the file from the path.");
-        [NSException raise:@"Error not handle" format:@"Error not handle"];
-    }
+    image = [UIImage  imageWithData:imageData];
+    NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
+    return response;
 }
 
 

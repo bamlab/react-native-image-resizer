@@ -11,8 +11,10 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@react-native-picker/picker": "^2.4.2",
     "react": "17.0.2",
-    "react-native": "0.68.2"
+    "react-native": "0.68.2",
+    "react-native-image-picker": "^4.8.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
