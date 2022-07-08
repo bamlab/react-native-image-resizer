@@ -8,9 +8,8 @@
  * @format
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Image,
   PermissionsAndroid,
@@ -18,43 +17,45 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { createdResizedImage } from 'react-native-image-resizer';
-import { Picker } from '@react-native-picker/picker';
-import type { ResizeMode } from 'src/types';
+import type { ResizeMode, Response } from 'src/types';
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 
-interface Response {
-  path: string;
-  uri: string;
-  size: number;
-  name: string;
-  width: number;
-  height: number;
-}
+const modeOptions: { label: string; value: ResizeMode }[] = [
+  {
+    label: 'contain',
+    value: 'contain',
+  },
+  {
+    label: 'cover',
+    value: 'cover',
+  },
+  {
+    label: 'stretch',
+    value: 'stretch',
+  },
+];
 
-const modeOptions = ['contain', 'cover', 'stretch'].map((mode) => ({
-  label: mode,
-  value: mode,
-}));
-
-const onlyScaleDownOptions = [false, true].map((onlyScaleDown) => ({
-  label: onlyScaleDown.toString(),
-  value: onlyScaleDown,
-}));
-
-const targetSizeOptions = [
-  { label: '80x80', value: 80 },
-  { label: '5000x5000', value: 5000 },
+const onlyScaleDownOptions: { label: string; value: boolean }[] = [
+  {
+    label: 'true',
+    value: true,
+  },
+  {
+    label: 'false',
+    value: false,
+  },
 ];
 
 const App = () => {
-  const [mode, setMode] = useState<ResizeMode>('contain');
+  const [selectedMode, setMode] = useState<ResizeMode>('contain');
   const [onlyScaleDown, setOnlyScaleDown] = useState(false);
   const [image, setImage] = useState<null | Asset>();
-  const [sizeTarget, setSizeTarget] = useState(5000);
+  const [sizeTarget, setSizeTarget] = useState(80);
   const [resizedImage, setResizedImage] = useState<null | Response>();
 
   const hasAndroidPermission = async () => {
@@ -78,25 +79,20 @@ const App = () => {
 
     try {
       let result;
-      for (let index = 0; index < 30; index++) {
-        const startLoop = new Date().getTime();
-        result = await createdResizedImage(
-          image.uri,
-          sizeTarget,
-          sizeTarget,
-          'JPEG',
-          100,
-          0,
-          undefined,
-          false,
-          {
-            mode,
-            onlyScaleDown,
-          }
-        );
-        const endLoop = new Date().getTime();
-        console.log(`Call ${index} finished : ${endLoop - startLoop} ms`);
-      }
+      result = await createdResizedImage(
+        image.uri,
+        sizeTarget,
+        sizeTarget,
+        'JPEG',
+        100,
+        0,
+        undefined,
+        false,
+        {
+          mode: selectedMode,
+          onlyScaleDown,
+        }
+      );
 
       const end = new Date().getTime();
       const totalSeconds = (end - start) / 1000;
@@ -105,33 +101,25 @@ const App = () => {
       setResizedImage(result);
     } catch (error) {
       console.error(error);
-      Alert.alert(
-        'Unable to resize the photo',
-        'Check the console for full the error message'
-      );
+      Alert.alert('Unable to resize the photo', `Error: ${error}`);
     }
   };
 
-  useEffect(() => {
-    const chechPermission = async () => {
-      let isAllowedToAccessPhotosOnAndroid = false;
-      if (Platform.OS === 'android') {
-        isAllowedToAccessPhotosOnAndroid = await hasAndroidPermission();
-      }
-      if (Platform.OS === 'ios' || isAllowedToAccessPhotosOnAndroid) {
-        launchImageLibrary({ mediaType: 'photo' }, (response) => {
-          if (!response || !response.assets) return;
-          const asset = response.assets[0];
-          if (asset) {
-            console.log('URI = ', asset.uri);
-            setImage(asset);
-          }
-        });
-      }
-    };
-
-    chechPermission();
-  }, []);
+  const selectImage = async () => {
+    let isAllowedToAccessPhotosOnAndroid = false;
+    if (Platform.OS === 'android') {
+      isAllowedToAccessPhotosOnAndroid = await hasAndroidPermission();
+    }
+    if (Platform.OS === 'ios' || isAllowedToAccessPhotosOnAndroid) {
+      launchImageLibrary({ mediaType: 'photo' }, (response) => {
+        if (!response || !response.assets) return;
+        const asset = response.assets[0];
+        if (asset) {
+          setImage(asset);
+        }
+      });
+    }
+  };
 
   return (
     <ScrollView
@@ -139,6 +127,9 @@ const App = () => {
       contentContainerStyle={styles.container}
     >
       <Text style={styles.welcome}>Image Resizer example</Text>
+      <TouchableOpacity style={styles.button} onPress={selectImage}>
+        <Text>Select an image</Text>
+      </TouchableOpacity>
       <Text style={styles.instructions}>This is the original image:</Text>
       {image ? (
         <Image
@@ -147,60 +138,50 @@ const App = () => {
           resizeMode="contain"
         />
       ) : null}
+
       <Text style={styles.instructions}>Resized image:</Text>
-      <View style={styles.row}>
-        <Text>Mode: </Text>
-
-        {/* <Picker
-          selectedValue={mode}
-          onValueChange={(mode) => setMode(mode)}
-          style={{ alignSelf: 'stretch' }}
-        >
-          {modeOptions.map((option) => (
-            <Picker.Item
-              label={option.label}
-              value={option.value}
-              key={option.value}
-            />
-          ))}
-        </Picker> */}
+      <Text>Mode: </Text>
+      <View style={styles.optionContainer}>
+        {modeOptions.map((mode) => (
+          <TouchableOpacity
+            style={styles.buttonOption}
+            onPress={() => setMode(mode.value)}
+            key={mode.label}
+          >
+            <Text>{`${mode.label} ${
+              selectedMode === mode.value ? '✅' : ''
+            }`}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
-      <View style={styles.row}>
-        <Text>Only scale down? </Text>
 
-        {/* <Picker
-          selectedValue={onlyScaleDown}
-          onValueChange={(onlyScaleDown) => setOnlyScaleDown(onlyScaleDown)}
-        >
-          {onlyScaleDownOptions.map((option) => (
-            <Picker.Item
-              label={option.label}
-              value={option.value}
-              key={option.label}
-            />
-          ))}
-        </Picker> */}
+      <Text>Only scale down? </Text>
+      <View style={styles.optionContainer}>
+        {onlyScaleDownOptions.map((scaleDownOption) => (
+          <TouchableOpacity
+            style={styles.buttonOption}
+            onPress={() => setOnlyScaleDown(scaleDownOption.value)}
+            key={scaleDownOption.label}
+          >
+            <Text>{`${scaleDownOption.label} ${
+              onlyScaleDown === scaleDownOption.value ? '✅' : ''
+            }`}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
-      <View style={styles.row}>
-        <Text>Target size: </Text>
 
-        {/* <Picker
-          selectedValue={sizeTarget}
-          onValueChange={(resizeTargetSize) => setSizeTarget(resizeTargetSize)}
-        >
-          {targetSizeOptions.map((option) => (
-            <Picker.Item
-              label={option.label}
-              value={option.value}
-              key={option.value}
-            />
-          ))}
-        </Picker> */}
-      </View>
-      <TouchableOpacity onPress={resize}>
-        <Text style={styles.resizeButton}>Click me to resize the image</Text>
+      <Text>Target size: </Text>
+      <TextInput
+        placeholder={sizeTarget.toString()}
+        keyboardType="decimal-pad"
+        onChangeText={(text) => {
+          setSizeTarget(Number(text));
+        }}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={resize}>
+        <Text>Click me to resize the image</Text>
       </TouchableOpacity>
-      <ActivityIndicator size={20} />
       {resizedImage ? (
         <>
           <Image
@@ -222,10 +203,10 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: 100,
+    alignItems: 'center',
   },
   welcome: {
     fontSize: 20,
-    textAlign: 'center',
     margin: 10,
   },
   instructions: {
@@ -234,23 +215,34 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   image: {
-    width: 250,
     height: 250,
+    borderWidth: 1,
+    borderColor: 'black',
+    alignSelf: 'stretch',
+    marginBottom: 10,
   },
   resizeButton: {
     color: '#333333',
     fontWeight: 'bold',
     marginBottom: 5,
   },
-  row: {
-    marginBottom: 5,
+  button: {
+    backgroundColor: '#2596be',
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+    borderRadius: 10,
   },
-  pickerView: {
-    backgroundColor: 'white',
-    padding: 5,
-    width: '50%',
-    borderColor: 'gray',
-    borderWidth: 1,
+  optionContainer: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  buttonOption: {
+    backgroundColor: '#2596be',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
 });
 

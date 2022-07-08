@@ -39,7 +39,7 @@ export function createdResizedImage(
      */
     onlyScaleDown?: boolean;
   }
-) {
+): Promise<Response> {
   const mode = options?.mode;
   const onlyScaleDown = options?.onlyScaleDown;
 
