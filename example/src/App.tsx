@@ -106,19 +106,13 @@ const App = () => {
   };
 
   const selectImage = async () => {
-    let isAllowedToAccessPhotosOnAndroid = false;
-    if (Platform.OS === 'android') {
-      isAllowedToAccessPhotosOnAndroid = await hasAndroidPermission();
-    }
-    if (Platform.OS === 'ios' || isAllowedToAccessPhotosOnAndroid) {
-      launchImageLibrary({ mediaType: 'photo' }, (response) => {
-        if (!response || !response.assets) return;
-        const asset = response.assets[0];
-        if (asset) {
-          setImage(asset);
-        }
-      });
-    }
+    launchImageLibrary({ mediaType: 'photo' }, (response) => {
+      if (!response || !response.assets) return;
+      const asset = response.assets[0];
+      if (asset) {
+        setImage(asset);
+      }
+    });
   };
 
   return (
