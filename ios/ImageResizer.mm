@@ -57,34 +57,42 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(addition,
 }
 
 - (NSDictionary *)createdResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality rotation:(NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(NSNumber *)keepMeta mode:(NSString *)mode onlyScaleDown:(NSNumber *)onlyScaleDown {
-    CGSize newSize = CGSizeMake(width, height);
-
-    //Set image extension
-    NSString *extension = @"jpg";
-    if ([format isEqualToString:@"PNG"]) {
-        extension = @"png";
-    }
-
-    NSString* fullPath;
-    @try {
-        fullPath = generateFilePath(extension, outputPath);
-    } @catch (NSException *exception) {
-        // TODO: Find a way to throw error
-        RCTLogError(@"Invalid output path.");
-        [NSException raise:@"Error not handle" format:@"Error not handle"];
-    }
-
-    NSURL * fileURL = [[NSURL alloc] initWithString:uri];
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    __block NSDictionary * response = @{};
     
-    NSError *err;
-    if ([fileURL checkResourceIsReachableAndReturnError:&err] == NO)
-        RCTLogError(@"File does not exist.");
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        CGSize newSize = CGSizeMake(width, height);
+
+        //Set image extension
+        NSString *extension = @"jpg";
+        if ([format isEqualToString:@"PNG"]) {
+            extension = @"png";
+        }
+
+        NSString* fullPath;
+        @try {
+            fullPath = generateFilePath(extension, outputPath);
+        } @catch (NSException *exception) {
+            // TODO: Find a way to throw error
+            RCTLogError(@"Invalid output path.");
+            [NSException raise:@"Error not handle" format:@"Error not handle"];
+        }
+
+        NSURL * fileURL = [[NSURL alloc] initWithString:uri];
+        
+        NSError *err;
+        if ([fileURL checkResourceIsReachableAndReturnError:&err] == NO)
+            RCTLogError(@"File does not exist.");
+        
+        NSData * imageData = [NSData dataWithContentsOfURL:fileURL];
+        
+        UIImage *image;
+        image = [UIImage  imageWithData:imageData];
+        response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
+        dispatch_semaphore_signal(sema);
+    });
     
-    NSData * imageData = [NSData dataWithContentsOfURL:fileURL];
-    
-    UIImage *image;
-    image = [UIImage  imageWithData:imageData];
-    NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     return response;
 }
 
@@ -419,12 +427,14 @@ NSDictionary * transformImage(UIImage *image,
     NSError *attributesError = nil;
     NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&attributesError];
     NSNumber *fileSize = fileAttributes == nil ? 0 : [fileAttributes objectForKey:NSFileSize];
+    NSString * base64 = [UIImagePNGRepresentation(scaledImage) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     NSDictionary *response = @{@"path": fullPath,
                                @"uri": fileUrl.absoluteString,
                                @"name": fileName,
                                @"size": fileSize == nil ? @(0) : fileSize,
                                @"width": @(scaledImage.size.width),
-                               @"height": @(scaledImage.size.height)
+                               @"height": @(scaledImage.size.height),
+                               @"base64": base64
                                };
 
     return response;
