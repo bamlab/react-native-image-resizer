@@ -56,10 +56,8 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(addition,
    return [NSNumber numberWithDouble:(a*b)];
 }
 
-- (NSDictionary *)createdResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality rotation:(NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(NSNumber *)keepMeta mode:(NSString *)mode onlyScaleDown:(NSNumber *)onlyScaleDown {
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    __block NSDictionary * response = @{};
-    
+
+- (void)createdResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality rotation:(NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(NSNumber *)keepMeta mode:(NSString *)mode onlyScaleDown:(NSNumber *)onlyScaleDown resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         CGSize newSize = CGSizeMake(width, height);
 
@@ -88,12 +86,9 @@ RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(addition,
         
         UIImage *image;
         image = [UIImage  imageWithData:imageData];
-        response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
-        dispatch_semaphore_signal(sema);
+        NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
+        resolve(response);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    return response;
 }
 
 

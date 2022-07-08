@@ -43,23 +43,16 @@ export function createdResizedImage(
   const mode = options?.mode;
   const onlyScaleDown = options?.onlyScaleDown;
 
-  return new Promise((resolve, reject) => {
-    try {
-      const result = ImageResizer.createdResizedImage(
-        uri,
-        width,
-        height,
-        format,
-        quality,
-        rotation,
-        outputPath,
-        keepMeta,
-        mode,
-        onlyScaleDown
-      );
-      resolve(result);
-    } catch (error) {
-      reject(error);
-    }
-  });
+  return ImageResizer.createdResizedImage(
+    uri,
+    width,
+    height,
+    format,
+    quality,
+    rotation,
+    outputPath,
+    keepMeta,
+    mode,
+    onlyScaleDown
+  );
 }

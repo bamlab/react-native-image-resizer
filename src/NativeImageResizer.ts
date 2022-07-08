@@ -15,14 +15,15 @@ export interface Spec extends TurboModule {
     keepMeta?: boolean,
     mode?: string,
     onlyScaleDown?: boolean
-  ): {
+  ): Promise<{
     path: string;
     uri: string;
     size: number;
     name: string;
     width: number;
     height: number;
-  };
+    base64: string;
+  }>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('ImageResizer');
