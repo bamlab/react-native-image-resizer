@@ -75,8 +75,6 @@ const App = () => {
 
     setResizedImage(null);
 
-    const start = new Date().getTime();
-
     try {
       let result;
       result = await createdResizedImage(
@@ -93,10 +91,6 @@ const App = () => {
           onlyScaleDown,
         }
       );
-
-      const end = new Date().getTime();
-      const totalSeconds = (end - start) / 1000;
-      console.warn('Number of seconds = ', totalSeconds);
 
       setResizedImage(result);
     } catch (error) {
