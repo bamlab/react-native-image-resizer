@@ -12,8 +12,6 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
-  PermissionsAndroid,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -57,18 +55,6 @@ const App = () => {
   const [image, setImage] = useState<null | Asset>();
   const [sizeTarget, setSizeTarget] = useState(80);
   const [resizedImage, setResizedImage] = useState<null | Response>();
-
-  const hasAndroidPermission = async () => {
-    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-
-    const hasPermission = await PermissionsAndroid.check(permission);
-    if (hasPermission) {
-      return true;
-    }
-
-    const status = await PermissionsAndroid.request(permission);
-    return status === 'granted';
-  };
 
   const resize = async () => {
     if (!image || !image.uri) return;
