@@ -11,22 +11,13 @@
 #import "RCTImageLoader.h"
 #endif
 
-#ifdef RCT_NEW_ARCH_ENABLED
-#import "RNImageResizerSpec.h"
-#endif
-
 @implementation ImageResizer
 RCT_EXPORT_MODULE()
 
-// Don't compile this code when we build for the old architecture.
-#ifdef RCT_NEW_ARCH_ENABLED
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
-    (const facebook::react::ObjCTurboModule::InitParams &)params
+RCT_REMAP_METHOD(createdResizedImage, uri:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality rotation:(NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(NSNumber *)keepMeta mode:(NSString *)mode onlyScaleDown:(NSNumber *)onlyScaleDown resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
-    RCTLogInfo(@"Turbo module called !");
-    return std::make_shared<facebook::react::NativeImageResizerSpecJSI>(params);
+    [self createdResizedImage:uri width:width height:height format:format quality:quality rotation:rotation outputPath:outputPath keepMeta:keepMeta mode:mode onlyScaleDown:onlyScaleDown resolve:resolve reject:reject];
 }
-#endif
 
 - (void)createdResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality rotation:(NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(NSNumber *)keepMeta mode:(NSString *)mode onlyScaleDown:(NSNumber *)onlyScaleDown resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -48,19 +39,20 @@ RCT_EXPORT_MODULE()
         }
 
         NSURL * fileURL = [[NSURL alloc] initWithString:uri];
-        
+
         NSError *err;
         if ([fileURL checkResourceIsReachableAndReturnError:&err] == NO)
             RCTLogError(@"File does not exist.");
-        
+
         NSData * imageData = [NSData dataWithContentsOfURL:fileURL];
-        
+
         UIImage *image;
         image = [UIImage  imageWithData:imageData];
         NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
         resolve(response);
     });
 }
+
 
 
 bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality, NSMutableDictionary *metadata)
@@ -393,17 +385,23 @@ NSDictionary * transformImage(UIImage *image,
     NSError *attributesError = nil;
     NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:&attributesError];
     NSNumber *fileSize = fileAttributes == nil ? 0 : [fileAttributes objectForKey:NSFileSize];
-    NSString * base64 = [UIImagePNGRepresentation(scaledImage) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     NSDictionary *response = @{@"path": fullPath,
                                @"uri": fileUrl.absoluteString,
                                @"name": fileName,
                                @"size": fileSize == nil ? @(0) : fileSize,
                                @"width": @(scaledImage.size.width),
                                @"height": @(scaledImage.size.height),
-                               @"base64": base64
                                };
 
     return response;
 }
 
+// Don't compile this code when we build for the old architecture.
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeImageResizerSpecJSI>(params);
+}
+#endif
 @end

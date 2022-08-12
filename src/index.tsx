@@ -1,7 +1,13 @@
+import { NativeModules } from 'react-native';
 import type { ResizeFormat, ResizeMode, Response } from './types';
 export type { ResizeFormat, ResizeMode, Response } from './types';
 
-const ImageResizer = require('./NativeImageResizer').default;
+// @ts-expect-error
+const isTurboModuleEnabled = global.__turboModuleProxy != null;
+
+const ImageResizer = isTurboModuleEnabled
+  ? require('./NativeImageResizer').default
+  : NativeModules.ImageResizer;
 
 export function addition(a: number, b: number): number {
   return ImageResizer.addition(a, b);

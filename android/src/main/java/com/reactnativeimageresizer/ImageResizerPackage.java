@@ -7,6 +7,7 @@ import com.facebook.react.module.model.ReactModuleInfo;
 import com.facebook.react.module.model.ReactModuleInfoProvider;
 import com.facebook.react.TurboReactPackage;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,16 +27,17 @@ public class ImageResizerPackage extends TurboReactPackage {
   public ReactModuleInfoProvider getReactModuleInfoProvider() {
     return () -> {
       final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
+      boolean isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
       moduleInfos.put(
-              ImageResizerModule.NAME,
+              ImageResizerModuleImpl.NAME,
               new ReactModuleInfo(
-                      ImageResizerModule.NAME,
-                      ImageResizerModule.NAME,
+                      ImageResizerModuleImpl.NAME,
+                      ImageResizerModuleImpl.NAME,
                       false, // canOverrideExistingModule
                       false, // needsEagerInit
                       true, // hasConstants
                       false, // isCxxModule
-                      true // isTurboModule
+                      isTurboModule // isTurboModule
       ));
       return moduleInfos;
     };
