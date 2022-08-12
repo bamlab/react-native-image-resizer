@@ -20,7 +20,7 @@ import {
   View,
 } from 'react-native';
 import { createdResizedImage } from 'react-native-image-resizer';
-import type { ResizeMode, Response } from 'src/types';
+import type { ResizeMode, Response } from 'react-native-image-resizer';
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 
 const modeOptions: { label: string; value: ResizeMode }[] = [
@@ -62,8 +62,7 @@ const App = () => {
     setResizedImage(null);
 
     try {
-      let result;
-      result = await createdResizedImage(
+      let result = await createdResizedImage(
         image.uri,
         sizeTarget,
         sizeTarget,

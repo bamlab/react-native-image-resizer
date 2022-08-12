@@ -1,4 +1,5 @@
-import type { ResizeFormat, ResizeMode } from './types';
+import type { ResizeFormat, ResizeMode, Response } from './types';
+export type { ResizeFormat, ResizeMode, Response } from './types';
 
 const ImageResizer = require('./NativeImageResizer').default;
 
