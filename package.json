@@ -1,7 +1,7 @@
 {
   "name": "react-native-image-resizer",
-  "version": "0.1.0",
-  "description": "test",
+  "version": "1.5.0",
+  "description": "Rescale local images with React Native",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
   "types": "lib/typescript/src/index.d.ts",
@@ -32,16 +32,26 @@
   },
   "keywords": [
     "react-native",
+    "react",
+    "android",
     "ios",
-    "android"
+    "images",
+    "image",
+    "image-resizer",
+    "scaling",
+    "scale",
+    "resize"
   ],
-  "repository": "https://github.com/taboulot/react-native-image-resizer",
-  "author": "Clément Taboulot <clement-taboulot@hotmail.fr> (https://github.com/taboulot)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bamlab/react-native-image-resizer.git"
+  },
+  "author": "Florian Rival <florianr@bam.tech> (http://bam.tech)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/taboulot/react-native-image-resizer/issues"
+    "url": "https://github.com/bamlab/react-native-image-resizer/issues"
   },
-  "homepage": "https://github.com/taboulot/react-native-image-resizer#readme",
+  "homepage": "https://github.com/bamlab/react-native-image-resizer#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
