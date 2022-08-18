@@ -625,7 +625,7 @@ PODS:
     - glog
   - react-native-image-picker (4.8.4):
     - React-Core
-  - react-native-image-resizer (0.1.0):
+  - react-native-image-resizer (1.5.0):
     - RCT-Folly (= 2021.06.28.00-v2)
     - RCTRequired
     - RCTTypeSafety
@@ -910,7 +910,7 @@ SPEC CHECKSUMS:
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
   react-native-image-picker: cffb727cf2f59bd5c0408e30b3dbe0b935f88835
-  react-native-image-resizer: d7fb4f92f70f58fc50147471a70d3cdc17963b06
+  react-native-image-resizer: e8cd26600fe1dace5b4f7f661cf1878ad9610cef
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
   React-RCTAnimation: bc9440a1c37b06ae9ebbb532d244f607805c6034
@@ -931,4 +931,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 5141d4b73b6258a35cd8c340c7873a6c89d65d0e
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3
