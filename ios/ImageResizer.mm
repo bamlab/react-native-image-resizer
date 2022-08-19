@@ -11,6 +11,8 @@
 #import "RCTImageLoader.h"
 #endif
 
+NSString *moduleName = @"ImageResizer";
+
 @implementation ImageResizer
 RCT_EXPORT_MODULE()
 
@@ -21,35 +23,39 @@ RCT_REMAP_METHOD(createdResizedImage, uri:(NSString *)uri width:(double)width he
 
 - (void)createdResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality rotation:(NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(NSNumber *)keepMeta mode:(NSString *)mode onlyScaleDown:(NSNumber *)onlyScaleDown resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        CGSize newSize = CGSizeMake(width, height);
-
-        //Set image extension
-        NSString *extension = @"jpg";
-        if ([format isEqualToString:@"PNG"]) {
-            extension = @"png";
-        }
-
-        NSString* fullPath;
         @try {
-            fullPath = generateFilePath(extension, outputPath);
+            CGSize newSize = CGSizeMake(width, height);
+
+            //Set image extension
+            NSString *extension = @"jpg";
+            if ([format isEqualToString:@"PNG"]) {
+                extension = @"png";
+            }
+
+            NSString* fullPath;
+            @try {
+                fullPath = generateFilePath(extension, outputPath);
+            } @catch (NSException *exception) {
+                [NSException raise:moduleName format:@"Invalid output path."];
+            }
+
+            NSURL * fileURL = [[NSURL alloc] initWithString:uri];
+
+            NSError *err;
+            if ([fileURL checkResourceIsReachableAndReturnError:&err] == NO){
+                [NSException raise:moduleName format:@"Image uri invalid."];
+            }
+
+            NSData * imageData = [NSData dataWithContentsOfURL:fileURL];
+
+            UIImage *image;
+            image = [UIImage  imageWithData:imageData];
+            NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
+            resolve(response);
         } @catch (NSException *exception) {
-            // TODO: Find a way to throw error
-            RCTLogError(@"Invalid output path.");
-            [NSException raise:@"Error not handle" format:@"Error not handle"];
+            RCTLogError([NSString stringWithFormat:@"Code : %@ / Message : %@", exception.name, exception.reason]);
+            reject(exception.name, exception.reason, nil);
         }
-
-        NSURL * fileURL = [[NSURL alloc] initWithString:uri];
-
-        NSError *err;
-        if ([fileURL checkResourceIsReachableAndReturnError:&err] == NO)
-            RCTLogError(@"File does not exist.");
-
-        NSData * imageData = [NSData dataWithContentsOfURL:fileURL];
-
-        UIImage *image;
-        image = [UIImage  imageWithData:imageData];
-        NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, keepMeta, @{@"mode": mode, @"onlyScaleDown": onlyScaleDown});
-        resolve(response);
     });
 }
 
@@ -332,16 +338,14 @@ NSDictionary * transformImage(UIImage *image,
                     NSDictionary* options)
 {
     if (image == nil) {
-        RCTLogError(@"Can't retrieve the file from the path.");
-        [NSException raise:@"Error not handle" format:@"Error not handle"];
+        [NSException raise:moduleName format:@"Can't retrieve the file from the path."];
     }
 
     // Rotate image if rotation is specified.
     if (0 != (int)rotation) {
         image = rotateImage(image, rotation);
         if (image == nil) {
-            RCTLogError(@"Can't rotate the image.");
-            [NSException raise:@"Error not handle" format:@"Error not handle"];
+            [NSException raise:moduleName format:@"Can't rotate the image."];
         }
     }
 
@@ -354,8 +358,7 @@ NSDictionary * transformImage(UIImage *image,
     );
 
     if (scaledImage == nil) {
-        RCTLogError(@"Can't resize the image.");
-        [NSException raise:@"Error not handle" format:@"Error not handle"];
+        [NSException raise:moduleName format:@"Can't resize the image."];
     }
 
 
@@ -376,8 +379,7 @@ NSDictionary * transformImage(UIImage *image,
 
     // Compress and save the image
     if (!saveImage(fullPath, scaledImage, format, quality, metadata)) {
-        RCTLogError(@"Can't save the image. Check your compression format and your output path");
-        [NSException raise:@"Error not handle" format:@"Error not handle"];
+        [NSException raise:moduleName format:@"Can't save the image. Check your compression format and your output path"];
     }
 
     NSURL *fileUrl = [[NSURL alloc] initFileURLWithPath:fullPath];

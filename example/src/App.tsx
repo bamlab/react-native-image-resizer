@@ -79,7 +79,7 @@ const App = () => {
 
       setResizedImage(result);
     } catch (error) {
-      Alert.alert('Unable to resize the photo', `Error: ${error}`);
+      Alert.alert('Unable to resize the photo');
     }
   };
 
