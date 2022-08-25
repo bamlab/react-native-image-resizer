@@ -19,8 +19,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { createdResizedImage } from 'react-native-image-resizer';
-import type { ResizeMode, Response } from 'react-native-image-resizer';
+import { createdResizedImage } from '@bam.tech/react-native-image-resizer';
+import type {
+  ResizeMode,
+  Response,
+} from '@bam.tech/react-native-image-resizer';
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 
 const modeOptions: { label: string; value: ResizeMode }[] = [
