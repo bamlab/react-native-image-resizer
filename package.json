@@ -1,6 +1,6 @@
 {
-  "name": "react-native-image-resizer",
-  "version": "1.5.0",
+  "name": "@bam.tech/react-native-image-resizer",
+  "version": "2.0.0",
   "description": "Rescale local images with React Native",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",

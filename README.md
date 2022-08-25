@@ -13,20 +13,9 @@ It also has retrocompatibility with the old one.
 
 ## Setup
 
-Install the package:
-
-- React Native >= 0.60
-
 ```
-yarn add react-native-image-resizer
+yarn add @bam.tech/react-native-image-resizer
 cd ios && pod install
-```
-
-- React Native <= 0.59
-
-```
-yarn add react-native-image-resizer
-react-native link react-native-image-resizer
 ```
 
 ### Android
@@ -40,7 +29,7 @@ Manual link information for Android: [Link](docs/android_manual_config.md)
 ## Usage example
 
 ```javascript
-import ImageResizer from 'react-native-image-resizer';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 
 ImageResizer.createResizedImage(
   path,
