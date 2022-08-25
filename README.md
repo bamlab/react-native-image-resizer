@@ -4,7 +4,12 @@ A React Native module that can create scaled versions of local images (also supp
 |react-native| react-native-image-resizer|
 | --- | --- |
 | ≤ 0.60 | 1.1.0 |
-| 0.61 | 1.2.0 |
+| 0.61 | >=1.2.0 |
+
+## Turbo Module
+
+Since the version version `1.5.0` this package support the new architecture out of the box.
+It also has retrocompatibility with the old one.
 
 ## Setup
 
@@ -37,14 +42,22 @@ Manual link information for Android: [Link](docs/android_manual_config.md)
 ```javascript
 import ImageResizer from 'react-native-image-resizer';
 
-ImageResizer.createResizedImage(path, maxWidth, maxHeight, compressFormat, quality, rotation, outputPath)
-  .then(response => {
+ImageResizer.createResizedImage(
+  path,
+  maxWidth,
+  maxHeight,
+  compressFormat,
+  quality,
+  rotation,
+  outputPath
+)
+  .then((response) => {
     // response.uri is the URI of the new image that can now be displayed, uploaded...
     // response.path is the path of the new image
     // response.name is the name of the new image with the extension
     // response.size is the size of the new image
   })
-  .catch(err => {
+  .catch((err) => {
     // Oops, something went wrong. Check that the filename is correct and
     // inspect err to get more details.
   });
@@ -63,27 +76,27 @@ createResizedImage(
   maxHeight,
   compressFormat,
   quality,
-  rotation = 0,
+  (rotation = 0),
   outputPath,
-  keepMeta = false,
-  options = {}
+  (keepMeta = false),
+  (options = {})
 ); // Returns a Promise
 ```
 
 The promise resolves with an object containing: `path`, `uri`, `name`, `size` (bytes), `width` (pixels), and `height` of the new file. The URI can be used directly as the `source` of an [`<Image>`](https://facebook.github.io/react-native/docs/image.html) component.
 
-| Option                | Description                                                                                                                                                                                                                                                                                                                                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| path                  | Path of image file, or a base64 encoded image string prefixed with 'data:image/imagetype' where `imagetype` is jpeg or png.                                                                                                                                                                                                                                                                                    |
-| width                 | Width to resize to (see `mode` for more details)                                                                                                                                                                                                                                                                                                                                                               |
-| height                | Height to resize to (see `mode` for more details)                                                                                                                                                                                                                                                                                                                                                              |
-| compressFormat        | Can be either JPEG, PNG or WEBP (android only).                                                                                                                                                                                                                                                                                                                                                                |
-| quality               | A number between 0 and 100. Used for the JPEG compression.                                                                                                                                                                                                                                                                                                                                                     |
-| rotation              | Rotation to apply to the image, in degrees, for android. On iOS, rotation is limited (and rounded) to multiples of 90 degrees.                                                                                                                                                                                                                                                                                 |
-| outputPath            | The resized image path. If null, resized image will be stored in cache folder. To set outputPath make sure to add option for rotation too (if no rotation is needed, just set it to 0).                                                                                                                                                                                                                        |
-| keepMeta              | If `true`, will attempt to preserve all file metadata/exif info, except the orientation value since the resizing also does rotation correction to the original image. Defaults to `false`, which means all metadata is lost. Note: This can only be `true` for `JPEG` images which are loaded from the file system (not Web).                                                                                  |
+| Option                | Description                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| path                  | Path of image file, or a base64 encoded image string prefixed with 'data:image/imagetype' where `imagetype` is jpeg or png.                                                                                                                                                                                                                                                                                  |
+| width                 | Width to resize to (see `mode` for more details)                                                                                                                                                                                                                                                                                                                                                             |
+| height                | Height to resize to (see `mode` for more details)                                                                                                                                                                                                                                                                                                                                                            |
+| compressFormat        | Can be either JPEG, PNG or WEBP (android only).                                                                                                                                                                                                                                                                                                                                                              |
+| quality               | A number between 0 and 100. Used for the JPEG compression.                                                                                                                                                                                                                                                                                                                                                   |
+| rotation              | Rotation to apply to the image, in degrees, for android. On iOS, rotation is limited (and rounded) to multiples of 90 degrees.                                                                                                                                                                                                                                                                               |
+| outputPath            | The resized image path. If null, resized image will be stored in cache folder. To set outputPath make sure to add option for rotation too (if no rotation is needed, just set it to 0).                                                                                                                                                                                                                      |
+| keepMeta              | If `true`, will attempt to preserve all file metadata/exif info, except the orientation value since the resizing also does rotation correction to the original image. Defaults to `false`, which means all metadata is lost. Note: This can only be `true` for `JPEG` images which are loaded from the file system (not Web).                                                                                |
 | options.mode          | Similar to [react-native Image's resizeMode](https://reactnative.dev/docs/image#resizemode): either `contain` (the default), `cover`, or `stretch`. `contain` will fit the image within `width` and `height`, preserving its ratio. `cover` preserves the aspect ratio, and makes sure the image is at least `width` wide or `height` tall. `stretch` will resize the image to exactly `width` and `height`. |
-| options.onlyScaleDown | If `true`, will never enlarge the image, and will only make it smaller.                                                                                                                                                                                                                                                                                                                                        |
+| options.onlyScaleDown | If `true`, will never enlarge the image, and will only make it smaller.                                                                                                                                                                                                                                                                                                                                      |
 
 ## 👉 About Bam
 
