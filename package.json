@@ -53,7 +53,8 @@
   },
   "homepage": "https://github.com/bamlab/react-native-image-resizer#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
