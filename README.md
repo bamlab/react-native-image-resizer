@@ -8,7 +8,7 @@ A React Native module that can create scaled versions of local images (also supp
 
 ## Turbo Module
 
-Since the version version `1.5.0` this package support the new architecture out of the box.
+Since the version version `3.0.0` this package support the new architecture out of the box.
 It also has retrocompatibility with the old one.
 
 ## Setup
