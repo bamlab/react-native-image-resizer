@@ -2,7 +2,7 @@ import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
-  createdResizedImage(
+  createResizedImage(
     uri: string,
     width: number,
     height: number,

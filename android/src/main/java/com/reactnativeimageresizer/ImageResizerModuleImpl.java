@@ -23,7 +23,7 @@ import java.util.UUID;
 public class ImageResizerModuleImpl {
   public static final String NAME = "ImageResizer";
 
-  public static void createdResizedImage(String uri, double width, double height, String format, double quality, Double rotation, @Nullable String outputPath, Boolean keepMeta, @Nullable String mode, Boolean onlyScaleDown, Promise promise, Context context, ReactApplicationContext reactContext) {
+  public static void createResizedImage(String uri, double width, double height, String format, double quality, Double rotation, @Nullable String outputPath, Boolean keepMeta, @Nullable String mode, Boolean onlyScaleDown, Promise promise, Context context, ReactApplicationContext reactContext) {
     WritableMap options = Arguments.createMap();
     options.putString("mode", mode);
     options.putBoolean("onlyScaleDown", onlyScaleDown);

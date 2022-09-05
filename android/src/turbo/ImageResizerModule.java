@@ -24,7 +24,7 @@ public class ImageResizerModule extends NativeImageResizerSpec {
   }
 
   @Override
-  public void createdResizedImage(String uri, double width, double height, String format, double quality, Double rotation, @Nullable String outputPath, Boolean keepMeta, @Nullable String mode, Boolean onlyScaleDown, Promise promise) {
-    ImageResizerModuleImpl.createdResizedImage(uri, width, height, format, quality, rotation, outputPath, keepMeta, mode, onlyScaleDown, promise, this.context, getReactApplicationContext());
+  public void createResizedImage(String uri, double width, double height, String format, double quality, Double rotation, @Nullable String outputPath, Boolean keepMeta, @Nullable String mode, Boolean onlyScaleDown, Promise promise) {
+    ImageResizerModuleImpl.createResizedImage(uri, width, height, format, quality, rotation, outputPath, keepMeta, mode, onlyScaleDown, promise, this.context, getReactApplicationContext());
   }
 }
