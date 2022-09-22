@@ -18,7 +18,7 @@ export function createResizedImage(
   rotation?: number,
   outputPath?: string,
   keepMeta?: boolean,
-  options?: {
+  options: {
     /**
      * Either `contain` (the default), `cover`, or `stretch`. Similar to
      * [react-native <Image>'s resizeMode](https://reactnative.dev/docs/image#resizemode)
@@ -37,10 +37,13 @@ export function createResizedImage(
      * (Default: false)
      */
     onlyScaleDown?: boolean;
+  } = {
+    mode: 'contain',
+    onlyScaleDown: false,
   }
 ): Promise<Response> {
-  const mode = options?.mode;
-  const onlyScaleDown = options?.onlyScaleDown;
+  const mode = options.mode;
+  const onlyScaleDown = options.onlyScaleDown;
 
   return ImageResizer.createResizedImage(
     uri,
@@ -48,10 +51,10 @@ export function createResizedImage(
     height,
     format,
     quality,
+    mode,
+    onlyScaleDown,
     rotation,
     outputPath,
-    keepMeta,
-    mode,
-    onlyScaleDown
+    keepMeta
   );
 }
