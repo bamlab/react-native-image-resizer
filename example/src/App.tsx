@@ -19,7 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { createResizedImage } from '@bam.tech/react-native-image-resizer';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import type {
   ResizeMode,
   Response,
@@ -65,7 +65,7 @@ const App = () => {
     setResizedImage(null);
 
     try {
-      let result = await createResizedImage(
+      let result = await ImageResizer.createResizedImage(
         image.uri,
         sizeTarget,
         sizeTarget,
