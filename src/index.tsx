@@ -9,7 +9,7 @@ const ImageResizer = isTurboModuleEnabled
   ? require('./NativeImageResizer').default
   : NativeModules.ImageResizer;
 
-export function createResizedImage(
+function createResizedImage(
   uri: string,
   width: number,
   height: number,
@@ -55,3 +55,7 @@ export function createResizedImage(
     onlyScaleDown
   );
 }
+
+export default {
+  createResizedImage,
+};
