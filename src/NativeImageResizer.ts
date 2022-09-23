@@ -8,11 +8,11 @@ export interface Spec extends TurboModule {
     height: number,
     format: string,
     quality: number,
+    mode: string,
+    onlyScaleDown: boolean,
     rotation?: number,
     outputPath?: string,
-    keepMeta?: boolean,
-    mode?: string,
-    onlyScaleDown?: boolean
+    keepMeta?: boolean
   ): Promise<{
     path: string;
     uri: string;
