@@ -1,7 +1,7 @@
 # React Native Image Resizer
 
 > **⚠ Warning**
-> Since version 3.0.0 this library has been moved from react-native-image-resizer to @bam.tech/react-native-image-resizer
+> Since version 3.0.0 this library has been moved from `react-native-image-resizer` to `@bam.tech/react-native-image-resizer`
 
 ## Setup
 
