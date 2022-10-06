@@ -1,17 +1,18 @@
 # React Native Image Resizer
 
-A React Native module that can create scaled versions of local images (also supports the assets library on iOS).
-|react-native| react-native-image-resizer|
-| --- | --- |
-| ≤ 0.60 | 1.1.0 |
-| 0.61 | >=1.2.0 |
+## Setup 
 
-## Turbo Module
+### React Native <= 0.60
 
-Since the version version `3.0.0` this package support the new architecture out of the box.
+```
+yarn add react-native-image-resizer@1.1.0
+cd ios && pod install
+```
+
+### React Native >= 0.61
+
+Since the version version `3.0.0` this package support the new architecture out of the box (Turbo Module).
 It also has retrocompatibility with the old one.
-
-## Setup
 
 ```
 yarn add @bam.tech/react-native-image-resizer
