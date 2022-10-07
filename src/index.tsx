@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import type { Options, ResizeFormat, ResizeMode, Response } from './types';
+import type { Options, ResizeFormat, Response } from './types';
 export type { ResizeFormat, ResizeMode, Response } from './types';
 
 // @ts-expect-error
