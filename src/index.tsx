@@ -20,9 +20,9 @@ function createResizedImage(
   height: number,
   format: ResizeFormat,
   quality: number,
-  rotation?: number,
+  rotation: number = 0,
   outputPath?: string,
-  keepMeta?: boolean,
+  keepMeta = false,
   options: Options = defaultOptions
 ): Promise<Response> {
   const { mode, onlyScaleDown } = { ...defaultOptions, ...options };
