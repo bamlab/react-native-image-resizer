@@ -16,12 +16,12 @@ NSString *moduleName = @"ImageResizer";
 @implementation ImageResizer
 RCT_EXPORT_MODULE()
 
-RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality mode:(NSString *)mode onlyScaleDown:(BOOL)onlyScaleDown rotation:(nonnull NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(nonnull NSNumber *)keepMeta resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality mode:(NSString *)mode onlyScaleDown:(BOOL)onlyScaleDown rotation:(nonnull NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(BOOL)keepMeta resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 {
     [self createResizedImage:uri width:width height:height format:format quality:quality mode:mode onlyScaleDown:onlyScaleDown rotation:rotation outputPath:outputPath keepMeta:keepMeta resolve:resolve reject:reject];
 }
 
-- (void)createResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality mode:(NSString *)mode onlyScaleDown:(BOOL)onlyScaleDown rotation:(nonnull NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(nonnull NSNumber *)keepMeta resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+- (void)createResizedImage:(NSString *)uri width:(double)width height:(double)height format:(NSString *)format quality:(double)quality mode:(NSString *)mode onlyScaleDown:(BOOL)onlyScaleDown rotation:(nonnull NSNumber *)rotation outputPath:(NSString *)outputPath keepMeta:(BOOL)keepMeta resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         @try {
             CGSize newSize = CGSizeMake(width, height);
