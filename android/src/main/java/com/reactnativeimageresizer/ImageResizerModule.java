@@ -1,7 +1,6 @@
 package com.reactnativeimageresizer;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -25,13 +24,9 @@ import java.util.UUID;
 
 public class ImageResizerModule extends ImageResizerSpec {
   public static final String NAME = "ImageResizer";
-  private final Context context;
-
 
   ImageResizerModule(ReactApplicationContext reactContext) {
     super(reactContext);
-    this.context = reactContext;
-
   }
 
   @Override
@@ -51,7 +46,7 @@ public class ImageResizerModule extends ImageResizerSpec {
       @Override
       protected void doInBackgroundGuarded(Void... params) {
         try {
-          Object response = createResizedImageWithExceptions(uri, (int) width, (int) height, format, (int) quality, rotation.intValue(), outputPath, keepMeta, options, context);
+          Object response = createResizedImageWithExceptions(uri, (int) width, (int) height, format, (int) quality, rotation.intValue(), outputPath, keepMeta, options);
           promise.resolve(response);
         }
         catch (IOException e) {
@@ -65,12 +60,12 @@ public class ImageResizerModule extends ImageResizerSpec {
   private Object createResizedImageWithExceptions(String imagePath, int newWidth, int newHeight,
                                                   String compressFormatString, int quality, int rotation, String outputPath,
                                                   final boolean keepMeta,
-                                                  final ReadableMap options, Context context) throws IOException {
+                                                  final ReadableMap options) throws IOException {
 
     Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.valueOf(compressFormatString);
     Uri imageUri = Uri.parse(imagePath);
 
-    Bitmap scaledImage = ImageResizer.createResizedImage(context, imageUri, newWidth, newHeight, quality, rotation,
+    Bitmap scaledImage = ImageResizer.createResizedImage(this.getReactApplicationContext(), imageUri, newWidth, newHeight, quality, rotation,
       options.getString("mode"), options.getBoolean("onlyScaleDown"));
 
     if (scaledImage == null) {
@@ -78,7 +73,7 @@ public class ImageResizerModule extends ImageResizerSpec {
     }
 
     // Save the resulting image
-    File path = context.getCacheDir();
+    File path = this.getReactApplicationContext().getCacheDir();
     if (outputPath != null) {
       path = new File(outputPath);
     }
@@ -98,7 +93,7 @@ public class ImageResizerModule extends ImageResizerSpec {
       // Copy file's metadata/exif info if required
       if(keepMeta){
         try{
-          ImageResizer.copyExif(context, imageUri, resizedImage.getAbsolutePath());
+          ImageResizer.copyExif(this.getReactApplicationContext(), imageUri, resizedImage.getAbsolutePath());
         }
         catch(Exception ignored){
           Log.e("ImageResizer::createResizedImageWithExceptions", "EXIF copy failed", ignored);
