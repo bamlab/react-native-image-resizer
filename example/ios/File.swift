@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  ImageResizerExample
+//  ReactNativeImageResizerExample
 //
 
 import Foundation
