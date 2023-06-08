@@ -29,10 +29,10 @@ public class ImageResizerPackage extends TurboReactPackage {
       final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
       boolean isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
       moduleInfos.put(
-              ImageResizerModuleImpl.NAME,
+              ImageResizerModule.NAME,
               new ReactModuleInfo(
-                      ImageResizerModuleImpl.NAME,
-                      ImageResizerModuleImpl.NAME,
+                      ImageResizerModule.NAME,
+                      ImageResizerModule.NAME,
                       false, // canOverrideExistingModule
                       false, // needsEagerInit
                       true, // hasConstants
