@@ -53,7 +53,6 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
             NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, [keepMeta boolValue], @{@"mode": mode, @"onlyScaleDown": [NSNumber numberWithBool:onlyScaleDown]});
             resolve(response);
         } @catch (NSException *exception) {
-            RCTLogError([NSString stringWithFormat:@"Code : %@ / Message : %@", exception.name, exception.reason]);
             reject(exception.name, exception.reason, nil);
         }
     });
@@ -234,6 +233,8 @@ UIImage* scaleImage (UIImage* image, CGSize toSize, NSString* mode, bool onlySca
     // using this instead of ImageHelpers allows us to consider
     // rotation variations
     CGSize newSize;
+    CGSize drawSize;
+    CGPoint drawPoint = CGPointMake(0, 0);
 
     if ([mode isEqualToString:@"stretch"]) {
         // Distort aspect ratio
@@ -246,15 +247,22 @@ UIImage* scaleImage (UIImage* image, CGSize toSize, NSString* mode, bool onlySca
         }
 
         newSize = CGSizeMake(width, height);
+        drawSize = newSize;
+    } else if ([mode isEqualToString:@"cover"]) {
+        float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown, true);
+        newSize = toSize;
+        drawSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+        drawPoint.x = (toSize.width - drawSize.width) / 2;
+        drawPoint.y = (toSize.height - drawSize.height) / 2;
     } else {
         // Either "contain" (default) or "cover": preserve aspect ratio
-        bool maximize = [mode isEqualToString:@"cover"];
-        float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown, maximize);
+        float scale = getScaleForProportionalResize(imageSize, toSize, onlyScaleDown, false);
         newSize = CGSizeMake(roundf(imageSize.width * scale), roundf(imageSize.height * scale));
+        drawSize = newSize;
     }
 
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
-    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    [image drawInRect:CGRectMake(drawPoint.x, drawPoint.y, drawSize.width, drawSize.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
