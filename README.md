@@ -64,7 +64,12 @@ A basic, sample app is available in [the `example` folder](https://github.com/ba
 
 ```javascript
 createResizedImage(
-  path,
+  /**
+   * uri parameter accepts`path` or `uri`.
+   * This property has been tested with the output of @bam.tech/react-native-image-picker,
+   * react-native-vision-camera, @react-native-camera-roll/camera-roll and http link
+   **/
+  uri,
   maxWidth,
   maxHeight,
   compressFormat,
@@ -90,6 +95,10 @@ The promise resolves with an object containing: `path`, `uri`, `name`, `size` (b
 | keepMeta              | If `true`, will attempt to preserve all file metadata/exif info, except the orientation value since the resizing also does rotation correction to the original image. Defaults to `false`, which means all metadata is lost. Note: This can only be `true` for `JPEG` images which are loaded from the file system (not Web).                                                                                |
 | options.mode          | Similar to [react-native Image's resizeMode](https://reactnative.dev/docs/image#resizemode): either `contain` (the default), `cover`, or `stretch`. `contain` will fit the image within `width` and `height`, preserving its ratio. `cover` preserves the aspect ratio, and makes sure the image is at least `width` wide or `height` tall. `stretch` will resize the image to exactly `width` and `height`. |
 | options.onlyScaleDown | If `true`, will never enlarge the image, and will only make it smaller.                                                                                                                                                                                                                                                                                                                                      |
+
+# Limitations
+
+- If you are using `@react-native-camera-roll/camera-roll` **with new architecture enabled this library is not going to work**. If you try to display an image with the `uri` of the library using `<Image />` you are going to have the following error: `No suitable image URL loader found for ph://...`. This error come from the ReactNative `ImageLoader`, which is the one we are currently using. Help/PR for solving this are welcome. Until then, we recommend using `react-native-image-picker`.
 
 ## 👉 About Bam
 
