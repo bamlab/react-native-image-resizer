@@ -9,6 +9,7 @@
     "pods": "pod-install --quiet"
   },
   "dependencies": {
+    "@react-native-camera-roll/camera-roll": "^5.7.2",
     "react": "18.2.0",
     "react-native": "0.71.8",
     "react-native-image-picker": "^4.8.4",

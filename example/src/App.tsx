@@ -12,12 +12,12 @@ import React, { useRef, useState } from 'react';
 import {
   Alert,
   Image,
+  PermissionsAndroid,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TextInputComponent,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -28,6 +28,7 @@ import type {
 } from '@bam.tech/react-native-image-resizer';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 
 const modeOptions: { label: string; value: ResizeMode }[] = [
   {
@@ -54,6 +55,46 @@ const onlyScaleDownOptions: { label: string; value: boolean }[] = [
     value: false,
   },
 ];
+
+async function hasCameraRollPermissions() {
+  const getCheckPermissionPromise = () => {
+    if (Platform.OS === 'ios') {
+      return true;
+    }
+
+    if (Number(Platform.Version) >= 33) {
+      return Promise.all([
+        PermissionsAndroid.check('android.permission.READ_MEDIA_IMAGES'),
+      ]).then(([hasReadMediaImagesPermission]) => hasReadMediaImagesPermission);
+    } else {
+      return PermissionsAndroid.check(
+        'android.permission.READ_EXTERNAL_STORAGE'
+      );
+    }
+  };
+
+  const hasPermission = await getCheckPermissionPromise();
+  if (hasPermission) {
+    return true;
+  }
+  const getRequestPermissionPromise = () => {
+    if (Number(Platform.Version) >= 33) {
+      return PermissionsAndroid.requestMultiple([
+        'android.permission.READ_MEDIA_IMAGES',
+      ]).then(
+        (statuses) =>
+          statuses['android.permission.READ_MEDIA_IMAGES'] ===
+          PermissionsAndroid.RESULTS.GRANTED
+      );
+    } else {
+      return PermissionsAndroid.request(
+        'android.permission.READ_EXTERNAL_STORAGE'
+      ).then((status) => status === PermissionsAndroid.RESULTS.GRANTED);
+    }
+  };
+
+  return await getRequestPermissionPromise();
+}
 
 const App = () => {
   const [selectedMode, setMode] = useState<ResizeMode>('contain');
@@ -94,7 +135,7 @@ const App = () => {
     }
   };
 
-  const selectImage = async () => {
+  const selectImageFromPicker = async () => {
     launchImageLibrary({ mediaType: 'photo' }, (response) => {
       if (!response || !response.assets) return;
       const asset = response.assets[0];
@@ -102,6 +143,21 @@ const App = () => {
         setImageUri(asset.uri);
       }
     });
+  };
+
+  const selectFirstImageFromCameraRoll = async () => {
+    const hasPermission = await hasCameraRollPermissions();
+    if (!hasPermission) {
+      Alert.prompt('No permission to access photo library');
+      return;
+    }
+
+    const result = await CameraRoll.getPhotos({ first: 1 });
+    if (result.edges.length === 0) {
+      Alert.prompt('Can not load first image from camera roll');
+    }
+
+    setImageUri(result.edges[0]?.node.image.uri);
   };
 
   const hasCameraPermission = async () => {
@@ -171,8 +227,20 @@ const App = () => {
     >
       <Text style={styles.welcome}>Image Resizer example</Text>
       <View style={styles.imageSourceButtonContainer}>
-        <TouchableOpacity style={styles.button} onPress={selectImage}>
-          <Text>Select an image</Text>
+        <TouchableOpacity style={styles.button} onPress={selectImageFromPicker}>
+          <Text>{'Select an image (react-native-image-picker)'}</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.imageSourceButtonContainer}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={selectFirstImageFromCameraRoll}
+        >
+          <Text>
+            {
+              'Load first image of camera roll (@react-native-camera-roll/camera-roll)'
+            }
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.imageSourceButtonContainer}>
@@ -181,8 +249,10 @@ const App = () => {
         </TouchableOpacity>
       </View>
       <TextInput
-        style={styles.urlInput}
+        style={styles.textInput}
         onChangeText={(text) => setInputImageUrl(text)}
+        placeholder="url"
+        placeholderTextColor={'grey'}
       />
       <View style={styles.imageSourceButtonContainer}>
         <TouchableOpacity style={styles.button} onPress={loadImageFromUrl}>
@@ -231,6 +301,7 @@ const App = () => {
 
       <Text>Target size: </Text>
       <TextInput
+        style={styles.textInput}
         placeholder={sizeTarget.toString()}
         keyboardType="decimal-pad"
         onChangeText={(text) => {
@@ -315,7 +386,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
   },
-  urlInput: {
+  textInput: {
     height: 40,
     borderColor: 'black',
     borderWidth: 2,
