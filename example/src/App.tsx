@@ -17,6 +17,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TextInputComponent,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -61,6 +62,7 @@ const App = () => {
   const [sizeTarget, setSizeTarget] = useState(80);
   const [resizedImage, setResizedImage] = useState<null | Response>();
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [inputImageUrl, setInputImageUrl] = useState('');
   const devices = useCameraDevices();
   const device = devices.back;
   const camera = useRef<Camera>(null);
@@ -133,6 +135,8 @@ const App = () => {
     closeCamera();
   };
 
+  const loadImageFromUrl = () => setImageUri(inputImageUrl);
+
   const closeCamera = () => setIsCameraActive(false);
 
   if (isCameraActive && device !== undefined) {
@@ -174,6 +178,15 @@ const App = () => {
       <View style={styles.imageSourceButtonContainer}>
         <TouchableOpacity style={styles.button} onPress={openCamera}>
           <Text>Take a photo</Text>
+        </TouchableOpacity>
+      </View>
+      <TextInput
+        style={styles.urlInput}
+        onChangeText={(text) => setInputImageUrl(text)}
+      />
+      <View style={styles.imageSourceButtonContainer}>
+        <TouchableOpacity style={styles.button} onPress={loadImageFromUrl}>
+          <Text>Load image from url</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.instructions}>This is the original image:</Text>
@@ -301,6 +314,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     borderRadius: 10,
+  },
+  urlInput: {
+    height: 40,
+    borderColor: 'black',
+    borderWidth: 2,
+    margin: 10,
+    alignSelf: 'stretch',
+    textAlign: 'center',
+    overflow: 'hidden',
   },
 });
 
