@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: 100,
-    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   cameraContainer: {
     flex: 1,
@@ -353,9 +353,6 @@ const styles = StyleSheet.create({
   },
   image: {
     height: 250,
-    borderWidth: 1,
-    borderColor: 'black',
-    alignSelf: 'stretch',
     marginBottom: 10,
   },
   resizeButton: {
