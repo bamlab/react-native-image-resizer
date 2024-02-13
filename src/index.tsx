@@ -21,7 +21,7 @@ function createResizedImage(
   format: ResizeFormat,
   quality: number,
   rotation: number = 0,
-  outputPath?: string,
+  outputPath?: string | null,
   keepMeta = false,
   options: Options = defaultOptions
 ): Promise<Response> {
