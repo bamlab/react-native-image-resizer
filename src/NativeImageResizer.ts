@@ -11,7 +11,7 @@ export interface Spec extends TurboModule {
     mode: string,
     onlyScaleDown: boolean,
     rotation?: number,
-    outputPath?: string,
+    outputPath?: string | null,
     keepMeta?: boolean
   ): Promise<{
     path: string;
