@@ -340,10 +340,13 @@ public class ImageResizer {
   public static int getOrientation(ExifInterface exif) {
     int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
     switch (orientation) {
+      case ExifInterface.ORIENTATION_TRANSPOSE:
       case ExifInterface.ORIENTATION_ROTATE_90:
         return 90;
+      case ExifInterface.ORIENTATION_FLIP_VERTICAL:
       case ExifInterface.ORIENTATION_ROTATE_180:
         return 180;
+      case ExifInterface.ORIENTATION_TRANSVERSE:
       case ExifInterface.ORIENTATION_ROTATE_270:
         return 270;
       default:
@@ -550,6 +553,7 @@ public class ImageResizer {
     // NOTE: This will "fix" the image using it's exif info if it is rotated as well.
     Bitmap rotatedImage = sourceImage;
     int orientation = getOrientation(context, imageUri);
+
     rotation = orientation + rotation;
     rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
 
@@ -557,7 +561,7 @@ public class ImageResizer {
       throw new IOException("Unable to rotate image. Most likely due to not enough memory.");
     }
 
-    if (rotatedImage != rotatedImage) {
+    if (rotatedImage != sourceImage) {
       sourceImage.recycle();
     }
 
