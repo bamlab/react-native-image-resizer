@@ -338,7 +338,7 @@ public class ImageResizer {
    * Convert metadata to degrees
    */
   public static int getOrientation(ExifInterface exif) {
-    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
     switch (orientation) {
       case ExifInterface.ORIENTATION_TRANSPOSE:
       case ExifInterface.ORIENTATION_ROTATE_90:
@@ -553,7 +553,6 @@ public class ImageResizer {
     // NOTE: This will "fix" the image using it's exif info if it is rotated as well.
     Bitmap rotatedImage = sourceImage;
     int orientation = getOrientation(context, imageUri);
-
     rotation = orientation + rotation;
     rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
 
