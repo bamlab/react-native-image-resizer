@@ -189,12 +189,11 @@ public class ImageResizer {
   /**
    * Rotate the specified bitmap with the given angle, in degrees.
    */
-  public static Bitmap rotateImage(Bitmap source, float angle)
+  public static Bitmap rotateImage(Bitmap source, Matrix matrix, float angle)
   {
     Bitmap retVal;
-
-    Matrix matrix = new Matrix();
     matrix.postRotate(angle);
+
     try {
       retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     } catch (OutOfMemoryError e) {
@@ -316,42 +315,57 @@ public class ImageResizer {
   /**
    * Get orientation by reading Image metadata
    */
-  public static int getOrientation(Context context, Uri uri) {
+  public static Matrix getOrientationMatrix(Context context, Uri uri) {
     try {
       // ExifInterface(InputStream) only exists since Android N (r24)
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         InputStream input = context.getContentResolver().openInputStream(uri);
         ExifInterface ei = new ExifInterface(input);
-        return getOrientation(ei);
+        return getOrientationMatrix(ei);
       }
       File file = getFileFromUri(context, uri);
       if (file.exists()) {
         ExifInterface ei = new ExifInterface(file.getAbsolutePath());
-        return getOrientation(ei);
+        return getOrientationMatrix(ei);
       }
     } catch (Exception ignored) { }
 
-    return 0;
+    return new Matrix();
   }
 
   /**
    * Convert metadata to degrees
    */
-  public static int getOrientation(ExifInterface exif) {
+  public static Matrix getOrientationMatrix(ExifInterface exif) {
+    Matrix matrix = new Matrix();
     int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
     switch (orientation) {
+      case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+        matrix.setScale(-1, 1);
+        break;
       case ExifInterface.ORIENTATION_TRANSPOSE:
+        matrix.setRotate(90);
+        matrix.postScale(-1, 1);
+        break;
       case ExifInterface.ORIENTATION_ROTATE_90:
-        return 90;
+        matrix.setRotate(90);
+        break;
       case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+        matrix.setRotate(180);
+        matrix.postScale(-1, 1);
+        break;
       case ExifInterface.ORIENTATION_ROTATE_180:
-        return 180;
+        matrix.setRotate(180);
+        break;
       case ExifInterface.ORIENTATION_TRANSVERSE:
+        matrix.setRotate(270);
+        matrix.postScale(-1, 1);
+        break;
       case ExifInterface.ORIENTATION_ROTATE_270:
-        return 270;
-      default:
-        return 0;
-    }
+        matrix.setRotate(270);
+        break;
+      }
+    return matrix;
   }
 
   /**
@@ -552,9 +566,8 @@ public class ImageResizer {
     // get wrong dimensions if we want the new dimensions to be after rotation.
     // NOTE: This will "fix" the image using it's exif info if it is rotated as well.
     Bitmap rotatedImage = sourceImage;
-    int orientation = getOrientation(context, imageUri);
-    rotation = orientation + rotation;
-    rotatedImage = ImageResizer.rotateImage(sourceImage, rotation);
+    Matrix matrix = getOrientationMatrix(context, imageUri);
+    rotatedImage = ImageResizer.rotateImage(sourceImage, matrix, rotation);
 
     if(rotatedImage == null){
       throw new IOException("Unable to rotate image. Most likely due to not enough memory.");
