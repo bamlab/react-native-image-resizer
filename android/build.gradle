@@ -41,7 +41,7 @@ android {
   * For AGP < 7.3, namespace should be declared in AndroidManifest.
   * See: https://developer.android.com/build/releases/past-releases/agp-8-0-0-release-notes#namespace-dsl
   */
-  if (agpMajorVersion >= 7 && agpMinorVersion >= 3) {
+  if (agpMajorVersion >= 8 || (agpMajorVersion == 7 && agpMinorVersion >= 3)) {
       namespace "com.reactnativeimageresizer"
   }
 
