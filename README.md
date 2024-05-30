@@ -99,6 +99,7 @@ The promise resolves with an object containing: `path`, `uri`, `name`, `size` (b
 # Limitations
 
 - If you are using `@react-native-camera-roll/camera-roll` **with new architecture enabled this library is not going to work**. If you try to display an image with the `uri` of the library using `<Image />` you are going to have the following error: `No suitable image URL loader found for ph://...`. This error come from the ReactNative `ImageLoader`, which is the one we are currently using. Help/PR for solving this are welcome. Until then, we recommend using `react-native-image-picker`.
+- Image EXIF orientation are correctly handled on Android only, But not yet on IOS [#402](https://github.com/bamlab/react-native-image-resizer/issues/402).
 
 ## 👉 About Bam
 
