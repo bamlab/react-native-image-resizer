@@ -1,23 +1,24 @@
 package com.reactnativeimageresizer;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-
+import androidx.exifinterface.media.ExifInterface;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -26,120 +27,122 @@ import java.util.Date;
  * Provide methods to resize and rotate an image file.
  */
 public class ImageResizer {
-  private final static String IMAGE_JPEG = "image/jpeg";
-  private final static String IMAGE_PNG = "image/png";
-  private final static String SCHEME_DATA = "data";
-  private final static String SCHEME_CONTENT = "content";
-  private final static String SCHEME_FILE = "file";
-  private final static String SCHEME_HTTP = "http";
-  private final static String SCHEME_HTTPS = "https";
 
+  private static final String IMAGE_JPEG = "image/jpeg";
+  private static final String IMAGE_PNG = "image/png";
+  private static final String SCHEME_DATA = "data";
+  private static final String SCHEME_CONTENT = "content";
+  private static final String SCHEME_FILE = "file";
+  private static final String SCHEME_HTTP = "http";
+  private static final String SCHEME_HTTPS = "https";
 
   // List of known EXIF tags we will be copying.
   // Orientation, width, height, and some others are ignored
   // TODO: Find any missing tag that might be useful
-  private final static String[] EXIF_TO_COPY_ROTATED = new String[]
-    {
-      ExifInterface.TAG_APERTURE_VALUE,
-      ExifInterface.TAG_MAX_APERTURE_VALUE,
-      ExifInterface.TAG_METERING_MODE,
-      ExifInterface.TAG_ARTIST,
-      ExifInterface.TAG_BITS_PER_SAMPLE,
-      ExifInterface.TAG_COMPRESSION,
-      ExifInterface.TAG_BODY_SERIAL_NUMBER,
-      ExifInterface.TAG_BRIGHTNESS_VALUE,
-      ExifInterface.TAG_CONTRAST,
-      ExifInterface.TAG_CAMERA_OWNER_NAME,
-      ExifInterface.TAG_COLOR_SPACE,
-      ExifInterface.TAG_COPYRIGHT,
-      ExifInterface.TAG_DATETIME,
-      ExifInterface.TAG_DATETIME_DIGITIZED,
-      ExifInterface.TAG_DATETIME_ORIGINAL,
-      ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
-      ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
-      ExifInterface.TAG_EXIF_VERSION,
-      ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
-      ExifInterface.TAG_EXPOSURE_INDEX,
-      ExifInterface.TAG_EXPOSURE_MODE,
-      ExifInterface.TAG_EXPOSURE_TIME,
-      ExifInterface.TAG_EXPOSURE_PROGRAM,
-      ExifInterface.TAG_FLASH,
-      ExifInterface.TAG_FLASH_ENERGY,
-      ExifInterface.TAG_FOCAL_LENGTH,
-      ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM,
-      ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
-      ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
-      ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
-      ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
-      ExifInterface.TAG_PLANAR_CONFIGURATION,
-      ExifInterface.TAG_F_NUMBER,
-      ExifInterface.TAG_GAIN_CONTROL,
-      ExifInterface.TAG_GAMMA,
-      ExifInterface.TAG_GPS_ALTITUDE,
-      ExifInterface.TAG_GPS_ALTITUDE_REF,
-      ExifInterface.TAG_GPS_AREA_INFORMATION,
-      ExifInterface.TAG_GPS_DATESTAMP,
-      ExifInterface.TAG_GPS_DOP,
-      ExifInterface.TAG_GPS_LATITUDE,
-      ExifInterface.TAG_GPS_LATITUDE_REF,
-      ExifInterface.TAG_GPS_LONGITUDE,
-      ExifInterface.TAG_GPS_LONGITUDE_REF,
-      ExifInterface.TAG_GPS_STATUS,
-      ExifInterface.TAG_GPS_DEST_BEARING,
-      ExifInterface.TAG_GPS_DEST_BEARING_REF,
-      ExifInterface.TAG_GPS_DEST_DISTANCE,
-      ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
-      ExifInterface.TAG_GPS_DEST_LATITUDE,
-      ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
-      ExifInterface.TAG_GPS_DEST_LONGITUDE,
-      ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
-      ExifInterface.TAG_GPS_DIFFERENTIAL,
-      ExifInterface.TAG_GPS_IMG_DIRECTION,
-      ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
-      ExifInterface.TAG_GPS_MAP_DATUM,
-      ExifInterface.TAG_GPS_MEASURE_MODE,
-      ExifInterface.TAG_GPS_PROCESSING_METHOD,
-      ExifInterface.TAG_GPS_SATELLITES,
-      ExifInterface.TAG_GPS_SPEED,
-      ExifInterface.TAG_GPS_SPEED_REF,
-      ExifInterface.TAG_GPS_STATUS,
-      ExifInterface.TAG_GPS_TIMESTAMP,
-      ExifInterface.TAG_GPS_TRACK,
-      ExifInterface.TAG_GPS_TRACK_REF,
-      ExifInterface.TAG_GPS_VERSION_ID,
-      ExifInterface.TAG_IMAGE_DESCRIPTION,
-      ExifInterface.TAG_IMAGE_UNIQUE_ID,
-      ExifInterface.TAG_ISO_SPEED,
-      ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
-      ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
-      ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
-      ExifInterface.TAG_LENS_MAKE,
-      ExifInterface.TAG_LENS_MODEL,
-      ExifInterface.TAG_LENS_SERIAL_NUMBER,
-      ExifInterface.TAG_LENS_SPECIFICATION,
-      ExifInterface.TAG_LIGHT_SOURCE,
-      ExifInterface.TAG_MAKE,
-      ExifInterface.TAG_MAKER_NOTE,
-      ExifInterface.TAG_MODEL,
-      // ExifInterface.TAG_ORIENTATION, // removed
-      ExifInterface.TAG_SATURATION,
-      ExifInterface.TAG_SHARPNESS,
-      ExifInterface.TAG_SHUTTER_SPEED_VALUE,
-      ExifInterface.TAG_SOFTWARE,
-      ExifInterface.TAG_SUBJECT_DISTANCE,
-      ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
-      ExifInterface.TAG_SUBJECT_LOCATION,
-      ExifInterface.TAG_USER_COMMENT,
-      ExifInterface.TAG_WHITE_BALANCE
-    };
-
-
+  private static final String[] EXIF_TO_COPY_ROTATED = new String[] {
+    ExifInterface.TAG_APERTURE_VALUE,
+    ExifInterface.TAG_MAX_APERTURE_VALUE,
+    ExifInterface.TAG_METERING_MODE,
+    ExifInterface.TAG_ARTIST,
+    ExifInterface.TAG_BITS_PER_SAMPLE,
+    ExifInterface.TAG_COMPRESSION,
+    ExifInterface.TAG_BODY_SERIAL_NUMBER,
+    ExifInterface.TAG_BRIGHTNESS_VALUE,
+    ExifInterface.TAG_CONTRAST,
+    ExifInterface.TAG_CAMERA_OWNER_NAME,
+    ExifInterface.TAG_COLOR_SPACE,
+    ExifInterface.TAG_COPYRIGHT,
+    ExifInterface.TAG_DATETIME,
+    ExifInterface.TAG_DATETIME_DIGITIZED,
+    ExifInterface.TAG_DATETIME_ORIGINAL,
+    ExifInterface.TAG_DEVICE_SETTING_DESCRIPTION,
+    ExifInterface.TAG_DIGITAL_ZOOM_RATIO,
+    ExifInterface.TAG_EXIF_VERSION,
+    ExifInterface.TAG_EXPOSURE_BIAS_VALUE,
+    ExifInterface.TAG_EXPOSURE_INDEX,
+    ExifInterface.TAG_EXPOSURE_MODE,
+    ExifInterface.TAG_EXPOSURE_TIME,
+    ExifInterface.TAG_EXPOSURE_PROGRAM,
+    ExifInterface.TAG_FLASH,
+    ExifInterface.TAG_FLASH_ENERGY,
+    ExifInterface.TAG_FOCAL_LENGTH,
+    ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM,
+    ExifInterface.TAG_FOCAL_PLANE_RESOLUTION_UNIT,
+    ExifInterface.TAG_FOCAL_PLANE_X_RESOLUTION,
+    ExifInterface.TAG_FOCAL_PLANE_Y_RESOLUTION,
+    ExifInterface.TAG_PHOTOMETRIC_INTERPRETATION,
+    ExifInterface.TAG_PLANAR_CONFIGURATION,
+    ExifInterface.TAG_F_NUMBER,
+    ExifInterface.TAG_GAIN_CONTROL,
+    ExifInterface.TAG_GAMMA,
+    ExifInterface.TAG_GPS_ALTITUDE,
+    ExifInterface.TAG_GPS_ALTITUDE_REF,
+    ExifInterface.TAG_GPS_AREA_INFORMATION,
+    ExifInterface.TAG_GPS_DATESTAMP,
+    ExifInterface.TAG_GPS_DOP,
+    ExifInterface.TAG_GPS_LATITUDE,
+    ExifInterface.TAG_GPS_LATITUDE_REF,
+    ExifInterface.TAG_GPS_LONGITUDE,
+    ExifInterface.TAG_GPS_LONGITUDE_REF,
+    ExifInterface.TAG_GPS_STATUS,
+    ExifInterface.TAG_GPS_DEST_BEARING,
+    ExifInterface.TAG_GPS_DEST_BEARING_REF,
+    ExifInterface.TAG_GPS_DEST_DISTANCE,
+    ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
+    ExifInterface.TAG_GPS_DEST_LATITUDE,
+    ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
+    ExifInterface.TAG_GPS_DEST_LONGITUDE,
+    ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
+    ExifInterface.TAG_GPS_DIFFERENTIAL,
+    ExifInterface.TAG_GPS_IMG_DIRECTION,
+    ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
+    ExifInterface.TAG_GPS_MAP_DATUM,
+    ExifInterface.TAG_GPS_MEASURE_MODE,
+    ExifInterface.TAG_GPS_PROCESSING_METHOD,
+    ExifInterface.TAG_GPS_SATELLITES,
+    ExifInterface.TAG_GPS_SPEED,
+    ExifInterface.TAG_GPS_SPEED_REF,
+    ExifInterface.TAG_GPS_STATUS,
+    ExifInterface.TAG_GPS_TIMESTAMP,
+    ExifInterface.TAG_GPS_TRACK,
+    ExifInterface.TAG_GPS_TRACK_REF,
+    ExifInterface.TAG_GPS_VERSION_ID,
+    ExifInterface.TAG_IMAGE_DESCRIPTION,
+    ExifInterface.TAG_IMAGE_UNIQUE_ID,
+    ExifInterface.TAG_ISO_SPEED,
+    ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+    ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,
+    ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
+    ExifInterface.TAG_LENS_MAKE,
+    ExifInterface.TAG_LENS_MODEL,
+    ExifInterface.TAG_LENS_SERIAL_NUMBER,
+    ExifInterface.TAG_LENS_SPECIFICATION,
+    ExifInterface.TAG_LIGHT_SOURCE,
+    ExifInterface.TAG_MAKE,
+    ExifInterface.TAG_MAKER_NOTE,
+    ExifInterface.TAG_MODEL,
+    // ExifInterface.TAG_ORIENTATION, // removed
+    ExifInterface.TAG_SATURATION,
+    ExifInterface.TAG_SHARPNESS,
+    ExifInterface.TAG_SHUTTER_SPEED_VALUE,
+    ExifInterface.TAG_SOFTWARE,
+    ExifInterface.TAG_SUBJECT_DISTANCE,
+    ExifInterface.TAG_SUBJECT_DISTANCE_RANGE,
+    ExifInterface.TAG_SUBJECT_LOCATION,
+    ExifInterface.TAG_USER_COMMENT,
+    ExifInterface.TAG_WHITE_BALANCE,
+  };
 
   /**
    * Resize the specified bitmap.
    */
-  private static Bitmap resizeImage(Bitmap image, int newWidth, int newHeight,
-                                    String mode, boolean onlyScaleDown) {
+  private static Bitmap resizeImage(
+    Bitmap image,
+    int newWidth,
+    int newHeight,
+    String mode,
+    boolean onlyScaleDown
+  ) {
     Bitmap newImage = null;
     if (image == null) {
       return null; // Can't load the image from the given path.
@@ -166,9 +169,9 @@ public class ImageResizer {
         float widthRatio = (float) newWidth / width;
         float heightRatio = (float) newHeight / height;
 
-        float ratio = mode.equals("cover") ?
-          Math.max(widthRatio, heightRatio) :
-          Math.min(widthRatio, heightRatio);
+        float ratio = mode.equals("cover")
+          ? Math.max(widthRatio, heightRatio)
+          : Math.min(widthRatio, heightRatio);
 
         if (onlyScaleDown) ratio = Math.min(ratio, 1);
 
@@ -177,7 +180,8 @@ public class ImageResizer {
       }
 
       try {
-        newImage = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+        newImage =
+          Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
       } catch (OutOfMemoryError e) {
         return null;
       }
@@ -189,13 +193,21 @@ public class ImageResizer {
   /**
    * Rotate the specified bitmap with the given angle, in degrees.
    */
-  public static Bitmap rotateImage(Bitmap source, Matrix matrix, float angle)
-  {
+  public static Bitmap rotateImage(Bitmap source, Matrix matrix, float angle) {
     Bitmap retVal;
     matrix.postRotate(angle);
 
     try {
-      retVal = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+      retVal =
+        Bitmap.createBitmap(
+          source,
+          0,
+          0,
+          source.getWidth(),
+          source.getHeight(),
+          matrix,
+          true
+        );
     } catch (OutOfMemoryError e) {
       return null;
     }
@@ -205,15 +217,22 @@ public class ImageResizer {
   /**
    * Save the given bitmap in a directory. Extension is automatically generated using the bitmap format.
    */
-  public static File saveImage(Bitmap bitmap, File saveDirectory, String fileName,
-                               Bitmap.CompressFormat compressFormat, int quality)
-    throws IOException {
+  public static File saveImage(
+    Bitmap bitmap,
+    File saveDirectory,
+    String fileName,
+    Bitmap.CompressFormat compressFormat,
+    int quality
+  ) throws IOException {
     if (bitmap == null) {
       throw new IOException("The bitmap couldn't be resized");
     }
 
-    File newFile = new File(saveDirectory, fileName + "." + compressFormat.name());
-    if(!newFile.createNewFile()) {
+    File newFile = new File(
+      saveDirectory,
+      fileName + "." + compressFormat.name()
+    );
+    if (!newFile.createNewFile()) {
       throw new IOException("The file already exists");
     }
 
@@ -237,7 +256,6 @@ public class ImageResizer {
    * Use content resolver to get real path if direct path doesn't return valid file.
    */
   private static File getFileFromUri(Context context, Uri uri) {
-
     // first try by direct path
     File file = new File(uri.getPath());
     if (file.exists()) {
@@ -247,14 +265,15 @@ public class ImageResizer {
     // try reading real path from content resolver (gallery images)
     Cursor cursor = null;
     try {
-      String[] proj = {MediaStore.Images.Media.DATA};
+      String[] proj = { MediaStore.Images.Media.DATA };
       cursor = context.getContentResolver().query(uri, proj, null, null, null);
-      int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+      int column_index = cursor.getColumnIndexOrThrow(
+        MediaStore.Images.Media.DATA
+      );
       cursor.moveToFirst();
       String realPath = cursor.getString(column_index);
       file = new File(realPath);
-    } catch (Exception ignored) {
-    } finally {
+    } catch (Exception ignored) {} finally {
       if (cursor != null) {
         cursor.close();
       }
@@ -271,12 +290,15 @@ public class ImageResizer {
    * dstPath: final image output path
    * Returns true if copy was successful, false otherwise.
    */
-  public static boolean copyExif(Context context, Uri imageUri, String dstPath){
+  public static boolean copyExif(
+    Context context,
+    Uri imageUri,
+    String dstPath
+  ) {
     ExifInterface src = null;
     ExifInterface dst = null;
 
     try {
-
       File file = getFileFromUri(context, imageUri);
       if (!file.exists()) {
         return false;
@@ -284,26 +306,22 @@ public class ImageResizer {
 
       src = new ExifInterface(file.getAbsolutePath());
       dst = new ExifInterface(dstPath);
-
     } catch (Exception ignored) {
       Log.e("ImageResizer::copyExif", "EXIF read failed", ignored);
     }
 
-    if(src == null || dst == null){
+    if (src == null || dst == null) {
       return false;
     }
 
-    try{
-
-      for (String attr : EXIF_TO_COPY_ROTATED)
-      {
+    try {
+      for (String attr : EXIF_TO_COPY_ROTATED) {
         String value = src.getAttribute(attr);
-        if (value != null){
+        if (value != null) {
           dst.setAttribute(attr, value);
         }
       }
       dst.saveAttributes();
-
     } catch (Exception ignored) {
       Log.e("ImageResizer::copyExif", "EXIF copy failed", ignored);
       return false;
@@ -315,22 +333,74 @@ public class ImageResizer {
   /**
    * Get orientation by reading Image metadata
    */
+
   public static Matrix getOrientationMatrix(Context context, Uri uri) {
     try {
       // ExifInterface(InputStream) only exists since Android N (r24)
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        InputStream input = context.getContentResolver().openInputStream(uri);
-        ExifInterface ei = new ExifInterface(input);
-        return getOrientationMatrix(ei);
+      int sdkVersion = Build.VERSION.SDK_INT;
+      String filePath = uri.toString();
+
+      // Check if the file path is within the app's internal storage
+      if (filePath.startsWith("/data/")) {
+        // This is a file in the app's internal storage
+        File file = getFileFromUri(context, uri);
+        if (file.exists()) {
+          ExifInterface ei = new ExifInterface(file.getAbsolutePath());
+          return getOrientationMatrix(ei);
+        }
+      } else if (sdkVersion >= Build.VERSION_CODES.N) {
+        if (sdkVersion > Build.VERSION_CODES.Q) {
+          // Use MediaStore API to retrieve a content URI for the file
+          Uri contentUri = getContentUriFromUri(context, uri);
+          if (contentUri != null) {
+            InputStream input = context
+              .getContentResolver()
+              .openInputStream(contentUri);
+            ExifInterface ei = new ExifInterface(input);
+            return getOrientationMatrix(ei);
+          }
+        } else {
+          InputStream input = context.getContentResolver().openInputStream(uri);
+          ExifInterface ei = new ExifInterface(input);
+          return getOrientationMatrix(ei);
+        }
       }
-      File file = getFileFromUri(context, uri);
-      if (file.exists()) {
-        ExifInterface ei = new ExifInterface(file.getAbsolutePath());
-        return getOrientationMatrix(ei);
-      }
-    } catch (Exception ignored) { }
+    } catch (Exception ignored) {
+      Log.e(
+        "ImageResizer::getOrientationMatrix",
+        "getOrientationMatrix failed",
+        ignored
+      );
+    }
 
     return new Matrix();
+  }
+
+  private static Uri getContentUriFromUri(Context context, Uri uri) {
+    String filePath = uri.getPath();
+    Cursor cursor = context
+      .getContentResolver()
+      .query(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        new String[] { MediaStore.Images.Media._ID },
+        MediaStore.Images.Media.DATA + "=? ",
+        new String[] { filePath },
+        null
+      );
+
+    if (cursor != null && cursor.moveToFirst()) {
+      int id = cursor.getInt(
+        cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+      );
+      Uri contentUri = ContentUris.withAppendedId(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        id
+      );
+      cursor.close();
+      return contentUri;
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -338,7 +408,10 @@ public class ImageResizer {
    */
   public static Matrix getOrientationMatrix(ExifInterface exif) {
     Matrix matrix = new Matrix();
-    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+    int orientation = exif.getAttributeInt(
+      ExifInterface.TAG_ORIENTATION,
+      ExifInterface.ORIENTATION_UNDEFINED
+    );
     switch (orientation) {
       case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
         matrix.setScale(-1, 1);
@@ -364,7 +437,7 @@ public class ImageResizer {
       case ExifInterface.ORIENTATION_ROTATE_270:
         matrix.setRotate(270);
         break;
-      }
+    }
     return matrix;
   }
 
@@ -372,7 +445,11 @@ public class ImageResizer {
    * Compute the inSampleSize value to use to load a bitmap.
    * Adapted from https://developer.android.com/training/displaying-bitmaps/load-bitmap.html
    */
-  private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+  private static int calculateInSampleSize(
+    BitmapFactory.Options options,
+    int reqWidth,
+    int reqHeight
+  ) {
     final int height = options.outHeight;
     final int width = options.outWidth;
 
@@ -384,7 +461,10 @@ public class ImageResizer {
 
       // Calculate the largest inSampleSize value that is a power of 2 and keeps both
       // height and width larger than the requested height and width.
-      while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+      while (
+        (halfHeight / inSampleSize) >= reqHeight &&
+        (halfWidth / inSampleSize) >= reqWidth
+      ) {
         inSampleSize *= 2;
       }
     }
@@ -400,10 +480,16 @@ public class ImageResizer {
    * as null (see https://developer.android.com/training/displaying-bitmaps/load-bitmap.html), so
    * getting null sourceImage at the completion of this method is not always worthy of an error.
    */
-  private static Bitmap loadBitmap(Context context, Uri imageUri, BitmapFactory.Options options) throws IOException {
+  private static Bitmap loadBitmap(
+    Context context,
+    Uri imageUri,
+    BitmapFactory.Options options
+  ) throws IOException {
     Bitmap sourceImage = null;
     String imageUriScheme = imageUri.getScheme();
-    if (imageUriScheme == null || !imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)) {
+    if (
+      imageUriScheme == null || !imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)
+    ) {
       try {
         sourceImage = BitmapFactory.decodeFile(imageUri.getPath(), options);
       } catch (Exception e) {
@@ -424,8 +510,12 @@ public class ImageResizer {
   /**
    * Loads the bitmap resource from the file specified in imagePath.
    */
-  private static Bitmap loadBitmapFromFile(Context context, Uri imageUri, int newWidth,
-                                           int newHeight) throws IOException  {
+  private static Bitmap loadBitmapFromFile(
+    Context context,
+    Uri imageUri,
+    int newWidth,
+    int newHeight
+  ) throws IOException {
     // Decode the image bounds to find the size of the source image.
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inJustDecodeBounds = true;
@@ -436,26 +526,26 @@ public class ImageResizer {
     options.inJustDecodeBounds = false;
     //System.out.println(options.inSampleSize);
     return loadBitmap(context, imageUri, options);
-
   }
 
   /**
    * Loads the bitmap resource from an URL
    */
-  private static Bitmap loadBitmapFromURL(Uri imageUri, int newWidth,
-                                          int newHeight) throws IOException  {
-
+  private static Bitmap loadBitmapFromURL(
+    Uri imageUri,
+    int newWidth,
+    int newHeight
+  ) throws IOException {
     InputStream input = null;
     Bitmap sourceImage = null;
 
-    try{
+    try {
       URL url = new URL(imageUri.toString());
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.connect();
       input = connection.getInputStream();
 
       if (input != null) {
-
         // need to load into memory since inputstream is not seekable
         // we still won't load the whole bitmap into memory
         // Also need this ugly code since we are on Java8...
@@ -464,17 +554,15 @@ public class ImageResizer {
         byte[] data = new byte[1024];
         byte[] imageData = null;
 
-        try{
+        try {
           while ((nRead = input.read(data, 0, data.length)) != -1) {
             buffer.write(data, 0, nRead);
           }
           buffer.flush();
           imageData = buffer.toByteArray();
-        }
-        finally{
+        } finally {
           buffer.close();
         }
-
 
         // Decode the image bounds to find the size of the source image.
         // Do it here so we only do one request
@@ -483,30 +571,32 @@ public class ImageResizer {
         BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
 
         // Set a sample size according to the image size to lower memory usage.
-        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+        options.inSampleSize =
+          calculateInSampleSize(options, newWidth, newHeight);
         options.inJustDecodeBounds = false;
 
-        sourceImage = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+        sourceImage =
+          BitmapFactory.decodeByteArray(
+            imageData,
+            0,
+            imageData.length,
+            options
+          );
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       throw new IOException("Error fetching remote image file.");
-    }
-    finally{
+    } finally {
       try {
-        if(input != null){
+        if (input != null) {
           input.close();
         }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         e.printStackTrace();
       }
-
     }
 
     return sourceImage;
-
   }
 
   /**
@@ -520,15 +610,22 @@ public class ImageResizer {
     String imagePath = imageUri.getSchemeSpecificPart();
     int commaLocation = imagePath.indexOf(',');
     if (commaLocation != -1) {
-      final String mimeType = imagePath.substring(0, commaLocation).replace('\\','/').toLowerCase();
+      final String mimeType = imagePath
+        .substring(0, commaLocation)
+        .replace('\\', '/')
+        .toLowerCase();
       final boolean isJpeg = mimeType.startsWith(IMAGE_JPEG);
       final boolean isPng = !isJpeg && mimeType.startsWith(IMAGE_PNG);
 
       if (isJpeg || isPng) {
         // base64 image. Convert to a bitmap.
         final String encodedImage = imagePath.substring(commaLocation + 1);
-        final byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-        sourceImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        final byte[] decodedString = Base64.decode(
+          encodedImage,
+          Base64.DEFAULT
+        );
+        sourceImage =
+          BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
       }
     }
 
@@ -540,19 +637,32 @@ public class ImageResizer {
    * ready to be saved or converted. Ensure that the result is cleaned up after use
    * by using recycle
    */
-  public static Bitmap createResizedImage(Context context, Uri imageUri, int newWidth,
-                                          int newHeight, int quality, int rotation,
-                                          String mode, boolean onlyScaleDown) throws IOException  {
+  public static Bitmap createResizedImage(
+    Context context,
+    Uri imageUri,
+    int newWidth,
+    int newHeight,
+    int quality,
+    int rotation,
+    String mode,
+    boolean onlyScaleDown
+  ) throws IOException {
     Bitmap sourceImage = null;
     String imageUriScheme = imageUri.getScheme();
 
-    if (imageUriScheme == null ||
+    if (
+      imageUriScheme == null ||
       imageUriScheme.equalsIgnoreCase(SCHEME_FILE) ||
       imageUriScheme.equalsIgnoreCase(SCHEME_CONTENT)
     ) {
-      sourceImage = ImageResizer.loadBitmapFromFile(context, imageUri, newWidth, newHeight);
-    } else if (imageUriScheme.equalsIgnoreCase(SCHEME_HTTP) || imageUriScheme.equalsIgnoreCase(SCHEME_HTTPS)){
-      sourceImage = ImageResizer.loadBitmapFromURL(imageUri, newWidth, newHeight);
+      sourceImage =
+        ImageResizer.loadBitmapFromFile(context, imageUri, newWidth, newHeight);
+    } else if (
+      imageUriScheme.equalsIgnoreCase(SCHEME_HTTP) ||
+      imageUriScheme.equalsIgnoreCase(SCHEME_HTTPS)
+    ) {
+      sourceImage =
+        ImageResizer.loadBitmapFromURL(imageUri, newWidth, newHeight);
     } else if (imageUriScheme.equalsIgnoreCase(SCHEME_DATA)) {
       sourceImage = ImageResizer.loadBitmapFromBase64(imageUri);
     }
@@ -561,7 +671,6 @@ public class ImageResizer {
       throw new IOException("Unable to load source image from path");
     }
 
-
     // Rotate if necessary. Rotate first because we will otherwise
     // get wrong dimensions if we want the new dimensions to be after rotation.
     // NOTE: This will "fix" the image using it's exif info if it is rotated as well.
@@ -569,8 +678,10 @@ public class ImageResizer {
     Matrix matrix = getOrientationMatrix(context, imageUri);
     rotatedImage = ImageResizer.rotateImage(sourceImage, matrix, rotation);
 
-    if(rotatedImage == null){
-      throw new IOException("Unable to rotate image. Most likely due to not enough memory.");
+    if (rotatedImage == null) {
+      throw new IOException(
+        "Unable to rotate image. Most likely due to not enough memory."
+      );
     }
 
     if (rotatedImage != sourceImage) {
@@ -578,10 +689,18 @@ public class ImageResizer {
     }
 
     // Scale image
-    Bitmap scaledImage = ImageResizer.resizeImage(rotatedImage, newWidth, newHeight, mode, onlyScaleDown);
+    Bitmap scaledImage = ImageResizer.resizeImage(
+      rotatedImage,
+      newWidth,
+      newHeight,
+      mode,
+      onlyScaleDown
+    );
 
-    if(scaledImage == null){
-      throw new IOException("Unable to resize image. Most likely due to not enough memory.");
+    if (scaledImage == null) {
+      throw new IOException(
+        "Unable to resize image. Most likely due to not enough memory."
+      );
     }
 
     if (scaledImage != rotatedImage) {
@@ -591,4 +710,3 @@ public class ImageResizer {
     return scaledImage;
   }
 }
-
