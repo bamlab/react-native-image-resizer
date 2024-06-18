@@ -1,23 +1,24 @@
 package com.reactnativeimageresizer;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-
+import androidx.exifinterface.media.ExifInterface;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -318,19 +319,70 @@ public class ImageResizer {
   public static Matrix getOrientationMatrix(Context context, Uri uri) {
     try {
       // ExifInterface(InputStream) only exists since Android N (r24)
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        InputStream input = context.getContentResolver().openInputStream(uri);
-        ExifInterface ei = new ExifInterface(input);
-        return getOrientationMatrix(ei);
+      int sdkVersion = Build.VERSION.SDK_INT;
+      String filePath = uri.toString();
+
+      // Check if the file path is within the app's internal storage
+      if (filePath.startsWith("/data/")) {
+        // This is a file in the app's internal storage
+        File file = getFileFromUri(context, uri);
+        if (file.exists()) {
+          ExifInterface ei = new ExifInterface(file.getAbsolutePath());
+          return getOrientationMatrix(ei);
+        }
+      } else if (sdkVersion >= Build.VERSION_CODES.N) {
+        if (sdkVersion > Build.VERSION_CODES.Q) {
+          // Use MediaStore API to retrieve a content URI for the file
+          Uri contentUri = getContentUriFromUri(context, uri);
+          if (contentUri != null) {
+            InputStream input = context
+                    .getContentResolver()
+                    .openInputStream(contentUri);
+            ExifInterface ei = new ExifInterface(input);
+            return getOrientationMatrix(ei);
+          }
+        } else {
+          InputStream input = context.getContentResolver().openInputStream(uri);
+          ExifInterface ei = new ExifInterface(input);
+          return getOrientationMatrix(ei);
+        }
       }
-      File file = getFileFromUri(context, uri);
-      if (file.exists()) {
-        ExifInterface ei = new ExifInterface(file.getAbsolutePath());
-        return getOrientationMatrix(ei);
-      }
-    } catch (Exception ignored) { }
+    } catch (Exception ignored) {
+      Log.e(
+              "ImageResizer::getOrientationMatrix",
+              "getOrientationMatrix failed",
+              ignored
+      );
+    }
 
     return new Matrix();
+  }
+
+  private static Uri getContentUriFromUri(Context context, Uri uri) {
+    String filePath = uri.getPath();
+    Cursor cursor = context
+            .getContentResolver()
+            .query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    new String[] { MediaStore.Images.Media._ID },
+                    MediaStore.Images.Media.DATA + "=? ",
+                    new String[] { filePath },
+                    null
+            );
+
+    if (cursor != null && cursor.moveToFirst()) {
+      int id = cursor.getInt(
+              cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+      );
+      Uri contentUri = ContentUris.withAppendedId(
+              MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+              id
+      );
+      cursor.close();
+      return contentUri;
+    } else {
+      return null;
+    }
   }
 
   /**
