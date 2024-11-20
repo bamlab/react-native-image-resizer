@@ -16,7 +16,6 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm}"
 
-  s.dependency "React-Core"
   s.ios.framework = 'AssetsLibrary', 'MobileCoreServices'
 
   # Don't install the dependencies when we run `pod install` in the old architecture.
@@ -32,6 +31,9 @@ Pod::Spec.new do |s|
     s.dependency "RCTRequired"
     s.dependency "RCTTypeSafety"
     s.dependency "ReactCommon/turbomodule/core"
+    install_modules_dependencies(s)
+  else
+    s.dependency "React-Core"
   end
 end
 
