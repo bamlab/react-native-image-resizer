@@ -7,7 +7,7 @@ export interface Response {
   height: number;
 }
 
-export type ResizeFormat = 'PNG' | 'JPEG' | 'WEBP';
+export type ResizeFormat = 'PNG' | 'JPEG' | 'WEBP' | 'HEIC';
 export type ResizeMode = 'contain' | 'cover' | 'stretch';
 
 export type Options = {

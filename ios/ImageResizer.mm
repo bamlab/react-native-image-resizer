@@ -3,6 +3,10 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
+#ifndef kUTTypeHEIC
+#define kUTTypeHEIC CFSTR("public.heic")
+#endif
+
 #if __has_include(<React/RCTLog.h>)
 #import <React/RCTLog.h>
 #import <React/RCTImageLoader.h>
@@ -33,6 +37,9 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
             NSString *extension = @"jpg";
             if ([format isEqualToString:@"PNG"]) {
                 extension = @"png";
+            }
+            if ([format isEqualToString:@"HEIC"]) {
+                extension = @"heic";
             }
             
             NSString* fullPath;
@@ -68,62 +75,88 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
 }
 
 
-
 bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality, NSMutableDictionary *metadata)
 {
-    if(metadata == nil){
-        NSData* data = nil;
+    if (metadata == nil) {
+        NSData *data = nil;
         if ([format isEqualToString:@"JPEG"]) {
             data = UIImageJPEGRepresentation(image, quality / 100.0);
         } else if ([format isEqualToString:@"PNG"]) {
             data = UIImagePNGRepresentation(image);
+        } else if ([format isEqualToString:@"HEIC"]) {
+            if (@available(iOS 11.0, *)) {
+                CGImageRef cgImage = [image CGImage];
+                NSMutableData *heicData = [NSMutableData data];
+                CGImageDestinationRef destination = CGImageDestinationCreateWithData(
+                    (__bridge CFMutableDataRef)heicData,
+                    kUTTypeHEIC,
+                    1,
+                    NULL
+                );
+                if (!destination) {
+                    NSLog(@"Failed to create CGImageDestination for HEIC.");
+                    return NO;
+                }
+                
+                NSDictionary *options = @{(__bridge NSString *)kCGImageDestinationLossyCompressionQuality: @(quality / 100.0)};
+                CGImageDestinationAddImage(destination, cgImage, (__bridge CFDictionaryRef)options);
+                
+                if (CGImageDestinationFinalize(destination)) {
+                    data = heicData;
+                } else {
+                    NSLog(@"Failed to finalize HEIC image.");
+                    CFRelease(destination);
+                    return NO;
+                }
+                CFRelease(destination);
+            } else {
+                NSLog(@"HEIC is not supported on this device.");
+                return NO;
+            }
         }
         
         if (data == nil) {
             return NO;
         }
         
-        NSFileManager* fileManager = [NSFileManager defaultManager];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
         return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
-    }
-    
-    // process / write metadata together with image data
-    else{
-        
+    } else {
         CFStringRef imgType = kUTTypeJPEG;
         
         if ([format isEqualToString:@"JPEG"]) {
             [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
-        }
-        else if([format isEqualToString:@"PNG"]){
+        } else if ([format isEqualToString:@"PNG"]) {
             imgType = kUTTypePNG;
-        }
-        else{
+        } else if ([format isEqualToString:@"HEIC"]) {
+            if (@available(iOS 11.0, *)) {
+                imgType = kUTTypeHEIC;
+                [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
+            } else {
+                NSLog(@"HEIC is not supported on this device.");
+                return NO;
+            }
+        } else {
             return NO;
         }
         
-        NSMutableData * destData = [NSMutableData data];
-        
+        NSMutableData *destData = [NSMutableData data];
         CGImageDestinationRef destination = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)destData, imgType, 1, NULL);
         
-        @try{
-            CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef) metadata);
+        @try {
+            CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef)metadata);
             
-            // write final image data with metadata to our destination
-            if (CGImageDestinationFinalize(destination)){
-                
-                NSFileManager* fileManager = [NSFileManager defaultManager];
+            if (CGImageDestinationFinalize(destination)) {
+                NSFileManager *fileManager = [NSFileManager defaultManager];
                 return [fileManager createFileAtPath:fullPath contents:destData attributes:nil];
-            }
-            else{
+            } else {
+                NSLog(@"Failed to finalize image with metadata.");
                 return NO;
             }
-        }
-        @finally{
-            @try{
+        } @finally {
+            @try {
                 CFRelease(destination);
-            }
-            @catch(NSException *exception){
+            } @catch (NSException *exception) {
                 NSLog(@"Failed to release CGImageDestinationRef: %@", exception);
             }
         }
