@@ -78,7 +78,6 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
 bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float quality, NSMutableDictionary *metadata)
 {
     if (metadata == nil) {
-        NSLog(@"-++++++++++++++++++++++++++++++  metadata == nil");
         NSData *data = nil;
         if ([format isEqualToString:@"JPEG"]) {
             data = UIImageJPEGRepresentation(image, quality / 100.0);
@@ -123,19 +122,16 @@ bool saveImage(NSString * fullPath, UIImage * image, NSString * format, float qu
         NSFileManager *fileManager = [NSFileManager defaultManager];
         return [fileManager createFileAtPath:fullPath contents:data attributes:nil];
     } else {
-        NSLog(@"-++++++++++++++++++++++++++++++  metadata !== nil ELSE");
         CFStringRef imgType = kUTTypeJPEG;
         
         if ([format isEqualToString:@"JPEG"]) {
             [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
-            NSLog(@"-++++++++++++++++++++++++++++++  JPEG");
         } else if ([format isEqualToString:@"PNG"]) {
             imgType = kUTTypePNG;
         } else if ([format isEqualToString:@"HEIC"]) {
             if (@available(iOS 11.0, *)) {
                 imgType = kUTTypeHEIC;
                 [metadata setObject:@(quality / 100.0) forKey:(__bridge NSString *)kCGImageDestinationLossyCompressionQuality];
-                NSLog(@"-++++++++++++++++++++++++++++++  HEIC");
             } else {
                 NSLog(@"HEIC is not supported on this device.");
                 return NO;
