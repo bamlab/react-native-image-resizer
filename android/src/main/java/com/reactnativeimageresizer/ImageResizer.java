@@ -319,9 +319,10 @@ public class ImageResizer {
     try {
       // ExifInterface(InputStream) only exists since Android N (r24)
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        InputStream input = context.getContentResolver().openInputStream(uri);
-        ExifInterface ei = new ExifInterface(input);
-        return getOrientationMatrix(ei);
+        try (InputStream input = context.getContentResolver().openInputStream(uri)) {
+          ExifInterface ei = new ExifInterface(input);
+          return getOrientationMatrix(ei);
+        }
       }
       File file = getFileFromUri(context, uri);
       if (file.exists()) {
