@@ -27,7 +27,9 @@ Pod::Spec.new do |s|
         "CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
     }
     s.dependency "React-Codegen"
-    s.dependency "RCT-Folly"
+    if ENV['RCT_USE_PREBUILT_RNCORE'] != '1' then
+      s.dependency "RCT-Folly"
+    end
     s.dependency "RCTRequired"
     s.dependency "RCTTypeSafety"
     s.dependency "ReactCommon/turbomodule/core"
