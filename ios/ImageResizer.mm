@@ -57,8 +57,13 @@ RCT_REMAP_METHOD(createResizedImage, uri:(NSString *)uri width:(double)width hei
                     reject([NSString stringWithFormat: @"%ld", (long)error.code], error.description, nil);
                     return;
                 }
-                NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, [keepMeta boolValue], @{@"mode": mode, @"onlyScaleDown": [NSNumber numberWithBool:onlyScaleDown]});
-                resolve(response);
+                @try {
+                    NSDictionary * response =  transformImage(image, uri, [rotation integerValue], newSize, fullPath, format, (int)quality, [keepMeta boolValue], @{@"mode": mode, @"onlyScaleDown": [NSNumber numberWithBool:onlyScaleDown]});
+                    resolve(response);
+                } @catch (NSException *exception) {
+                    RCTLogError(@"%@", [NSString stringWithFormat:@"Code : %@ / Message : %@", exception.name, exception.reason]);
+                    reject(exception.name, exception.reason, nil);
+                }
             }];
         } @catch (NSException *exception) {
             RCTLogError(@"%@", [NSString stringWithFormat:@"Code : %@ / Message : %@", exception.name, exception.reason]);
