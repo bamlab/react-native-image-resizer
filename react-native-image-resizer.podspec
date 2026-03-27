@@ -26,11 +26,9 @@ Pod::Spec.new do |s|
         "OTHER_CPLUSPLUSFLAGS" => "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
         "CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
     }
-    s.dependency "React-Codegen"
-    s.dependency "RCT-Folly"
-    s.dependency "RCTRequired"
-    s.dependency "RCTTypeSafety"
-    s.dependency "ReactCommon/turbomodule/core"
+    # RCT-Folly and related pods are no longer published separately in React Native 0.84+
+    # when using prebuilt ReactNativeDependencies; install_modules_dependencies adds the
+    # correct third-party and Fabric deps for the active RN version.
     install_modules_dependencies(s)
   else
     s.dependency "React-Core"
